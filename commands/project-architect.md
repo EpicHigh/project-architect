@@ -107,6 +107,51 @@ After completing all scan steps, summarize your findings before proceeding to Ph
 
 ---
 
-<!-- Phase 2: Generate Configuration — Story 3 -->
+## Phase 2: Generate Configuration
+
+Using your scan findings from Phase 1, generate a tailored `.claude/` configuration for this project.
+
+### 2.1 Read the generation guide
+
+Read `PLUGIN_DIR/references/generation-guide.md` for the complete template catalog. It contains templates for every file you may generate, with `{{ variable }}` placeholders to fill in with project-specific values.
+
+### 2.2 Decide what to generate
+
+Apply the following decision logic for each layer:
+
+| Layer | Rule |
+|-------|------|
+| `CLAUDE.md` | **Always generate.** Under 200 lines. Every line must be project-specific — no generic advice like "write clean code." |
+| Commands | Generate based on the selection matrix in generation-guide.md. Universal commands (commit, review, explain) are always generated. Conditional commands only when the relevant stack is detected. |
+| Skills | Generate based on the selection matrix. Universal skills (code-conventions, project-context) are always generated. Conditional skills only when relevant. |
+| Agents | Generate **only** when ALL 3 conditions are true: (1) task benefits from a separate context window, (2) task modifies files that could conflict with main work, (3) project has tooling to validate the agent's output. |
+| Hooks | Generate **only** when ALL 3 conditions are true: (1) tool binary is confirmed installed (found in lockfile or config), (2) command runs in under 30 seconds, (3) hook includes a comment explaining how to disable it. |
+| `.mcp.json` | Generate only when popular frameworks are detected that benefit from MCP servers (e.g., Context7 for frontend/backend frameworks). |
+
+### 2.3 Handle existing configuration
+
+If the project already has `.claude/` config, follow these conflict resolution rules:
+
+- **`CLAUDE.md` exists** → merge sections: keep all existing content, add only missing sections
+- **`.claude/commands/` has files** → skip existing commands, only generate new ones
+- **`.claude/skills/` has directories** → skip existing skills, only generate new ones
+- **`.claude/agents/` has files** → skip existing agents
+- **`.claude/settings.json` exists** → merge hooks into existing settings (don't overwrite other settings)
+- **`.mcp.json` exists** → merge servers (don't duplicate existing entries)
+
+**Never overwrite existing configuration.**
+
+### 2.4 Generate and write files
+
+For each item you decided to generate:
+
+1. Select the appropriate template from generation-guide.md
+2. Replace all `{{ variable }}` placeholders with project-specific values from your Phase 1 scan
+3. Write the file to the correct path in the project directory
+
+Ensure every generated file is immediately usable — no leftover placeholders, no TODO comments.
+
+---
+
 <!-- Phase 3: Present and Explain — Story 4 -->
 <!-- Phase 4: Iterate — Story 4 -->
