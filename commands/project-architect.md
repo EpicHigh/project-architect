@@ -153,5 +153,59 @@ Ensure every generated file is immediately usable — no leftover placeholders, 
 
 ---
 
-<!-- Phase 3: Present and Explain — Story 4 -->
-<!-- Phase 4: Iterate — Story 4 -->
+## Phase 3: Present and Explain
+
+After generating all files, present a clear summary to the user.
+
+### 3.1 List every generated file grouped by layer
+
+Organize the output as follows:
+
+1. **CLAUDE.md** — show the file path
+2. **Commands** — list each as `/command-name` with its one-line description
+3. **Skills** — list each skill name with its description
+4. **Agents** — list each with its isolation mode (worktree, separate context)
+5. **Hooks** — list each with its lifecycle event (pre-commit, etc.)
+6. **MCP servers** — list each server added to `.mcp.json`
+
+### 3.2 Explain why each was generated
+
+For every generated item, state which detection from Phase 1 triggered it. Example:
+- `/component` command → "React detected in package.json dependencies"
+- `design-system` skill → "Tailwind CSS detected in devDependencies"
+
+### 3.3 Flag hooks with warnings
+
+For each generated hook:
+- Display a warning that it will run automatically
+- Explain exactly how to disable it (which line to remove from `.claude/settings.json`)
+- Remind the user they can review and remove any hook at any time
+
+### 3.4 Offer validation
+
+Offer build or test commands the user can run manually to validate the setup. Do not execute them from this command.
+
+---
+
+## Phase 4: Iterate
+
+Ask the user these questions to refine the generated configuration:
+
+1. "Are there workflows I missed that you do frequently?"
+2. "Any conventions I got wrong?"
+3. "Want to move anything between command ↔ skill?"
+4. "Should I add or remove any agents or hooks?"
+
+Update the generated files based on feedback. Repeat until the user is satisfied.
+
+---
+
+## Key Principles
+
+Keep these in mind throughout all phases:
+
+- **Detect, don't assume** — every generated line traces to a detected file
+- **Specificity over generality** — no lines that could apply to any project
+- **Composability** — deleting any generated file breaks nothing else
+- **Safety first for hooks** — when in doubt, don't generate the hook
+- **Less is more** — five excellent customizations > twenty generic ones
