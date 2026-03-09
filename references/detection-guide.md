@@ -11,7 +11,7 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | TypeScript | `tsconfig.json` | `package.json` → `devDependencies.typescript` |
 | JavaScript | `package.json`, `.js` files | `package.json` → `engines.node` |
 | Go | `go.mod` | `go.mod` → first line `go X.Y` |
-| Rust | `Cargo.toml` | `Cargo.toml` → `[package].edition` or `rust-toolchain.toml` |
+| Rust | `Cargo.toml`, `rust-toolchain.toml` | `Cargo.toml` → `[package].rust-version`; `rust-toolchain.toml` → toolchain channel/version |
 | Python | `pyproject.toml`, `setup.py`, `requirements.txt` | `pyproject.toml` → `[project].requires-python`; `.python-version` |
 | Ruby | `Gemfile`, `*.gemspec` | `Gemfile` → `ruby "X.Y.Z"`; `.ruby-version` |
 | Java | `pom.xml`, `build.gradle` | `pom.xml` → `<maven.compiler.source>`; `build.gradle` → `sourceCompatibility` |
@@ -60,9 +60,9 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | Hono | `package.json` | `dependencies.hono` |
 | Koa | `package.json` | `dependencies.koa` |
 | Gin | `go.mod` | `github.com/gin-gonic/gin` |
-| Chi | `go.mod` | `github.com/go-chi/chi` |
-| Echo | `go.mod` | `github.com/labstack/echo` |
-| Fiber | `go.mod` | `github.com/gofiber/fiber` |
+| Chi | `go.mod` | `github.com/go-chi/chi/v5` |
+| Echo | `go.mod` | `github.com/labstack/echo/v5` |
+| Fiber | `go.mod` | `github.com/gofiber/fiber/v3` |
 | ConnectRPC | `go.mod` or `package.json` | `connectrpc.com/connect` or `dependencies.@connectrpc/connect` |
 | gRPC | `go.mod` or `package.json` | `google.golang.org/grpc` or `dependencies.@grpc/grpc-js` |
 | FastAPI | `pyproject.toml`, `requirements.txt` | `fastapi` in dependencies |
@@ -98,7 +98,7 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | GORM | `go.mod` | `gorm.io/gorm` |
 | SQLAlchemy | `pyproject.toml`, `requirements.txt` | `sqlalchemy` in dependencies |
 | Django ORM | `pyproject.toml`, `requirements.txt` | `django` in dependencies (built-in ORM) |
-| ActiveRecord | `Gemfile` | `gem 'rails'` (built-in ORM) |
+| ActiveRecord | `Gemfile` | `gem 'activerecord'` or `gem 'rails'` (Rails includes ActiveRecord) |
 
 ### API Frameworks
 
