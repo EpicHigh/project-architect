@@ -123,7 +123,6 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | `bun.lockb` or `bun.lock` | Bun |
 | `go.sum` | Go Modules |
 | `Cargo.lock` | Cargo (Rust) |
-| `requirements.txt` | pip |
 | `poetry.lock` | Poetry (Python) |
 | `uv.lock` | uv (Python) |
 | `Pipfile.lock` | Pipenv |
@@ -132,22 +131,37 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | `mix.lock` | Mix (Elixir) |
 | `pubspec.lock` | Pub (Dart) |
 
+**Note:** `requirements.txt` is a pip requirements file, not a lockfile. Its presence suggests pip usage but is not definitive — Poetry, uv, and pip-tools can all generate `requirements.txt`. Detect pip as the package manager only when no other Python lockfile (`poetry.lock`, `uv.lock`, `Pipfile.lock`) is present.
+
 ---
 
 ## 8.4 Build Tool Detection
+
+### Config file detection
 
 | Config File | Build Tool |
 |-------------|-----------|
 | `vite.config.*` | Vite |
 | `webpack.config.*` | Webpack |
-| `esbuild.config.*` or `esbuild` in `package.json` scripts | esbuild |
-| `next.config.*` (with `experimental.turbo`) | Turbopack |
 | `rollup.config.*` | Rollup |
-| `.parcelrc` or `parcel` in `package.json` scripts | Parcel |
-| `.swcrc` or `swc` in `package.json` devDependencies | SWC |
+| `.parcelrc` | Parcel |
+| `.swcrc` or `swc.config.js` | SWC |
 | `tsup.config.*` | tsup |
 | `build.gradle` or `build.gradle.kts` | Gradle |
 | `pom.xml` | Maven |
+| `next.config.*` → `turbopack` key | Turbopack |
+
+### package.json heuristic detection
+
+These tools lack a standard config file. Detect via `package.json` scripts or devDependencies:
+
+| Heuristic | Build Tool |
+|-----------|-----------|
+| `esbuild` in `package.json` scripts or `devDependencies` | esbuild |
+| `parcel` in `package.json` scripts (when no `.parcelrc` exists) | Parcel |
+| `@swc/core` in `devDependencies` (when no `.swcrc` exists) | SWC |
+
+**Note:** Heuristic detection is weaker than config file detection. A tool in devDependencies may be an indirect dependency rather than the primary build tool. Prefer config file detection when available.
 
 ---
 
@@ -155,7 +169,7 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 
 ### Monorepo Indicators
 
-A project is a monorepo if **any** of these signals are present:
+These are **candidate signals**, not definitive proof. A repository is a monorepo only when **multiple distinct projects or packages** are actually present. Nx, Turborepo, Bazel, and Cargo workspaces can all be used in single-project repositories. After detecting a signal, verify by counting workspace members or distinct package manifests.
 
 | Signal | File / Config |
 |--------|--------------|
@@ -174,7 +188,7 @@ A project is a monorepo if **any** of these signals are present:
 |------|-------------------------------|
 | pnpm | `pnpm-workspace.yaml` → `packages` array (glob patterns) |
 | npm/Yarn | `package.json` → `workspaces` array (glob patterns) |
-| Nx | `nx.json` → check `apps/` and `packages/` or `libs/` directories |
+| Nx | `nx.json` → find `project.json` files in any directory, or detect workspace packages via `package.json` workspaces |
 | Go | `go.work` → `use` directives |
 
 ### Project Layout Patterns
