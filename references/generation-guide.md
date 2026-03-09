@@ -171,7 +171,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Database
 
 - **Engine:** {{ database_engine }}
+{{ if orm_name }}
 - **ORM:** {{ orm_name }}
+{{ end }}
 {{ if migration_command }}
 - **Migrations:** `{{ migration_command }}`
 {{ end }}
