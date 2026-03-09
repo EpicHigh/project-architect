@@ -212,7 +212,7 @@ These are **candidate signals**, not definitive proof. A repository is a monorep
 | Vitest | `vitest.config.*` | `devDependencies.vitest` in `package.json` |
 | Mocha | `.mocharc.*`, `.mocharc.yml`, `.mocharc.json` | `devDependencies.mocha` in `package.json` |
 | Jasmine | `jasmine.json`, `spec/support/jasmine.json` | `devDependencies.jasmine` in `package.json` |
-| AVA | `ava` field in `package.json` | `devDependencies.ava` in `package.json` |
+| AVA | `ava.config.*`, `ava` field in `package.json` | `devDependencies.ava` in `package.json` |
 | pytest | `pytest.ini`, `pyproject.toml` → `[tool.pytest]`, `setup.cfg` → `[tool:pytest]` | `pytest` in Python dependencies |
 | unittest | No config file | `import unittest` in Python test files |
 | Go testing | `*_test.go` files | Built-in — presence of `*_test.go` files |
