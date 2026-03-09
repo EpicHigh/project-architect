@@ -200,4 +200,95 @@ These are **candidate signals**, not definitive proof. A repository is a monorep
 | Standard app | Single `src/` or `app/` directory with one entry point |
 | Library | `src/` + `index.*` or `lib/` as main export, no app entry point |
 
-<!-- Sections 8.6–8.14 will be added in Stories 8, 9 -->
+---
+
+## 8.6 Testing Detection
+
+### Unit / Integration Test Frameworks
+
+| Framework | Config File | Detection |
+|-----------|-----------|-----------|
+| Jest | `jest.config.*`, `jest.config.ts`, `jest.config.js` | `devDependencies.jest` or `devDependencies.@jest/core` in `package.json` |
+| Vitest | `vitest.config.*` | `devDependencies.vitest` in `package.json` |
+| Mocha | `.mocharc.*`, `.mocharc.yml`, `.mocharc.json` | `devDependencies.mocha` in `package.json` |
+| Jasmine | `jasmine.json`, `spec/support/jasmine.json` | `devDependencies.jasmine` in `package.json` |
+| AVA | `ava` field in `package.json` | `devDependencies.ava` in `package.json` |
+| pytest | `pytest.ini`, `pyproject.toml` → `[tool.pytest]`, `setup.cfg` → `[tool:pytest]` | `pytest` in Python dependencies |
+| unittest | No config file | `import unittest` in Python test files |
+| Go testing | `*_test.go` files | Built-in — presence of `*_test.go` files |
+| RSpec | `.rspec`, `spec/` directory | `gem 'rspec'` in `Gemfile` |
+| Minitest | No config file | `gem 'minitest'` in `Gemfile` or `require 'minitest'` in test files |
+| JUnit | `src/test/` directory | JUnit dependency in `pom.xml` or `build.gradle` |
+| PHPUnit | `phpunit.xml`, `phpunit.xml.dist` | `require-dev.phpunit/phpunit` in `composer.json` |
+| ExUnit | `test/` directory with `*_test.exs` files | Built-in with Elixir/Mix |
+
+### E2E Test Frameworks
+
+| Framework | Config File | Detection |
+|-----------|-----------|-----------|
+| Playwright | `playwright.config.*` | `devDependencies.@playwright/test` in `package.json` |
+| Cypress | `cypress.config.*`, `cypress/` directory | `devDependencies.cypress` in `package.json` |
+| Puppeteer | No standard config | `devDependencies.puppeteer` in `package.json` |
+| Selenium | No standard config | `selenium` in dependencies (varies by language) |
+
+### Test Command Extraction
+
+To find how the project runs tests, check in order:
+
+1. `package.json` → `scripts.test`, `scripts.test:unit`, `scripts.test:e2e`, `scripts.test:integration`
+2. `Makefile` → targets named `test`, `test-unit`, `test-integration`, `test-e2e`
+3. `justfile` → recipes named `test`
+4. `Taskfile.yml` → tasks named `test`
+5. Go projects → `go test ./...` (convention)
+6. Python projects → `pytest` or `python -m pytest` (convention)
+7. Ruby projects → `bundle exec rspec` or `rake test` (convention)
+
+---
+
+## 8.7 Linting & Formatting Detection
+
+### Linters
+
+| Linter | Config File |
+|--------|-----------|
+| ESLint | `.eslintrc.*`, `eslint.config.*` (flat config), `.eslintrc.json`, `.eslintrc.js`, `.eslintrc.yml` |
+| Biome | `biome.json`, `biome.jsonc` |
+| golangci-lint | `.golangci.yml`, `.golangci.yaml`, `.golangci.toml`, `.golangci.json` |
+| Ruff | `ruff.toml`, `pyproject.toml` → `[tool.ruff]` |
+| Pylint | `.pylintrc`, `pyproject.toml` → `[tool.pylint]` |
+| Flake8 | `.flake8`, `setup.cfg` → `[flake8]` |
+| RuboCop | `.rubocop.yml` |
+| Stylelint | `.stylelintrc.*`, `stylelint.config.*` |
+| Clippy | Built-in with Rust — check for `clippy` in CI or `Makefile` targets |
+
+### Formatters
+
+| Formatter | Config File |
+|-----------|-----------|
+| Prettier | `.prettierrc.*`, `prettier.config.*`, `.prettierrc.json`, `.prettierrc.js` |
+| gofmt / goimports | Built-in with Go — no config file needed |
+| Black | `pyproject.toml` → `[tool.black]` |
+| Ruff (formatter) | `pyproject.toml` → `[tool.ruff.format]` |
+| rustfmt | `rustfmt.toml`, `.rustfmt.toml` |
+| EditorConfig | `.editorconfig` (cross-language formatting baseline) |
+
+---
+
+## 8.8 CI/CD Detection
+
+| Path | Platform |
+|------|----------|
+| `.github/workflows/*.yml` | GitHub Actions |
+| `.gitlab-ci.yml` | GitLab CI |
+| `.circleci/config.yml` | CircleCI |
+| `Jenkinsfile` | Jenkins |
+| `.travis.yml` | Travis CI |
+| `bitbucket-pipelines.yml` | Bitbucket Pipelines |
+| `vercel.json` or `.vercel/` | Vercel |
+| `netlify.toml` | Netlify |
+| `fly.toml` | Fly.io |
+| `railway.json` or `railway.toml` | Railway |
+| `render.yaml` | Render |
+| `appveyor.yml` | AppVeyor |
+
+<!-- Sections 8.9–8.14 will be added in Story 9 -->
