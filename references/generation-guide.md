@@ -772,4 +772,317 @@ allowed-tools: Bash, Read, Write, Glob, Grep
 | `package_manager` | Section 8.3 package manager detection | `pnpm`, `npm`, `yarn` |
 | `install_command` | Section 8.3 package manager detection | `pnpm install`, `npm install` |
 
-<!-- Sections 9.3–9.7 will be added in Stories 12–13 -->
+---
+
+## 9.3 Skill Templates
+
+Each skill is generated as a `SKILL.md` file inside `.claude/skills/<skill-name>/`. Skills auto-activate when Claude detects a matching user intent — the `description` field in frontmatter is the primary trigger mechanism.
+
+### Writing Good Skill Descriptions
+
+The description determines when Claude auto-activates the skill. Getting it right is critical:
+
+- **Too broad** → false triggers on unrelated tasks (e.g., "helps with code" triggers on everything)
+- **Too narrow** → misses relevant tasks (e.g., "handles PostgreSQL migration rollbacks" misses schema creation)
+- **Just right** → lists 3-7 specific intents the skill covers
+
+**Pattern:** Start with a one-sentence purpose, then list trigger intents as bullet points or comma-separated phrases. Use action verbs that match how developers phrase requests.
+
+### Universal Skills (always generate)
+
+#### code-conventions/SKILL.md
+
+**Trigger:** Always generate.
+
+`````markdown
+---
+name: code-conventions
+description: >
+  {{ project_name }} coding style and conventions.
+  Activates when: writing new code, reviewing style, renaming variables,
+  organizing imports, handling errors, structuring files.
+---
+
+# Code Conventions for {{ project_name }}
+
+{{ if naming_conventions }}
+## Naming
+
+{{ for each naming_convention }}
+- **{{ scope }}**: {{ convention }} (e.g., `{{ example }}`)
+{{ end }}
+{{ end }}
+
+{{ if import_organization_description }}
+## Imports
+
+{{ import_organization_description }}
+{{ end }}
+
+{{ if error_handling_description }}
+## Error Handling
+
+{{ error_handling_description }}
+{{ end }}
+
+{{ if file_organization_description }}
+## File Organization
+
+{{ file_organization_description }}
+{{ end }}
+
+{{ if architecture_pattern_description }}
+## Architecture
+
+{{ architecture_pattern_description }}
+{{ end }}
+`````
+
+#### project-context/SKILL.md
+
+**Trigger:** Always generate.
+
+`````markdown
+---
+name: project-context
+description: >
+  {{ project_name }} architecture and project context.
+  Activates when: asking about project structure, understanding how modules connect,
+  finding where code lives, onboarding to the codebase, making architectural decisions.
+---
+
+# Project Context — {{ project_name }}
+
+## Tech Stack
+
+{{ if primary_framework }}
+- **Framework:** {{ primary_framework }}
+{{ end }}
+- **Language:** {{ language }}
+{{ if package_manager }}
+- **Package Manager:** {{ package_manager }}
+{{ end }}
+{{ if database_engine }}
+- **Database:** {{ database_engine }}
+{{ end }}
+{{ if orm_name }}
+- **ORM:** {{ orm_name }}
+{{ end }}
+
+## Directory Structure
+
+{{ for each top_level_directory }}
+- `{{ directory_name }}/` — {{ directory_purpose }}
+{{ end }}
+
+{{ if monorepo }}
+## Workspaces
+
+| Package | Path | Purpose |
+|---------|------|---------|
+{{ for each workspace }}
+| {{ workspace_name }} | `{{ workspace_path }}` | {{ workspace_purpose }} |
+{{ end }}
+{{ end }}
+
+## Key Commands
+
+{{ if dev_command }}
+- **Dev:** `{{ dev_command }}`
+{{ end }}
+{{ if build_command }}
+- **Build:** `{{ build_command }}`
+{{ end }}
+{{ if test_command }}
+- **Test:** `{{ test_command }}`
+{{ end }}
+{{ if lint_command }}
+- **Lint:** `{{ lint_command }}`
+{{ end }}
+`````
+
+### Conditional Skills
+
+#### design-system/SKILL.md
+
+**Trigger:** Styling framework detected (section 8.2 — Tailwind, shadcn, MUI, Chakra, Styled Components, CSS Modules, Ant Design).
+
+`````markdown
+---
+name: design-system
+description: >
+  {{ project_name }} design system and styling patterns.
+  Activates when: styling components, choosing colors or spacing, applying theme tokens,
+  creating layouts, using {{ styling_framework }} utilities, maintaining visual consistency.
+---
+
+# Design System — {{ project_name }}
+
+## Styling Approach
+
+- **Framework:** {{ styling_framework }}
+{{ if design_system_config }}
+- **Config:** `{{ design_system_config }}`
+{{ end }}
+
+{{ if styling_framework == "Tailwind" }}
+## Tailwind Conventions
+
+- Reference `tailwind.config` for custom theme values (colors, spacing, breakpoints).
+- Use utility classes directly; avoid `@apply` unless creating reusable component styles.
+- Follow the project's existing class ordering pattern.
+{{ end }}
+
+{{ if component_library }}
+## Component Library
+
+- **Library:** {{ component_library }}
+- Import components from `{{ component_library_import }}`.
+- Follow existing usage patterns found in the codebase.
+{{ end }}
+`````
+
+#### api-patterns/SKILL.md
+
+**Trigger:** Backend framework detected (section 8.2).
+
+`````markdown
+---
+name: api-patterns
+description: >
+  {{ project_name }} API design patterns and conventions.
+  Activates when: creating endpoints, designing request/response schemas,
+  handling API errors, adding middleware, structuring routes, writing API docs.
+---
+
+# API Patterns — {{ project_name }}
+
+## Framework
+
+- **Backend:** {{ backend_framework }}
+{{ if api_directory }}
+- **Routes directory:** `{{ api_directory }}/`
+{{ end }}
+
+## Conventions
+
+- Find existing endpoints with `Grep` and follow the same patterns.
+- Check for:
+  - Route naming conventions (plural nouns, kebab-case, etc.)
+  - Request validation approach
+  - Response format (envelope pattern, direct, etc.)
+  - Error response structure
+{{ if orm_name }}
+  - Data access pattern ({{ orm_name }} queries)
+{{ end }}
+
+{{ if api_spec }}
+## API Specification
+
+- **Spec file:** `{{ api_spec }}`
+- Keep spec in sync with implementation.
+{{ end }}
+`````
+
+#### schema-patterns/SKILL.md
+
+**Trigger:** Database/ORM detected (section 8.9 + section 8.2 ORM).
+
+`````markdown
+---
+name: schema-patterns
+description: >
+  {{ project_name }} database schema and data access patterns.
+  Activates when: creating models, writing migrations, querying data,
+  designing relationships, optimizing queries, managing database schema.
+---
+
+# Schema Patterns — {{ project_name }}
+
+## Stack
+
+- **Database:** {{ database_engine }}
+{{ if orm_name }}
+- **ORM:** {{ orm_name }}
+{{ end }}
+{{ if schema_directory }}
+- **Schema location:** `{{ schema_directory }}/`
+{{ end }}
+
+## Conventions
+
+- Find existing models/schemas with `Glob` and follow the same patterns.
+- Check for:
+  - Naming conventions (table names, column names)
+  - Primary key strategy (auto-increment, UUID, etc.)
+  - Relationship patterns (foreign keys, join tables)
+  - Soft delete vs hard delete
+  - Timestamp columns (created_at, updated_at)
+
+{{ if migration_command }}
+## Migrations
+
+```sh
+{{ migration_command }}
+```
+{{ end }}
+`````
+
+#### test-patterns/SKILL.md
+
+**Trigger:** Test framework detected (section 8.6).
+
+`````markdown
+---
+name: test-patterns
+description: >
+  {{ project_name }} testing patterns and conventions.
+  Activates when: writing tests, setting up test fixtures, mocking dependencies,
+  checking test coverage, debugging failing tests, structuring test files.
+---
+
+# Test Patterns — {{ project_name }}
+
+## Framework
+
+- **Test runner:** {{ test_framework }}
+{{ if e2e_framework }}
+- **E2E:** {{ e2e_framework }}
+{{ end }}
+
+## Conventions
+
+- Find existing tests with `Glob` and follow the same structure.
+{{ if test_file_pattern }}
+- **Test file pattern:** `{{ test_file_pattern }}`
+{{ end }}
+- Check for:
+  - Test organization (describe/it, test suites, table-driven)
+  - Setup/teardown patterns (beforeEach, fixtures, factories)
+  - Mocking approach (jest.mock, dependency injection, test doubles)
+  - Assertion style (expect, assert, should)
+
+## Commands
+
+- **Run all:** `{{ test_command }}`
+- **Run one:** `{{ single_test_command }}`
+{{ if coverage_command }}
+- **Coverage:** `{{ coverage_command }}`
+{{ end }}
+`````
+
+### Skill Variable Reference
+
+| Variable | Source | Example |
+|----------|--------|---------|
+| `top_level_directory` | Directory listing of project root | list of `{directory_name, directory_purpose}` |
+| `directory_name` | `ls` output | `src`, `tests`, `scripts` |
+| `directory_purpose` | Inferred from directory name + contents | `application source code` |
+| `design_system_config` | Glob for styling config files | `tailwind.config.ts` |
+| `component_library` | Section 8.2 styling framework detection | `shadcn/ui`, `MUI` |
+| `component_library_import` | Grep for existing import patterns | `@/components/ui`, `@mui/material` |
+| `api_spec` | Glob for OpenAPI/Swagger files | `openapi.yaml`, `swagger.json` |
+| `schema_directory` | Glob for schema/model files | `prisma/`, `src/models/` |
+| `test_framework` | Section 8.6 test framework detection | `Jest`, `Vitest`, `pytest` |
+
+<!-- Sections 9.4–9.7 will be added in Story 13 -->
