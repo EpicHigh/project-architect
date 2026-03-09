@@ -60,9 +60,9 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | Hono | `package.json` | `dependencies.hono` |
 | Koa | `package.json` | `dependencies.koa` |
 | Gin | `go.mod` | `github.com/gin-gonic/gin` |
-| Chi | `go.mod` | `github.com/go-chi/chi/v5` |
-| Echo | `go.mod` | `github.com/labstack/echo/v5` |
-| Fiber | `go.mod` | `github.com/gofiber/fiber/v3` |
+| Chi | `go.mod` | `github.com/go-chi/chi` (match prefix, ignore version suffix) |
+| Echo | `go.mod` | `github.com/labstack/echo` (match prefix, ignore version suffix) |
+| Fiber | `go.mod` | `github.com/gofiber/fiber` (match prefix, ignore version suffix) |
 | ConnectRPC | `go.mod` or `package.json` | `connectrpc.com/connect` or `dependencies.@connectrpc/connect` |
 | gRPC | `go.mod` or `package.json` | `google.golang.org/grpc` or `dependencies.@grpc/grpc-js` |
 | FastAPI | `pyproject.toml`, `requirements.txt` | `fastapi` in dependencies |
