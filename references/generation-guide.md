@@ -285,11 +285,7 @@ allowed-tools: Bash, Read, Grep, Glob
 
 ## What to Review
 
-{{ if branch_naming_description }}
-1. Run `git log {{ default_branch }}..HEAD --oneline` to see commits on this branch.
-{{ else }}
-1. Run `git diff {{ default_branch }}` to see all changes.
-{{ end }}
+1. Run `git diff {{ default_branch }}` to see all changes on this branch.
 2. For each changed file, check:
    - Correctness: logic errors, edge cases, null/undefined handling
    - Security: injection, XSS, secrets, OWASP top 10
