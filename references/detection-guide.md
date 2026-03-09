@@ -316,7 +316,7 @@ Check `docker-compose.yml`, `docker-compose.yaml`, or `compose.yml` for service 
 
 | Dependency | Database |
 |-----------|----------|
-| `pg` (npm), `psycopg2` (Python), `lib/pq` (Go) | PostgreSQL |
+| `pg` (npm), `psycopg2` (Python), `github.com/lib/pq` (Go) | PostgreSQL |
 | `mysql2` (npm), `mysqlclient` (Python) | MySQL |
 | `mongodb` (npm), `pymongo` (Python) | MongoDB |
 | `redis` (npm), `redis-py` (Python), `github.com/redis/go-redis` (Go) | Redis |
