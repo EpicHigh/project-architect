@@ -257,13 +257,9 @@ allowed-tools: Bash, Read, Grep, Glob
 
 1. Run `git status` and `git diff --staged` to review changes.
 2. If nothing is staged, show unstaged changes and ask what to stage.
-3. Write a commit message following these conventions:
+3. Write a commit message following project conventions:
 {{ if commit_format_description }}
    {{ commit_format_description }}
-{{ else }}
-   - Use conventional commits: `type: short summary`
-   - Types: feat, fix, refactor, chore, docs, test, style, perf, ci
-   - Imperative mood, lowercase
 {{ end }}
 4. Run `git commit` with the message.
 5. Show the commit hash and summary.
@@ -290,9 +286,9 @@ allowed-tools: Bash, Read, Grep, Glob
 ## What to Review
 
 {{ if branch_naming_description }}
-1. Run `git log main..HEAD --oneline` to see commits on this branch.
+1. Run `git log {{ default_branch }}..HEAD --oneline` to see commits on this branch.
 {{ else }}
-1. Run `git diff main` to see all changes.
+1. Run `git diff {{ default_branch }}` to see all changes.
 {{ end }}
 2. For each changed file, check:
    - Correctness: logic errors, edge cases, null/undefined handling
@@ -432,7 +428,7 @@ allowed-tools: Read, Write, Glob, Grep
 
 #### endpoint.md
 
-**Trigger:** Backend framework detected (section 8.2 — Express, Fastify, NestJS, Django, FastAPI, Flask, Gin, Echo, Fiber, Spring, Rails, Laravel).
+**Trigger:** Backend framework detected (section 8.2).
 
 `````markdown
 ---
@@ -455,18 +451,19 @@ allowed-tools: Read, Write, Glob, Grep
 {{ else }}
    - Find the route registration pattern using `Grep`.
 {{ end }}
-2. Create the endpoint:
+2. Create the endpoint following {{ backend_framework }} conventions:
+   - Find an existing endpoint in the codebase and use it as a reference.
 {{ if backend_framework == "Express" or backend_framework == "Fastify" }}
-   - Add route handler with request/response typing
+   - Add route handler with request/response typing.
 {{ end }}
 {{ if backend_framework == "NestJS" }}
-   - Add controller method with decorator (`@Get`, `@Post`, etc.)
+   - Add controller method with decorator (`@Get`, `@Post`, etc.).
 {{ end }}
 {{ if backend_framework == "Django" or backend_framework == "FastAPI" or backend_framework == "Flask" }}
-   - Add view/route function with appropriate decorator
+   - Add view/route function with appropriate decorator.
 {{ end }}
 {{ if backend_framework == "Gin" or backend_framework == "Echo" or backend_framework == "Fiber" }}
-   - Add handler function and register route
+   - Add handler function and register route.
 {{ end }}
 3. Include:
    - Input validation
@@ -686,11 +683,11 @@ allowed-tools: Bash, Read, Grep, Glob
 - Monitor: check the CI/CD pipelines page.
 {{ end }}
 {{ if ci_platform == "Vercel" }}
-- Push to main for production, or push to a branch for preview.
+- Push to `{{ default_branch }}` for production, or push to a branch for preview.
 - Monitor: `vercel` or check the Vercel dashboard.
 {{ end }}
 {{ if ci_platform == "Netlify" }}
-- Push to main for production.
+- Push to `{{ default_branch }}` for production.
 - Monitor: check the Netlify dashboard.
 {{ end }}
 {{ if ci_platform == "Railway" or ci_platform == "Fly.io" or ci_platform == "Render" }}
@@ -721,7 +718,11 @@ allowed-tools: Bash, Read, Write, Glob, Grep
 1. Create directory: `{{ workspace_root }}/{{ name }}/`
 2. Initialize package config:
 {{ if package_manager == "pnpm" or package_manager == "npm" or package_manager == "yarn" }}
+{{ if workspace_scope }}
    - Create `package.json` with name `{{ workspace_scope }}/{{ name }}`
+{{ else }}
+   - Create `package.json` with name `{{ name }}`
+{{ end }}
 {{ end }}
 {{ if monorepo_tool == "Nx" }}
    - Create `project.json` with targets for build, test, lint.
@@ -757,6 +758,8 @@ allowed-tools: Bash, Read, Write, Glob, Grep
 | `app_router_framework` | Section 8.2 app router framework detection | `Next.js`, `Nuxt`, `SvelteKit` |
 | `pages_directory` | Glob for existing page/route patterns | `src/app`, `app` |
 | `route_segments` | Derived from user input | `dashboard/settings` |
+| `route_file` | Derived from user input (Remix flat-file convention) | `dashboard.settings` |
+| `default_branch` | `git symbolic-ref refs/remotes/origin/HEAD` or git history | `main`, `master` |
 | `extension` | Section 8.1 language detection | `tsx`, `ts`, `js` |
 | `backend_framework` | Section 8.2 backend framework detection | `Express`, `FastAPI`, `Gin` |
 | `api_directory` | Glob for existing route/controller patterns | `src/routes`, `app/api` |
