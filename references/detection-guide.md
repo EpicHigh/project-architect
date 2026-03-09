@@ -111,4 +111,79 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | REST + OpenAPI | `openapi.yaml`, `openapi.json`, `swagger.yaml`, `swagger.json` | File exists at project root or `docs/` directory |
 | Swagger | `package.json` | `dependencies.@nestjs/swagger` or `dependencies.swagger-jsdoc` |
 
-<!-- Sections 8.3–8.14 will be added in Stories 7, 8, 9 -->
+---
+
+## 8.3 Package Manager Detection
+
+| Lockfile | Package Manager |
+|----------|----------------|
+| `package-lock.json` | npm |
+| `yarn.lock` | Yarn |
+| `pnpm-lock.yaml` | pnpm |
+| `bun.lockb` or `bun.lock` | Bun |
+| `go.sum` | Go Modules |
+| `Cargo.lock` | Cargo (Rust) |
+| `requirements.txt` | pip |
+| `poetry.lock` | Poetry (Python) |
+| `uv.lock` | uv (Python) |
+| `Pipfile.lock` | Pipenv |
+| `Gemfile.lock` | Bundler (Ruby) |
+| `composer.lock` | Composer (PHP) |
+| `mix.lock` | Mix (Elixir) |
+| `pubspec.lock` | Pub (Dart) |
+
+---
+
+## 8.4 Build Tool Detection
+
+| Config File | Build Tool |
+|-------------|-----------|
+| `vite.config.*` | Vite |
+| `webpack.config.*` | Webpack |
+| `esbuild.config.*` or `esbuild` in `package.json` scripts | esbuild |
+| `next.config.*` (with `experimental.turbo`) | Turbopack |
+| `rollup.config.*` | Rollup |
+| `.parcelrc` or `parcel` in `package.json` scripts | Parcel |
+| `.swcrc` or `swc` in `package.json` devDependencies | SWC |
+| `tsup.config.*` | tsup |
+| `build.gradle` or `build.gradle.kts` | Gradle |
+| `pom.xml` | Maven |
+
+---
+
+## 8.5 Project Pattern Detection
+
+### Monorepo Indicators
+
+A project is a monorepo if **any** of these signals are present:
+
+| Signal | File / Config |
+|--------|--------------|
+| pnpm workspaces | `pnpm-workspace.yaml` |
+| npm/Yarn workspaces | `package.json` → `workspaces` field |
+| Nx | `nx.json` |
+| Lerna | `lerna.json` |
+| Turborepo | `turbo.json` |
+| Go workspaces | `go.work` |
+| Cargo workspaces | `Cargo.toml` → `[workspace]` section |
+| Bazel | `WORKSPACE` or `WORKSPACE.bazel` |
+
+### Workspace Package Discovery
+
+| Tool | How to find workspace packages |
+|------|-------------------------------|
+| pnpm | `pnpm-workspace.yaml` → `packages` array (glob patterns) |
+| npm/Yarn | `package.json` → `workspaces` array (glob patterns) |
+| Nx | `nx.json` → check `apps/` and `packages/` or `libs/` directories |
+| Go | `go.work` → `use` directives |
+
+### Project Layout Patterns
+
+| Pattern | Detection Rule |
+|---------|---------------|
+| Go standard layout | `cmd/`, `internal/`, and optionally `pkg/` directories exist |
+| Microservices | Multiple `Dockerfile` files or multiple service directories with independent configs |
+| Standard app | Single `src/` or `app/` directory with one entry point |
+| Library | `src/` + `index.*` or `lib/` as main export, no app entry point |
+
+<!-- Sections 8.6–8.14 will be added in Stories 8, 9 -->
