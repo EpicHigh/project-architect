@@ -111,4 +111,93 @@ Reference for Phase 1 scanning. Use these tables to identify the project's tech 
 | REST + OpenAPI | `openapi.yaml`, `openapi.json`, `swagger.yaml`, `swagger.json` | File exists at project root or `docs/` directory |
 | Swagger | `package.json` | `dependencies.@nestjs/swagger` or `dependencies.swagger-jsdoc` |
 
-<!-- Sections 8.3–8.14 will be added in Stories 7, 8, 9 -->
+---
+
+## 8.3 Package Manager Detection
+
+| Lockfile | Package Manager |
+|----------|----------------|
+| `package-lock.json` | npm |
+| `yarn.lock` | Yarn |
+| `pnpm-lock.yaml` | pnpm |
+| `bun.lockb` or `bun.lock` | Bun |
+| `go.sum` | Go Modules |
+| `Cargo.lock` | Cargo (Rust) |
+| `poetry.lock` | Poetry (Python) |
+| `uv.lock` | uv (Python) |
+| `Pipfile.lock` | Pipenv |
+| `Gemfile.lock` | Bundler (Ruby) |
+| `composer.lock` | Composer (PHP) |
+| `mix.lock` | Mix (Elixir) |
+| `pubspec.lock` | Pub (Dart) |
+
+**Note:** `requirements.txt` is a pip requirements file, not a lockfile. Its presence suggests pip usage but is not definitive — Poetry, uv, and pip-tools can all generate `requirements.txt`. Detect pip as the package manager only when no other Python lockfile (`poetry.lock`, `uv.lock`, `Pipfile.lock`) is present.
+
+---
+
+## 8.4 Build Tool Detection
+
+### Config file detection
+
+| Config File | Build Tool |
+|-------------|-----------|
+| `vite.config.*` | Vite |
+| `webpack.config.*` | Webpack |
+| `rollup.config.*` | Rollup |
+| `.parcelrc` | Parcel |
+| `.swcrc` or `swc.config.js` | SWC |
+| `tsup.config.*` | tsup |
+| `build.gradle` or `build.gradle.kts` | Gradle |
+| `pom.xml` | Maven |
+| `next.config.*` → `turbopack` key | Turbopack |
+
+### package.json heuristic detection
+
+These tools lack a standard config file. Detect via `package.json` scripts or devDependencies:
+
+| Heuristic | Build Tool |
+|-----------|-----------|
+| `esbuild` in `package.json` scripts or `devDependencies` | esbuild |
+| `parcel` in `package.json` scripts (when no `.parcelrc` exists) | Parcel |
+| `@swc/core` in `devDependencies` (when no `.swcrc` exists) | SWC |
+
+**Note:** Heuristic detection is weaker than config file detection. A tool in devDependencies may be an indirect dependency rather than the primary build tool. Prefer config file detection when available.
+
+---
+
+## 8.5 Project Pattern Detection
+
+### Monorepo Indicators
+
+These are **candidate signals**, not definitive proof. A repository is a monorepo only when **multiple distinct projects or packages** are actually present. Nx, Turborepo, Bazel, and Cargo workspaces can all be used in single-project repositories. After detecting a signal, verify by counting workspace members or distinct package manifests.
+
+| Signal | File / Config |
+|--------|--------------|
+| pnpm workspaces | `pnpm-workspace.yaml` |
+| npm/Yarn workspaces | `package.json` → `workspaces` field |
+| Nx | `nx.json` |
+| Lerna | `lerna.json` |
+| Turborepo | `turbo.json` |
+| Go workspaces | `go.work` |
+| Cargo workspaces | `Cargo.toml` → `[workspace]` section |
+| Bazel | `WORKSPACE` or `WORKSPACE.bazel` |
+
+### Workspace Package Discovery
+
+| Tool | How to find workspace packages |
+|------|-------------------------------|
+| pnpm | `pnpm-workspace.yaml` → `packages` array (glob patterns) |
+| npm/Yarn | `package.json` → `workspaces` array (glob patterns) |
+| Nx | `nx.json` → find `project.json` files in any directory, or detect workspace packages via `package.json` workspaces |
+| Go | `go.work` → `use` directives |
+
+### Project Layout Patterns
+
+| Pattern | Detection Rule |
+|---------|---------------|
+| Go standard layout | `cmd/`, `internal/`, and optionally `pkg/` directories exist |
+| Microservices | Multiple `Dockerfile` files or multiple service directories with independent configs |
+| Standard app | Single `src/` or `app/` directory with one entry point |
+| Library | `src/` + `index.*` or `lib/` as main export, no app entry point |
+
+<!-- Sections 8.6–8.14 will be added in Stories 8, 9 -->
