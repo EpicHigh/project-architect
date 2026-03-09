@@ -17,14 +17,18 @@ Reference for Phase 2 of `/project-architect`. Contains templates with `{{ varia
 
 ### Template
 
-```markdown
+`````markdown
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Project Overview
 
+{{ if primary_framework }}
 {{ project_name }} is a {{ language }} {{ project_type }} using {{ primary_framework }}.
+{{ else }}
+{{ project_name }} is a {{ language }} {{ project_type }}.
+{{ end }}
 
 {{ if monorepo }}
 ### Workspace Structure
@@ -36,6 +40,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {{ end }}
 {{ end }}
 
+{{ if build_command or dev_command }}
 ## Build & Development
 
 {{ if build_command }}
@@ -45,10 +50,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 {{ end }}
 
+{{ if dev_command }}
 ### Development Server
 ```sh
 {{ dev_command }}
 ```
+{{ end }}
 
 {{ if additional_dev_commands }}
 {{ for each additional_dev_commands }}
@@ -58,7 +65,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```
 {{ end }}
 {{ end }}
+{{ end }}
 
+{{ if test_command }}
 ## Testing
 
 ### Run All Tests
@@ -84,7 +93,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {{ coverage_command }}
 ```
 {{ end }}
+{{ end }}
 
+{{ if lint_command or format_command or typecheck_command }}
 ## Linting & Formatting
 
 {{ if lint_command }}
@@ -107,7 +118,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {{ typecheck_command }}
 ```
 {{ end }}
+{{ end }}
 
+{{ if naming_conventions or import_conventions or error_handling_pattern or architecture_pattern or file_organization }}
 ## Code Conventions
 
 {{ if naming_conventions }}
@@ -136,7 +149,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### File Organization
 {{ file_organization_description }}
 {{ end }}
+{{ end }}
 
+{{ if commit_format or branch_naming }}
 ## Git Conventions
 
 {{ if commit_format }}
@@ -148,6 +163,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Branches
 {{ branch_naming_description }}
 {{ end }}
+{{ end }}
 
 {{ if database }}
 ## Database
@@ -158,7 +174,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Migrations:** `{{ migration_command }}`
 {{ end }}
 {{ end }}
-```
+`````
 
 ### Variable Reference
 
@@ -167,27 +183,44 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `project_name` | `package.json` name, `go.mod` module, `Cargo.toml` package name, or directory name | `my-app` |
 | `language` | Section 8.1 language detection | `TypeScript` |
 | `project_type` | Section 8.5 project pattern detection | `monorepo`, `web application`, `library` |
-| `primary_framework` | Section 8.2 framework detection (highest-signal match) | `Next.js 14`, `Express`, `Django` |
-| `build_command` | Section 8.14 script detection → `build` script | `npm run build` |
-| `dev_command` | Section 8.14 script detection → `dev` or `start` script | `npm run dev` |
-| `test_command` | Section 8.6 test framework detection → test runner command | `npm test`, `go test ./...` |
-| `single_test_command` | Section 8.6 test command extraction | `npx jest path/to/test`, `go test ./pkg/...` |
-| `e2e_command` | Section 8.6 E2E framework detection | `npx playwright test` |
-| `lint_command` | Section 8.7 linter detection → lint script or direct command | `npm run lint` |
-| `format_command` | Section 8.7 formatter detection → format script or direct command | `npx prettier --write .` |
-| `typecheck_command` | Section 8.7 or script detection → typecheck script | `npx tsc --noEmit` |
-| `naming_conventions` | Section 1.5 source file analysis | `camelCase for variables` |
-| `import_conventions` | Section 1.5 source file analysis | `grouped by external/internal` |
-| `error_handling_pattern` | Section 1.5 source file analysis | `Result type for errors` |
-| `architecture_pattern` | Section 1.5 source file analysis | `repository pattern` |
-| `commit_format` | Section 8.12 git convention detection | `conventional commits, lowercase` |
-| `branch_naming` | Section 8.12 git convention detection | `feature/*, fix/*, main` |
-| `database_engine` | Section 8.9 database detection | `PostgreSQL` |
-| `orm_name` | Section 8.2 ORM framework detection | `Prisma`, `SQLAlchemy` |
-| `migration_command` | Section 8.14 script detection or ORM conventions | `npx prisma migrate dev` |
+| `primary_framework` | Section 8.2 framework detection (highest-signal match); omit if none detected | `Next.js 14`, `Express`, `Django` |
 | `monorepo` | Section 8.5 monorepo detection | `true` / `false` |
 | `workspace_name` | Section 8.5 workspace discovery | `@app/web` |
 | `workspace_path` | Section 8.5 workspace discovery | `packages/web` |
+| `workspace_purpose` | Section 8.5 workspace discovery + directory listing | `frontend application` |
+| `build_command` | Section 8.14 script detection → `build` script | `npm run build` |
+| `dev_command` | Section 8.14 script detection → `dev` or `start` script | `npm run dev` |
+| `additional_dev_commands` | Section 8.14 script detection → other dev-related scripts | list of `{command_label, command_value}` |
+| `command_label` | Section 8.14 script detection → script name | `Seed Database` |
+| `command_value` | Section 8.14 script detection → script command | `npm run db:seed` |
+| `test_command` | Section 8.6 test framework detection → test runner command | `npm test`, `go test ./...` |
+| `single_test_command` | Section 8.6 test command extraction | `npx jest path/to/test`, `go test ./pkg/...` |
+| `e2e_framework` | Section 8.6 E2E framework detection; presence flag | `Playwright`, `Cypress` |
+| `e2e_command` | Section 8.6 E2E framework detection → runner command | `npx playwright test` |
+| `coverage_command` | Section 8.14 script detection → coverage script | `npm run test:coverage` |
+| `lint_command` | Section 8.7 linter detection → lint script or direct command | `npm run lint` |
+| `format_command` | Section 8.7 formatter detection → format script or direct command | `npx prettier --write .` |
+| `typecheck_command` | Section 8.7 or script detection → typecheck script | `npx tsc --noEmit` |
+| `naming_conventions` | Section 1.5 source file analysis; presence flag | `true` / `false` |
+| `scope` | Section 1.5 source file analysis → naming scope | `variables`, `types`, `files` |
+| `convention` | Section 1.5 source file analysis → naming pattern | `camelCase`, `PascalCase` |
+| `example` | Section 1.5 source file analysis → example identifier | `getUserById`, `UserService` |
+| `import_conventions` | Section 1.5 source file analysis; presence flag | `true` / `false` |
+| `import_organization_description` | Section 1.5 source file analysis → import pattern summary | `Grouped by external, then internal` |
+| `error_handling_pattern` | Section 1.5 source file analysis; presence flag | `true` / `false` |
+| `error_handling_description` | Section 1.5 source file analysis → error pattern summary | `Uses Result<T, E> for all fallible operations` |
+| `architecture_pattern` | Section 1.5 source file analysis; presence flag | `true` / `false` |
+| `architecture_pattern_description` | Section 1.5 source file analysis → architecture summary | `Repository pattern with service layer` |
+| `file_organization` | Section 1.5 source file analysis; presence flag | `true` / `false` |
+| `file_organization_description` | Section 1.5 source file analysis → file org summary | `Feature-based: each feature in its own directory` |
+| `commit_format` | Section 8.12 git convention detection; presence flag | `true` / `false` |
+| `commit_format_description` | Section 8.12 git convention detection → commit format summary | `Conventional commits, lowercase, imperative mood` |
+| `branch_naming` | Section 8.12 git convention detection; presence flag | `true` / `false` |
+| `branch_naming_description` | Section 8.12 git convention detection → branch pattern summary | `feature/*, fix/*, main` |
+| `database` | Section 8.9 database detection; presence flag | `true` / `false` |
+| `database_engine` | Section 8.9 database detection | `PostgreSQL` |
+| `orm_name` | Section 8.2 ORM framework detection | `Prisma`, `SQLAlchemy` |
+| `migration_command` | Section 8.14 script detection or ORM conventions | `npx prisma migrate dev` |
 
 ### Section Inclusion Rules
 
