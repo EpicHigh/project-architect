@@ -1,0 +1,18 @@
+{
+  "name": "nx-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nx serve",
+    "build": "nx run-many --target=build",
+    "test": "nx run-many --target=test",
+    "lint": "nx run-many --target=lint"
+  },
+  "devDependencies": {
+    "nx": "19.0.0",
+    "@nx/js": "19.0.0",
+    "@nx/react": "19.0.0",
+    "@nx/node": "19.0.0",
+    "typescript": "5.4.0"
+  }
+}
