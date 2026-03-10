@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "pre-commit": [
+      {
+        "command": "make lint && make test",
+        "comment": "Runs linter and tests before each commit. To disable: remove this entry from .claude/settings.json"
+      }
+    ]
+  }
+}
