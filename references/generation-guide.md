@@ -1085,4 +1085,223 @@ description: >
 | `schema_directory` | Glob for schema/model files | `prisma/`, `src/models/` |
 | `test_framework` | Section 8.6 test framework detection | `Jest`, `Vitest`, `pytest` |
 
-<!-- Sections 9.4–9.7 will be added in Story 13 -->
+---
+
+## 9.4 Agent Templates
+
+Agents run in separate context windows or worktrees. Generate only when **all three criteria** are met:
+
+1. **Separate context** — task benefits from its own context window (avoids polluting main conversation)
+2. **File conflicts** — task modifies files that could conflict with ongoing work
+3. **Validation tooling** — project has tools to verify the agent's output (linter, tests, type checker)
+
+If any criterion is not met, do not generate the agent.
+
+### reviewer.md
+
+**Trigger:** Linter detected (section 8.7) AND test framework detected (section 8.6).
+
+**Justification:** Code review benefits from a fresh perspective (separate context). The reviewer reads but does not modify files. Linter and tests validate its suggestions.
+
+`````markdown
+---
+description: Review code changes in a separate context for objectivity
+model: {{ model }}
+allowed-tools: Bash, Read, Grep, Glob
+---
+
+# Code Reviewer
+
+You are reviewing changes in {{ project_name }}.
+
+## Process
+
+1. Run `git diff {{ default_branch }}` to see all changes.
+2. For each changed file, analyze:
+   - Correctness and edge cases
+   - Security concerns (OWASP top 10)
+   - Performance implications
+{{ if naming_conventions }}
+   - Adherence to project naming conventions
+{{ end }}
+{{ if test_command }}
+3. Run `{{ test_command }}` to verify tests pass.
+{{ end }}
+{{ if lint_command }}
+4. Run `{{ lint_command }}` to verify lint passes.
+{{ end }}
+5. Output findings as: **file:line** — severity — description — fix.
+`````
+
+### test-writer.md
+
+**Trigger:** Test framework detected (section 8.6).
+
+**Justification:** Writing tests benefits from isolation (worktree) to avoid conflicting with in-progress work. Test framework validates output directly.
+
+`````markdown
+---
+description: Generate tests for specified files in an isolated worktree
+model: {{ model }}
+allowed-tools: Bash, Read, Write, Glob, Grep
+isolation: worktree
+---
+
+# Test Writer
+
+You are writing tests for {{ project_name }}.
+
+## Process
+
+1. Read the target file(s) to understand the code.
+2. Find existing tests with `Glob` to learn the project's test patterns:
+{{ if test_file_pattern }}
+   - Pattern: `{{ test_file_pattern }}`
+{{ end }}
+3. Write tests covering:
+   - Happy path for each public function/method
+   - Edge cases (null, empty, boundary values)
+   - Error cases and exception handling
+4. Run the tests: `{{ single_test_command }}`
+5. Fix any failures.
+{{ if coverage_command }}
+6. Check coverage: `{{ coverage_command }}`
+{{ end }}
+`````
+
+### refactor-agent.md
+
+**Trigger:** Test framework detected (section 8.6) AND linter detected (section 8.7) AND good test coverage observed.
+
+**Justification:** Refactoring modifies many files (conflict risk). Worktree isolation keeps main work safe. Tests + linter validate that behavior is preserved.
+
+`````markdown
+---
+description: Refactor code safely in an isolated worktree
+model: {{ model }}
+allowed-tools: Bash, Read, Write, Glob, Grep
+isolation: worktree
+---
+
+# Refactor Agent
+
+You are refactoring code in {{ project_name }}.
+
+## Process
+
+1. Run tests first to establish baseline: `{{ test_command }}`
+2. Make incremental changes — one refactoring step at a time.
+3. After each change:
+{{ if lint_command }}
+   - Run `{{ lint_command }}`
+{{ end }}
+   - Run `{{ test_command }}`
+   - If tests fail, revert the last change.
+4. Keep changes minimal and focused.
+5. Do not change behavior — only structure, naming, and organization.
+`````
+
+---
+
+## 9.5 Hook Templates
+
+Hooks are configured in `.claude/settings.json`. Generate only when **all three safety conditions** are met:
+
+1. **Binary installed** — tool binary confirmed present (lockfile, config file, or `command -v`)
+2. **Fast execution** — command runs in under 30 seconds
+3. **Disable instructions** — hook includes a comment explaining how to disable it
+
+If any condition is not met, do not generate the hook.
+
+### Lint pre-commit hook
+
+**Trigger:** Linter detected (section 8.7) AND linter binary confirmed installed.
+
+```json
+{
+  "hooks": {
+    "pre-commit": [
+      {
+        "command": "{{ lint_command }}",
+        "comment": "Runs linter before each commit. To disable: remove this entry from .claude/settings.json"
+      }
+    ]
+  }
+}
+```
+
+### Lint + test pre-commit hook
+
+**Trigger:** Linter detected AND test framework detected AND tests run in under 30 seconds.
+
+```json
+{
+  "hooks": {
+    "pre-commit": [
+      {
+        "command": "{{ lint_command }} && {{ test_command }}",
+        "comment": "Runs linter and tests before each commit. To disable: remove this entry from .claude/settings.json"
+      }
+    ]
+  }
+}
+```
+
+### Available lifecycle events
+
+| Event | When it fires |
+|-------|--------------|
+| `pre-commit` | Before `git commit` |
+| `post-commit` | After `git commit` |
+| `pre-push` | Before `git push` |
+
+---
+
+## 9.6 MCP Config Template
+
+MCP servers extend Claude's capabilities. Generate `.mcp.json` when relevant tools are detected.
+
+### Context7
+
+**Trigger:** Framework detected that benefits from up-to-date documentation lookup (section 8.2).
+
+**Frameworks that trigger Context7:** React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Express, Fastify, NestJS, Django, FastAPI, Flask, Tailwind, Prisma, Drizzle.
+
+```json
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@anthropic/context7-mcp@latest"]
+    }
+  }
+}
+```
+
+---
+
+## 9.7 Selection Matrix
+
+Quick-reference table mapping Phase 1 detections to Phase 2 outputs. Use this as the primary decision table.
+
+| Detected | Commands | Skills | Agents | Hooks | MCP |
+|----------|----------|--------|--------|-------|-----|
+| Any project | commit, review, explain | code-conventions, project-context | | | |
+| Frontend framework | component, page | design-system | | | Context7 |
+| Backend framework | endpoint | api-patterns | | | Context7 |
+| Database / ORM | migrate | schema-patterns | | | |
+| Test framework | test | test-patterns | test-writer | | |
+| E2E framework | e2e | | | | |
+| Docker | docker | | | | |
+| CI/CD | deploy | | reviewer | | |
+| Monorepo | new-package | | | | |
+| Linter | | | | lint pre-commit | |
+| Linter + fast tests | | | | lint+test pre-commit | |
+| Tests + linter + coverage | | | refactor-agent | | |
+
+### Reading the matrix
+
+- **Rows** are Phase 1 detections. Multiple rows can match simultaneously.
+- **Columns** are Phase 2 output layers. Each cell lists what to generate.
+- Empty cells mean nothing is generated for that combination.
+- "page" command requires an app router framework specifically (Next.js, Nuxt, SvelteKit, Remix), not just any frontend framework.
