@@ -9,7 +9,7 @@ allowed-tools: Bash, Read, Write, Glob, Grep
 
 ### Run tests for a file
 ```sh
-pytest tests/test_specific.py
+pytest tests/test_users.py
 ```
 
 ### Create a new test
@@ -20,4 +20,4 @@ pytest tests/test_specific.py
    - Happy path
    - Edge cases (empty input, None, boundary values)
    - Error cases
-3. Run the test: `pytest tests/test_specific.py`
+3. Run the test: `pytest tests/test_users.py`

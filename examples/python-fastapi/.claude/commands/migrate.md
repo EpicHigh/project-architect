@@ -12,7 +12,7 @@ allowed-tools: Bash, Read, Write, Glob
 ## Steps
 
 1. Update the SQLAlchemy model in `app/models/`.
-2. Run `alembic revision --autogenerate -m "<name>"`.
+2. Run `alembic revision --autogenerate -m "add_users_table"`.
 3. Review the generated migration file.
 4. Run the migration: `alembic upgrade head`.
 5. Run tests to verify nothing broke.

@@ -20,6 +20,9 @@ description: >
 
 ## Migrations
 
+Code generation (updates Go client from schema):
 ```sh
 go generate ./ent
 ```
+
+For versioned database migrations, use Ent's `atlas` integration or apply schema changes via the generated `migrate` package.

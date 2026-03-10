@@ -12,7 +12,7 @@ allowed-tools: Bash, Read, Write, Glob
 ## Steps
 
 1. Edit `prisma/schema.prisma` with the schema change.
-2. Run `npx prisma migrate dev --name <name>`.
+2. Run `npx prisma migrate dev --name add_users_table`.
 3. Review the generated migration file.
 4. Run the migration against the dev database.
 5. Run tests to verify nothing broke.

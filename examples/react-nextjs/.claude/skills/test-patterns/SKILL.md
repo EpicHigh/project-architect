@@ -16,5 +16,5 @@ description: >
 ## Commands
 
 - **Run all:** `npm test`
-- **Run one:** `npx jest path/to/test`
+- **Run one:** `npx jest components/Button.test.tsx`
 - **Coverage:** `npm run test:coverage`

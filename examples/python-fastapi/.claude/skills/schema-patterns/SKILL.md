@@ -21,6 +21,6 @@ description: >
 ## Migrations
 
 ```sh
-alembic revision --autogenerate -m "<name>"
+alembic revision --autogenerate -m "add_users_table"
 alembic upgrade head
 ```

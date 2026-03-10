@@ -22,7 +22,7 @@ pytest
 
 ### Run a Single Test
 ```sh
-pytest tests/test_specific.py
+pytest tests/test_users.py
 ```
 
 ## Linting & Formatting
@@ -41,4 +41,4 @@ ruff format .
 
 - **Engine:** PostgreSQL
 - **ORM:** SQLAlchemy
-- **Migrations:** `alembic revision --autogenerate -m "<name>"`
+- **Migrations:** `alembic revision --autogenerate -m "add_users_table"`

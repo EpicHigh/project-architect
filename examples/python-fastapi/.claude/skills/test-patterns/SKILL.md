@@ -21,4 +21,4 @@ description: >
 ## Commands
 
 - **Run all:** `pytest`
-- **Run one:** `pytest tests/test_specific.py`
+- **Run one:** `pytest tests/test_users.py`
