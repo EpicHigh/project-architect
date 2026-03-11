@@ -30,12 +30,10 @@ Generating configuration...
 
 ## Install
 
-```sh
-# From the plugin marketplace
-claude plugin marketplace add project-architect
-
-# Or install directly from GitHub
-claude plugin install https://github.com/EpicHigh/claude-project-architect
+```
+# Add the marketplace, then install the plugin
+/plugin marketplace add EpicHigh/claude-project-architect
+/plugin install project-architect@epichigh-claude-project-architect
 ```
 
 ## Usage
