@@ -1,0 +1,18 @@
+{
+  // Line length - disabled since templates and tables can be long
+  "MD013": false,
+  // Bare URLs - allowed in references
+  "MD034": false,
+  // Allow duplicate headings in different contexts
+  "MD024": { "siblings_only": true },
+  // Allow HTML in markdown (for comments, details tags)
+  "MD033": false,
+  // First line heading - not required for command/skill files with frontmatter
+  "MD041": false,
+  // Fenced code block language - not all blocks need language
+  "MD040": false,
+  // Multiple blank lines - disabled for template readability
+  "MD012": false,
+  // Table column style - disabled, compact tables are fine
+  "MD060": false
+}

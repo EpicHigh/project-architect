@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate plugin.json
+        run: |
+          node -e "
+            const p = require('./.claude-plugin/plugin.json');
+            if (!p.name) throw 'missing name';
+            if (!p.version) throw 'missing version';
+            if (!/^\d+\.\d+\.\d+$/.test(p.version)) throw 'invalid semver';
+            console.log('plugin.json valid:', p.name, p.version);
+          "
+
+      - name: Check file structure
+        run: |
+          test -f .claude-plugin/plugin.json
+          test -f commands/project-architect.md
+          test -f skills/project-scanner/SKILL.md
+          test -f references/detection-guide.md
+          test -f references/generation-guide.md
+          echo "All required files present"
+
+      - name: Validate command frontmatter
+        run: |
+          head -10 commands/project-architect.md | grep -q "^description:"
+          head -10 commands/project-architect.md | grep -q "^allowed-tools:"
+          echo "Command frontmatter valid"
+
+      - name: Validate skill frontmatter
+        run: |
+          head -10 skills/project-scanner/SKILL.md | grep -q "^name:"
+          head -10 skills/project-scanner/SKILL.md | grep -q "^description:"
+          echo "Skill frontmatter valid"
+
+      - name: Lint markdown
+        uses: DavidAnson/markdownlint-cli2-action@v18
+        with:
+          globs: |
+            **/*.md
+            !node_modules

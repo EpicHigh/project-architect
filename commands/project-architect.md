@@ -61,6 +61,7 @@ Look for any existing Claude Code configuration that must be preserved:
 - `.mcp.json`
 
 Also check for other AI tool configs that may contain useful conventions:
+
 - `.cursorrules` or `.cursor/rules/`
 - `.github/copilot-instructions.md`
 
@@ -81,6 +82,7 @@ Pick files that are typical of the project — not config files, not generated c
 ### 1.6 Read git history and branch info
 
 Run:
+
 - `git log --oneline -20` — recent commit messages (check for conventional commits, lowercase preference, commit style)
 - `git branch -r` — remote branches (check for branch naming conventions like `feature/`, `fix/`, `main` vs `master`)
 
@@ -171,12 +173,14 @@ Organize the output as follows:
 ### 3.2 Explain why each was generated
 
 For every generated item, state which detection from Phase 1 triggered it. Example:
+
 - `/component` command → "React detected in package.json dependencies"
 - `design-system` skill → "Tailwind CSS detected in devDependencies"
 
 ### 3.3 Flag hooks with warnings
 
 For each generated hook:
+
 - Display a warning that it will run automatically
 - Explain exactly how to disable it (which line to remove from `.claude/settings.json`)
 - Remind the user they can review and remove any hook at any time

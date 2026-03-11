@@ -8,6 +8,7 @@ allowed-tools: Bash, Read, Write, Glob, Grep
 ## Modes
 
 ### Run tests for a file
+
 ```sh
 npx jest path/to/test
 ```
@@ -23,6 +24,7 @@ npx jest path/to/test
 3. Run the test: `npx jest path/to/test`
 
 ### Check coverage
+
 ```sh
 npm run test:coverage
 ```

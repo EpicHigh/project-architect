@@ -17,4 +17,5 @@ allowed-tools: Bash, Read, Grep, Glob
 ## Output Format
 
 For each finding:
+
 - **File:line** — severity (bug/warning/nit) — description — suggested fix

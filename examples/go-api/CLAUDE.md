@@ -9,11 +9,13 @@ go-api-server is a Go web application using Gin.
 ## Build & Development
 
 ### Build
+
 ```sh
 make build
 ```
 
 ### Development Server
+
 ```sh
 make run
 ```
@@ -21,11 +23,13 @@ make run
 ## Testing
 
 ### Run All Tests
+
 ```sh
 make test
 ```
 
 ### Run a Single Test
+
 ```sh
 go test ./internal/handler/...
 ```
@@ -33,6 +37,7 @@ go test ./internal/handler/...
 ## Linting & Formatting
 
 ### Lint
+
 ```sh
 make lint
 ```

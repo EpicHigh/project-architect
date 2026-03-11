@@ -21,6 +21,7 @@ description: >
 ## Migrations
 
 Code generation (updates Go client from schema):
+
 ```sh
 go generate ./ent
 ```

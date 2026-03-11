@@ -8,6 +8,7 @@ allowed-tools: Bash, Read, Write, Glob, Grep
 ## Modes
 
 ### Run tests for a file
+
 ```sh
 pytest tests/test_users.py
 ```

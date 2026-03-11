@@ -9,6 +9,7 @@ python-fastapi is a Python web application using FastAPI.
 ## Build & Development
 
 ### Development Server
+
 ```sh
 uvicorn app.main:app --reload
 ```
@@ -16,11 +17,13 @@ uvicorn app.main:app --reload
 ## Testing
 
 ### Run All Tests
+
 ```sh
 pytest
 ```
 
 ### Run a Single Test
+
 ```sh
 pytest tests/test_users.py
 ```
@@ -28,11 +31,13 @@ pytest tests/test_users.py
 ## Linting & Formatting
 
 ### Lint
+
 ```sh
 ruff check .
 ```
 
 ### Format
+
 ```sh
 ruff format .
 ```
