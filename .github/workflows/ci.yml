@@ -18,7 +18,7 @@ jobs:
             const p = require('./.claude-plugin/plugin.json');
             if (!p.name) throw 'missing name';
             if (!p.version) throw 'missing version';
-            if (!/^\d+\.\d+\.\d+/.test(p.version)) throw 'invalid semver';
+            if (!/^\d+\.\d+\.\d+$/.test(p.version)) throw 'invalid semver';
             console.log('plugin.json valid:', p.name, p.version);
           "
 

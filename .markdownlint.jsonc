@@ -11,6 +11,6 @@
   "MD041": false,
   // Fenced code block language - not all blocks need language
   "MD040": false,
-  // Inline HTML - disabled
+  // Multiple blank lines - disabled for template readability
   "MD012": false
 }
