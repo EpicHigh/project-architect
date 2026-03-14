@@ -153,6 +153,18 @@ For each item you decided to generate:
 
 Ensure every generated file is immediately usable — no leftover placeholders, no TODO comments.
 
+### 2.5 Generate INSTRUCTION.md
+
+After all `.claude/` configuration is written, generate an `INSTRUCTION.md` in the project root using the template from section 9.8 of the generation guide.
+
+- Include only sections for layers that were actually generated (commands, skills, agents, hooks, MCP)
+- Fill in all project-specific values — stack names, framework versions, real command names
+- Add 3–5 tips specific to the developer's detected stack
+- Keep it under 150 lines
+- Use a friendly, conversational tone
+
+This file is a quick-start onboarding guide, not documentation. If the project already has an `INSTRUCTION.md`, skip this step.
+
 ---
 
 ## Phase 3: Present and Explain
@@ -169,6 +181,7 @@ Organize the output as follows:
 4. **Agents** — list each with its isolation mode (worktree, separate context)
 5. **Hooks** — list each with its lifecycle event (pre-commit, etc.)
 6. **MCP servers** — list each server added to `.mcp.json`
+7. **INSTRUCTION.md** — mention the onboarding guide was generated and where to find it
 
 ### 3.2 Explain why each was generated
 
