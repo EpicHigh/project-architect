@@ -255,7 +255,7 @@ Commands are `.md` files in `.claude/commands/`. They orchestrate multi-step wor
 
 ### Always Generate
 
-`commit`, `implement`, `fix`, `review` — these are universal workflows.
+`commit`, `implement`, `fix`, `review` — these workflows apply to all projects, but their content must be tailored to the project's detected stack, commands, and conventions from Phase 1.
 
 ### Consider Generating
 
