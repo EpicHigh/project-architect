@@ -30,6 +30,9 @@ Check for and read these files at the project root. Extract the tech stack, depe
 - `pubspec.yaml` — Dart/Flutter dependencies
 - `mix.exs` — Elixir dependencies
 - `Makefile`, `justfile`, `Taskfile.yml` — available task runner targets
+- `Dockerfile`, `docker-compose.yml` — containerization
+- `deno.json` / `deno.jsonc` — Deno runtime
+- `.env.example` — environment variable patterns (do NOT read `.env` — may contain secrets)
 
 Read whichever files exist. Skip the rest silently.
 
@@ -69,21 +72,24 @@ If existing `.claude/` config is found, note every file — these will be merged
 
 ### 1.5 Read source files to extract conventions
 
-Read 3–5 representative source files from the main source directory. Look for:
+Read 3–5 representative source files from the main source directory. In monorepos, pick files from the most active package. Pick files that are typical of the project — not config files, not generated code, not test files.
+
+Look for:
 
 - Naming conventions (camelCase, snake_case, PascalCase for types, etc.)
 - Import organization patterns (grouped, sorted, aliased)
-- Error handling patterns
+- Error handling patterns (try/catch, Result types, error wrapping with %w, etc.)
 - Common abstractions or patterns (repository pattern, service pattern, etc.)
 - File organization within directories
-
-Pick files that are typical of the project — not config files, not generated code.
+- How technologies interact (e.g., where do ORM queries live relative to API handlers?)
 
 ### 1.6 Read git history and branch info
 
-Run:
+First check if this is a git repo: `git rev-parse --is-inside-work-tree`. If not, skip this step entirely and note "no git repo" in your summary.
 
-- `git log --oneline -20` — recent commit messages (check for conventional commits, lowercase preference, commit style)
+If it is a git repo, run:
+
+- `git log --oneline -20` — recent commit messages (check for conventional commits, lowercase preference, commit style). If the project has no commits yet, note this and skip git conventions.
 - `git branch -r` — remote branches (check for branch naming conventions like `feature/`, `fix/`, `main` vs `master`)
 
 ### 1.7 Read the detection guide
@@ -149,18 +155,24 @@ If the project already has `.claude/` config, follow these conflict resolution r
 
 ### 2.4 Compose and write files
 
-For each item you decided to generate, compose it from scratch using the guidelines and examples in generation-guide.md as reference:
+For each item you decided to generate, follow the Composition Process (section 9.8 of the generation guide):
 
-1. Use section 9.1 template for `CLAUDE.md` (structural — fill in placeholders with scan values)
-2. For commands, skills, and agents — compose content tailored to THIS project. Reference the examples in the guide for quality, but do not copy them verbatim. Every line should trace to a Phase 1 detection.
-3. Use section 9.5/9.6 formats for hooks and MCP (structural — exact JSON format needed)
-4. Write each file to the correct path in the project directory
+1. **Gather context** — collect relevant Phase 1 findings for this output
+2. **Identify stack intersections** — what does the developer need to know about how detected technologies interact?
+3. **Compose from scratch** — use the guidelines and examples as quality reference, not templates to copy
+4. **Validate before writing** — run the per-file checks from section 9.10
 
-Ensure every generated file is immediately usable — no leftover placeholders, no TODO comments, no generic advice.
+Structural outputs use exact formats: section 9.1 template for `CLAUDE.md`, section 9.5/9.6 for hooks/MCP.
 
-### 2.5 Generate INSTRUCTION.md
+For edge cases (no tests, no linter, monorepo, new project), follow the fallback strategies in section 9.9.
 
-After all `.claude/` configuration is written, generate an `INSTRUCTION.md` in the project root using the template from section 9.8 of the generation guide.
+### 2.5 Quality validation
+
+After writing all files, run the Quality Validation Checklist (section 9.10). Fix any issues before presenting to the user.
+
+### 2.6 Generate INSTRUCTION.md
+
+After validation passes, generate an `INSTRUCTION.md` in the project root using the template from section 9.11 of the generation guide.
 
 - Include only sections for layers that were actually generated (commands, skills, agents, hooks, MCP)
 - Fill in all project-specific values — stack names, framework versions, real command names

@@ -5,7 +5,7 @@
 ## Type
 
 - [ ] New stack support
-- [ ] Template improvement
+- [ ] Guideline/example improvement
 - [ ] Bug fix
 - [ ] Documentation
 - [ ] Other
@@ -13,8 +13,8 @@
 ## Checklist
 
 - [ ] Detection entries added to `references/detection-guide.md` (if new stack)
-- [ ] Generation templates added to `references/generation-guide.md` (if new stack)
-- [ ] Selection matrix updated in generation-guide.md (if new outputs)
+- [ ] Generation examples added to `references/generation-guide.md` (if new stack)
+- [ ] Output Reasoning Guide updated in generation-guide.md (if new outputs)
 - [ ] Test fixture added to `tests/fixtures/` (if new stack)
 - [ ] Example output added to `examples/` (if new stack)
 - [ ] README updated (if supported stacks changed)

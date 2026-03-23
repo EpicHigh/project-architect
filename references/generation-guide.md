@@ -675,7 +675,7 @@ MCP servers extend Claude's capabilities. Generate `.mcp.json` when relevant too
 
 **Trigger:** Framework detected that benefits from up-to-date documentation lookup (section 8.2).
 
-**Frameworks that trigger Context7:** React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Express, Fastify, NestJS, Django, FastAPI, Flask, Tailwind, Prisma, Drizzle.
+**Frameworks that trigger Context7:** React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Remix, Astro, Qwik, Express, Fastify, NestJS, Hono, Django, FastAPI, Flask, Tailwind, Prisma, Drizzle, Mongoose, SQLAlchemy.
 
 ```json
 {
@@ -727,9 +727,124 @@ After completing Phase 1, use this guide to reason about what outputs would help
 
 ---
 
-## 9.8 INSTRUCTION.md Template
+## 9.8 Composition Process
 
-After Phase 2 generates all `.claude/` configuration, produce an `INSTRUCTION.md` in the project root as a quick-start onboarding guide. This is tailored to what was actually generated — not a generic Claude Code tutorial.
+How to compose each output. Follow this process for every command, skill, and agent you generate.
+
+### Step 1: Gather Context
+
+For each output you plan to generate, collect the relevant Phase 1 findings:
+
+- What **frameworks and tools** does this output need to know about?
+- What **actual commands** (build, test, lint) does this output need to reference?
+- What **file paths and patterns** (route directories, schema files, test locations) did Phase 1 find?
+- What **conventions** (naming, imports, error handling) did source file analysis reveal?
+
+### Step 2: Identify Stack Intersections
+
+The most valuable content comes from how technologies **interact**, not what each one does individually:
+
+- Next.js + Prisma → "Prisma queries belong in Server Components or server actions, not Client Components"
+- FastAPI + SQLAlchemy → "Use `Depends(get_db)` for session injection, `selectinload()` for eager loading in endpoints"
+- Go + Ent + Chi → "After Ent schema changes, run `go generate ./ent`. Use Ent's eager loading in Chi handlers to avoid N+1"
+- React + Tailwind + shadcn → "Check `components/ui/` for shadcn primitives before building custom UI. Reference `tailwind.config.ts` for tokens"
+
+Ask: "What does a developer need to know about how **A and B work together** in this project?"
+
+### Step 3: Compose the Content
+
+Write the output from scratch, embedding the context and intersection knowledge. Do not copy examples verbatim. Follow the structural requirements (frontmatter, headings) but make the content unique to this project.
+
+### Step 4: Validate Before Writing
+
+Before writing each file, check:
+
+- [ ] **Specificity test:** If I remove the project name, can I identify which stack this targets?
+- [ ] **Detection trace:** Can every line trace back to a Phase 1 detection?
+- [ ] **Intersection test:** Does the output contain knowledge about how detected technologies interact — not just individual framework docs?
+- [ ] **Command test:** Does every `run X` step use a real command found in Phase 1?
+- [ ] **Omission test:** If a tool wasn't detected (no linter, no tests, no DB), are references to it omitted?
+
+---
+
+## 9.9 Edge Cases and Fallbacks
+
+### Project With No Test Framework
+
+- Skip: `tdd` skill, `qa` agent, `fixer` agent, `developer` agent (requires tests for validation)
+- Keep: `implement` and `fix` commands — but remove all "run tests" steps from them
+- The `reviewer` agent can still be generated if a linter exists
+
+### Project With No Linter
+
+- Skip: lint pre-commit hook, lint+test pre-commit hook
+- The `developer` agent requires both tests AND linter — skip if linter is missing
+- The `reviewer` agent can still be generated if tests exist
+- Remove all "run lint" steps from commands
+
+### New Project (No Git History)
+
+- Phase 1.6 (git analysis) returns empty — this is normal
+- Skip: git conventions section in CLAUDE.md (no commit history to infer from)
+- Commit command: use a sensible default ("conventional commits, lowercase, imperative mood") but note it's a suggestion, not a detected convention
+
+### Monorepo
+
+- CLAUDE.md: include the Workspace Structure table with each package's path and purpose
+- Commands: validation steps should target the relevant workspace, not root (e.g., `cd packages/web && npm run lint` instead of `npm run lint`)
+- Skills: scope methodology to the workspace being worked on. An `api-patterns` skill for `packages/api` should reference that package's route structure, not the root
+- Agents: the `developer` agent should know the workspace layout and which package to work in. Include workspace navigation guidance ("check which package the target file belongs to before running validation commands")
+- Consider generating: workspace-specific skills if packages have significantly different stacks (e.g., Python backend + React frontend)
+
+### Multiple Databases
+
+- If both PostgreSQL and Redis are detected, the `db-specialist` agent should cover both
+- `schema-patterns` skill should focus on the primary relational DB, with a note about cache patterns if Redis is detected
+- `optimize-db` command should scope to the relational DB (schema/query optimization), not the cache
+
+### Library (No Web/API Framework)
+
+- Skip: `api-patterns` skill, `security-audit` command, frontend-specific agents
+- Focus on: code quality (reviewer), testing (qa), and API design of the library's public interface
+- Developer agent should focus on: backward compatibility, type safety, documentation
+
+---
+
+## 9.10 Quality Validation Checklist
+
+Run this checklist after generating all outputs, before presenting to the user.
+
+### Per-File Checks
+
+For each generated file:
+
+- [ ] **No placeholders remaining** — no `{{ }}`, no `TODO`, no `[FILL IN]`
+- [ ] **Uses real commands** — every shell command was detected in Phase 1, not assumed
+- [ ] **Stack-specific content** — contains knowledge unique to this project's technology combination
+- [ ] **Correct file path** — placed in the right directory (`.claude/commands/`, `.claude/skills/<name>/`, `.claude/agents/`)
+- [ ] **Valid frontmatter** — YAML frontmatter has all required fields
+
+### Cross-File Checks
+
+- [ ] **No contradictions** — CLAUDE.md commands match what's in `.claude/commands/`
+- [ ] **Consistent tool references** — if CLAUDE.md says `npm test`, agents/commands also say `npm test` (not `npx jest`)
+- [ ] **No duplicate content** — skills don't repeat what's in CLAUDE.md; agents don't repeat what's in skills
+- [ ] **Hooks use validated commands** — hook commands were confirmed installed (Phase 1 should have run `command -v`)
+
+### Completeness Checks
+
+- [ ] **CLAUDE.md generated** — always required
+- [ ] **Universal commands generated** — commit, implement, fix, review
+- [ ] **Universal skills generated** — implement-feature, fix-bug, improve-architecture
+- [ ] **Architect agent generated** — always required
+- [ ] **INSTRUCTION.md generated** — unless one already exists
+- [ ] **Conditional outputs match detections** — if DB detected, schema-patterns skill exists; if tests detected, tdd skill exists; etc.
+
+---
+
+## 9.11 INSTRUCTION.md Template
+
+After Phase 2 generates all `.claude/` configuration and passes the quality validation checklist (section 9.10), produce an `INSTRUCTION.md` in the project root as a quick-start onboarding guide. This is tailored to what was actually generated — not a generic Claude Code tutorial.
 
 ### Rules
 

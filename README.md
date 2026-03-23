@@ -18,12 +18,12 @@ Scanning project...
 ✓ Found: app router, PostgreSQL, GitHub Actions
 
 Generating configuration...
-✓ CLAUDE.md — project overview, build/test/lint commands
-✓ 6 commands — commit, implement, fix, review, optimize-db, security-audit
-✓ 6 skills — implement-feature, fix-bug, improve-architecture, tdd, design-system, schema-patterns
-✓ 7 agents — architect, reviewer, developer (React/Next.js), db-specialist (Prisma/PostgreSQL), devops (GitHub Actions), qa (Jest), fixer
-✓ 1 hook — lint + test pre-commit
-✓ 1 MCP server — Context7 for Next.js docs
+✓ CLAUDE.md — project overview, build/test/lint commands, conventions
+✓ Commands — commit, implement, fix, review + optimize-db (Prisma detected), security-audit (API detected)
+✓ Skills — implement-feature, fix-bug, improve-architecture, tdd, design-system, schema-patterns
+✓ Agents — architect, developer (Next.js+Prisma+Tailwind), reviewer (React+security), db-specialist (Prisma+PostgreSQL), devops (GitHub Actions), qa (Jest), fixer
+✓ Hook — lint + test pre-commit (ESLint + Jest confirmed installed)
+✓ MCP — Context7 for Next.js docs
 ```
 
 ## Install
@@ -52,7 +52,7 @@ Open Claude Code in your project and run:
 The plugin runs in 4 phases:
 
 1. **Scan** — reads config files, directory structure, git history (read-only, never executes code)
-2. **Generate** — produces configuration from templates matched to your detections
+2. **Generate** — composes configuration tailored to your project's specific stack intersection
 3. **Present** — shows what was generated and why
 4. **Iterate** — refine based on your feedback
 
@@ -133,16 +133,16 @@ project-architect is a Claude Code plugin — it's pure markdown and JSON, no ex
 .claude-plugin/plugin.json        → Plugin manifest
 commands/project-architect.md      → Main command (4 phases)
 references/detection-guide.md      → What to look for during scan
-references/generation-guide.md     → Templates for generated output
+references/generation-guide.md     → Guidelines and examples for output composition
 ```
 
 ## Examples
 
 See complete generated output for different stacks:
 
-- **[React + Next.js](examples/react-nextjs/)** — 6 commands, 6 skills, 6 agents (React/Prisma/Jest-specific), hooks, MCP
-- **[Go API Server](examples/go-api/)** — 6 commands, 6 skills, 7 agents (Go/Ent/Docker-specific), hooks
-- **[Python + FastAPI](examples/python-fastapi/)** — 6 commands, 6 skills, 6 agents (FastAPI/SQLAlchemy/pytest-specific), hooks, MCP
+- **[React + Next.js](examples/react-nextjs/)** — commands, skills, agents tailored to Next.js + Prisma + Tailwind + Jest
+- **[Go API Server](examples/go-api/)** — commands, skills, agents tailored to Go + Gin + Ent + golangci-lint
+- **[Python + FastAPI](examples/python-fastapi/)** — commands, skills, agents tailored to FastAPI + SQLAlchemy + pytest + Ruff
 
 ## Customization
 
@@ -157,7 +157,7 @@ After generation, everything is yours to edit:
 
 Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-The short version: it's all markdown. Adding support for a new stack is a 5-step process — add detection entries, add generation templates, add a test fixture, generate an example, and update this README.
+The short version: it's all markdown. Adding support for a new stack means adding detection entries to `detection-guide.md` and examples to `generation-guide.md`.
 
 ## License
 

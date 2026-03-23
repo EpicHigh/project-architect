@@ -4,10 +4,10 @@ Thanks for your interest in contributing! This project is **all markdown and JSO
 
 ## Ways to Contribute
 
-- **Add a new stack** — detection entries + generation templates for a new language/framework
-- **Improve templates** — better command instructions, more accurate skills, smarter hooks
+- **Add a new stack** — detection entries + generation examples for a new language/framework
+- **Improve guidelines** — better examples, quality criteria, edge case handling
 - **Add examples** — generated output for stacks not yet covered
-- **Fix bugs** — incorrect detections, wrong template logic, missing edge cases
+- **Fix bugs** — incorrect detections, missing edge cases, quality gaps
 - **Improve docs** — typos, clarity, missing information
 
 ## How the Plugin Works
@@ -18,10 +18,10 @@ project-architect is a 4-file architecture:
 .claude-plugin/plugin.json        → Plugin manifest (entry point)
 commands/project-architect.md      → Main slash command (4 phases: Scan → Generate → Present → Iterate)
 references/detection-guide.md      → Tables mapping indicator files → technologies
-references/generation-guide.md     → Template catalog for all generated outputs
+references/generation-guide.md     → Guidelines, examples, and quality criteria for output composition
 ```
 
-Claude Code is the runtime. The command file tells Claude what to scan (using detection-guide.md) and what to generate (using generation-guide.md). There is no executable code.
+Claude Code is the runtime. The command file tells Claude what to scan (using detection-guide.md) and how to compose outputs (using generation-guide.md as reference, not as templates to fill). There is no executable code.
 
 ## Adding a New Stack
 
@@ -35,13 +35,13 @@ Edit `references/detection-guide.md` and add rows to the appropriate tables:
 - **Framework table (8.2)** — indicator file or dependency, category
 - Add entries to other tables as needed (package managers, build tools, testing, etc.)
 
-### 2. Add generation templates
+### 2. Add generation examples
 
 Edit `references/generation-guide.md`:
 
-- Add any new command templates to section 9.2
-- Add any new skill templates to section 9.3
-- Update the selection matrix (section 9.7) to map your detections to outputs
+- Add examples showing how the new stack's outputs should look (section 9.2 for commands, 9.3 for skills, 9.4 for agents)
+- Update the Output Reasoning Guide (section 9.7) if new detection → output mappings are needed
+- Add edge case handling to section 9.9 if the stack has unique requirements
 
 ### 3. Add a test fixture
 
@@ -68,14 +68,14 @@ Create a directory under `examples/<stack-name>/` with the complete generated ou
 
 Add the new stack to the Supported Stacks section in `README.md`.
 
-## Writing Good Templates
+## Writing Good Examples
 
-When adding or editing command/skill templates:
+When adding examples to the generation guide:
 
+- **Show stack intersections** — demonstrate knowledge of how technologies interact, not just individual framework docs
 - **Be specific** — reference actual tools, file paths, and conventions the stack uses
-- **Use variables** — `{{ framework }}`, `{{ test_command }}`, etc. for values that come from Phase 1 detection
-- **Test with the plugin** — run `/project-architect` against your fixture to verify output
-- **Match existing style** — look at how other templates are written for consistency
+- **Test with the plugin** — run `/project-architect` against your fixture to verify output quality
+- **Demonstrate quality bar** — examples set the standard Claude aims for when composing project-specific outputs
 
 ## Testing Locally
 

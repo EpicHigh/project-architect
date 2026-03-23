@@ -16,7 +16,7 @@ The entire plugin is 4 files:
 .claude-plugin/plugin.json          Entry point — tells Claude Code this is a plugin
 commands/project-architect.md        The command — 4-phase workflow Claude follows
 references/detection-guide.md        Knowledge base — what to look for during scanning
-references/generation-guide.md       Template catalog — what to generate from detections
+references/generation-guide.md       Guidelines and examples — how to compose outputs
 ```
 
 **plugin.json** registers the plugin and points to the command and skill files. It's the only JSON file.
@@ -25,7 +25,7 @@ references/generation-guide.md       Template catalog — what to generate from 
 
 **detection-guide.md** is a structured knowledge base of ~440 lines. It contains tables mapping indicator files to technologies — "if you see `package.json` with `next` in dependencies, that's Next.js." Claude reads this during Phase 1 to know what to look for.
 
-**generation-guide.md** is a template catalog of ~1300 lines. It contains templates for every output file the plugin can generate — CLAUDE.md, commands, skills, agents, hooks, MCP config. Each template has trigger conditions tied to Phase 1 detections. A selection matrix at the end maps all detections to outputs.
+**generation-guide.md** is a guideline document of ~940 lines. It contains principles, quality criteria, and examples from different stacks that Claude uses as reference when composing outputs. Rather than filling templates mechanically, Claude reasons about what each specific project needs and composes commands, skills, and agents from scratch. Structural outputs (CLAUDE.md, hooks, MCP) use templates; creative outputs (commands, skills, agents) use guideline-driven composition.
 
 ## How It Works
 
@@ -41,7 +41,7 @@ User runs /project-architect
          │ detections
          ▼
 ┌─────────────────────┐
-│  Phase 2: Generate  │  Match detections to templates, produce output
+│  Phase 2: Generate  │  Reason about needs, compose tailored output
 │                     │  Reference: generation-guide.md
 │                     │  Tools: Write
 └────────┬────────────┘
@@ -94,14 +94,14 @@ The plugin generates up to 6 layers of configuration:
 | Hooks | `.claude/settings.json` | Pre-commit hooks for linting/testing |
 | MCP | `.mcp.json` | Model Context Protocol server connections |
 
-Not every project gets all 6. The selection matrix in generation-guide.md determines which outputs are produced based on what was detected.
+Not every project gets all 6. The Output Reasoning Guide in generation-guide.md helps Claude decide which outputs to produce based on what was detected and what would genuinely help.
 
 ## Extending the Plugin
 
 Adding support for a new stack is a markdown editing task:
 
 1. **Detection** — Add rows to tables in `references/detection-guide.md`
-2. **Generation** — Add templates to `references/generation-guide.md` and update the selection matrix
+2. **Generation** — Add examples to `references/generation-guide.md` and update the Output Reasoning Guide
 3. **Testing** — Add a config-only fixture to `tests/fixtures/`
 4. **Example** — Generate sample output in `examples/`
 5. **README** — Add the stack to the supported list
