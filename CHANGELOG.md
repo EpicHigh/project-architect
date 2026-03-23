@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-03-23
+
+### Added
+
+- Self-Review & Refine Loop (Phase 2.5) — autoresearch-style iterative improvement built into the generation process. Claude generates → reviews its own output → identifies areas of improvement and gaps → refines → repeats until no issues remain.
+- Self-Review Criteria (section 9.11) — structured checklist: stack intersection depth, command accuracy, specificity test, workflow gaps, agent blind spots, anti-patterns to eliminate.
+- Stopping criteria for the review loop (stop when zero issues found, typically 1-3 passes).
+
+### Changed
+
+- Phase 2 now has 7 steps (was 6): added self-review loop between composition and quality validation
+- Generation process is no longer "generate once and present" — it's "generate → validate → refine → until robust"
+
 ## [0.5.0] - 2026-03-23
 
 ### Added

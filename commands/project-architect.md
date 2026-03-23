@@ -166,13 +166,48 @@ Structural outputs use exact formats: section 9.1 template for `CLAUDE.md`, sect
 
 For edge cases (no tests, no linter, monorepo, new project), follow the fallback strategies in section 9.9.
 
-### 2.5 Quality validation
+### 2.5 Self-Review & Refine Loop
 
-After writing all files, run the Quality Validation Checklist (section 9.10). Fix any issues before presenting to the user.
+After writing all files, run an autoresearch-style review loop to ensure the generated configuration is the best it can be for THIS project. Do NOT present to the user until this loop completes.
 
-### 2.6 Generate INSTRUCTION.md
+**The loop:**
 
-After validation passes, generate an `INSTRUCTION.md` in the project root using the template from section 9.11 of the generation guide.
+```
+READ back every generated file
+  → IDENTIFY areas of improvement and gaps
+  → REFINE (fix issues, add missing knowledge, remove generic content)
+  → VALIDATE against quality checklist (section 9.10)
+  → REPEAT if improvements were made
+  → STOP when no more improvements are found
+```
+
+**What to look for in each pass:**
+
+1. **Areas of Improvement:**
+   - Is there stack-intersection knowledge missing? (e.g., agent knows React but doesn't mention how React interacts with the detected ORM)
+   - Are commands referencing the right actual commands from Phase 1? (not assumed commands)
+   - Are skills teaching methodology specific to this project, or could they apply to any project?
+   - Do agents contain enough project-specific context to produce different output than they would for a different project?
+
+2. **Gaps:**
+   - Is there a detected technology with no corresponding output? (e.g., Playwright detected but no E2E-related skill or guidance)
+   - Is there a workflow the developer likely does frequently that has no command? (e.g., database migrations, deployment)
+   - Are there agent blind spots? (e.g., reviewer agent knows about the linter but not about the project's specific code patterns)
+
+3. **Quality Issues:**
+   - Generic advice that could apply to any project → make specific or remove
+   - Inconsistencies between files (CLAUDE.md says one command, agent says another)
+   - Missing validation commands in agents/commands (detected but not referenced)
+
+**Stopping criteria:** Stop when a review pass finds no areas of improvement, no gaps, and no quality issues. Typically 1-3 passes.
+
+### 2.6 Quality validation
+
+After the self-review loop completes, run the Quality Validation Checklist (section 9.10) one final time. Fix any remaining issues.
+
+### 2.7 Generate INSTRUCTION.md
+
+After the final validation passes, generate an `INSTRUCTION.md` in the project root using the INSTRUCTION.md template in the generation guide.
 
 - Include only sections for layers that were actually generated (commands, skills, agents, hooks, MCP)
 - Fill in all project-specific values — stack names, framework versions, real command names

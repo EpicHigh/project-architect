@@ -842,9 +842,42 @@ For each generated file:
 
 ---
 
-## 9.11 INSTRUCTION.md Template
+## 9.11 Self-Review Criteria
 
-After Phase 2 generates all `.claude/` configuration and passes the quality validation checklist (section 9.10), produce an `INSTRUCTION.md` in the project root as a quick-start onboarding guide. This is tailored to what was actually generated — not a generic Claude Code tutorial.
+After writing all files, read them back and review for these categories. Repeat until no issues remain.
+
+### Areas of Improvement
+
+Ask for each generated file:
+
+- **Stack intersection depth:** Does this output contain knowledge about how detected technologies **interact**? A developer agent for Next.js + Prisma should know that Prisma queries belong in Server Components — not just know React and Prisma separately.
+- **Command accuracy:** Does every validation step reference commands that **actually exist** in this project? (Not assumed — verified in Phase 1)
+- **Specificity test:** If I replace the project name with "generic-app," does the content still make sense? If yes, it's too generic — add project-specific knowledge or remove.
+- **Completeness:** Is there a detected technology with no corresponding guidance? (e.g., Playwright detected but no E2E methodology in any skill)
+
+### Gaps to Check
+
+- **Workflow gaps:** What does a developer working on this project do daily that has no command/skill/agent support? (e.g., database migrations, deployment, code generation)
+- **Agent blind spots:** Does each agent reference the **actual files and directories** found in Phase 1? (e.g., reviewer should know where routes live, not just "check API endpoints")
+- **Skill methodology gaps:** Do skills teach methodology for the detected stack's **unique challenges**? (e.g., a tdd skill for a project with both unit and E2E tests should address both)
+- **Hook coverage:** If a linter and test framework were both detected and confirmed fast, is a lint+test pre-commit hook generated?
+
+### Anti-Patterns to Eliminate
+
+- Lines like "follow best practices" or "write clean code" — too generic, remove
+- Agent sections that list framework features from documentation — replace with project-specific patterns
+- Commands with steps the project can't actually run (e.g., "run lint" when no linter detected)
+- Skills that duplicate CLAUDE.md content — skills are for methodology, CLAUDE.md is for facts
+
+### When to Stop
+
+Stop iterating when a review pass finds **zero** issues across all three categories. Typically takes 1-3 passes. Don't iterate endlessly — if the output is solid and project-specific, present it.
+
+---
+
+## 9.12 INSTRUCTION.md Template
+
+After the self-review loop completes and the quality validation checklist passes, produce an `INSTRUCTION.md` in the project root as a quick-start onboarding guide. This is tailored to what was actually generated — not a generic Claude Code tutorial.
 
 ### Rules
 
