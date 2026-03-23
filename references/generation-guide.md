@@ -1257,7 +1257,7 @@ Quick-reference table mapping Phase 1 detections to Phase 2 outputs. Use this as
 - Empty cells mean nothing is generated for that combination.
 - *Context7 is only generated for frameworks listed in section 9.6. Not all backend/frontend frameworks have Context7 documentation support.
 - **Agent model selection:** Use `sonnet` for most agents. Use `opus` for `architect` (benefits from deeper reasoning).
-- **Worktree agents** (`implementer`, `fixer`) require both test framework AND linter to ensure their output can be validated before merging.
+- **Worktree isolation:** `implementer` requires both test framework AND linter. `fixer` requires test framework (it validates fixes via tests, linter is optional).
 
 ---
 
