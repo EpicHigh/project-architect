@@ -10,7 +10,10 @@
       "name": "project-architect",
       "description": "Analyze any codebase and generate Claude Code configuration — CLAUDE.md, commands, skills, agents, hooks — tailored to your project.",
       "version": "0.1.0",
-      "source": ".",
+      "source": {
+        "source": "github",
+        "repo": "EpicHigh/claude-project-architect"
+      },
       "category": "development",
       "tags": [
         "project-setup",
