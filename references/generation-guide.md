@@ -240,6 +240,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Each command is generated as a `.md` file in `.claude/commands/`. Commands are workflow entry points — they orchestrate real work with codebase exploration, incremental validation, and concrete phases.
 
 **Design principles for commands:**
+
 - Commands orchestrate workflows, they don't list checklists
 - Every command starts with understanding context before taking action
 - Validation happens after each step, not just at the end
@@ -443,6 +444,7 @@ End with a summary: total findings by severity, overall assessment (approve / re
 Each skill is generated as a `SKILL.md` file inside `.claude/skills/<skill-name>/`. Skills encode **methodology** — structured approaches to recurring development tasks. They teach Claude *how* to work, not just *what* exists.
 
 **Design principles for skills:**
+
 - Skills encode decision-making methodology, not information dumps
 - Every skill starts with codebase exploration before action
 - Skills have clear phases with concrete outputs
@@ -847,6 +849,7 @@ When modifying the schema:
 Agents are specialized team members that run in separate context windows or worktrees. Each agent has a clear persona, philosophy, deliverables, and self-validation process.
 
 **Design principles for agents:**
+
 - Every agent has a specific expertise and philosophy — not a generic assistant
 - Agents produce concrete deliverables, not vague advice
 - Agents self-validate their output using the project's actual tools
