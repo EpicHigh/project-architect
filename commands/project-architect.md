@@ -85,7 +85,9 @@ Look for:
 
 ### 1.6 Read git history and branch info
 
-Run:
+First check if this is a git repo: `git rev-parse --is-inside-work-tree`. If not, skip this step entirely and note "no git repo" in your summary.
+
+If it is a git repo, run:
 
 - `git log --oneline -20` — recent commit messages (check for conventional commits, lowercase preference, commit style). If the project has no commits yet, note this and skip git conventions.
 - `git branch -r` — remote branches (check for branch naming conventions like `feature/`, `fix/`, `main` vs `master`)
