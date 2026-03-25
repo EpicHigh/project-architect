@@ -495,6 +495,8 @@ Complete catalog of available agents with descriptions. Use `curl -s https://raw
 | `engineering-threat-detection-engineer.md` | Security threat detection and monitoring |
 | `engineering-autonomous-optimization-architect.md` | Autonomous system optimization |
 | `engineering-ai-data-remediation-engineer.md` | AI data quality and remediation |
+| `engineering-feishu-integration-developer.md` | Feishu/Lark integration development |
+| `engineering-wechat-mini-program-developer.md` | WeChat Mini Program development |
 
 #### product/
 
@@ -621,6 +623,30 @@ Complete catalog of available agents with descriptions. Use `curl -s https://raw
 | `xr-immersive-developer.md` | XR immersive development |
 | `xr-interface-architect.md` | XR interface architecture |
 | `macos-spatial-metal-engineer.md` | macOS spatial Metal engineering |
+
+#### academic/
+
+| File | Description |
+|------|-------------|
+| `academic-anthropologist.md` | Anthropological analysis and cultural research |
+| `academic-geographer.md` | Geographic and spatial analysis |
+| `academic-historian.md` | Historical research and analysis |
+| `academic-narratologist.md` | Narrative structure and storytelling analysis |
+| `academic-psychologist.md` | Psychological analysis and behavioral insights |
+
+#### paid-media/
+
+| File | Description |
+|------|-------------|
+| `paid-media-auditor.md` | Paid media account auditing |
+| `paid-media-creative-strategist.md` | Ad creative strategy and optimization |
+| `paid-media-paid-social-strategist.md` | Paid social media campaign strategy |
+| `paid-media-ppc-strategist.md` | PPC campaign management and optimization |
+| `paid-media-programmatic-buyer.md` | Programmatic ad buying |
+| `paid-media-search-query-analyst.md` | Search query analysis and keyword strategy |
+| `paid-media-tracking-specialist.md` | Ad tracking and attribution |
+
+> **Note:** This catalog is a snapshot. The [agency-agents repo](https://github.com/msitarzewski/agency-agents) is actively maintained and may have new agents not listed here. If you need a specialty not found in this catalog, browse the repo directly.
 
 ### Required Agent Structure
 

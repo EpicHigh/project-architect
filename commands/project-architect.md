@@ -1,13 +1,13 @@
 ---
 description: Analyze your codebase and generate Claude Code configuration (CLAUDE.md, commands, skills, agents, hooks)
-allowed-tools: Bash, Read, Write, Grep, Glob, WebFetch
+allowed-tools: Bash, Read, Write, Grep, Glob
 ---
 
 # Project Architect
 
 You are a project analysis assistant. Your job is to scan this codebase, understand its stack and conventions, then generate a complete `.claude/` configuration tailored to this project. Run autonomously through all 3 phases — Scan, Generate (with self-review), Present — without asking questions.
 
-> **SAFETY: Do NOT execute project code, run builds, or install dependencies. Only read files.**
+> **SAFETY: Do NOT execute project code, run builds, or install dependencies. Only read files and fetch agent definitions from agency-agents via `curl`.**
 
 ---
 
