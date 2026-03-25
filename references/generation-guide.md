@@ -439,6 +439,8 @@ Agents are `.md` files in `.claude/agents/`. They are sourced from the [agency-a
 
 Base URL: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/`
 
+**IMPORTANT:** Use `curl -s` via Bash to fetch agents (NOT WebFetch). WebFetch processes content through an AI model and returns a summary — not the raw markdown file. You need the raw content to write as-is. Example: `curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
+
 ### Detection → Agent Mapping
 
 Select agents based on Phase 1 detections. Fetch from the corresponding file, then tailor.
@@ -462,7 +464,163 @@ Select agents based on Phase 1 detections. Fetch from the corresponding file, th
 | Mobile (React Native/Flutter/Swift) | Mobile App Builder | `engineering/engineering-mobile-app-builder.md` |
 | Any project with docs needs | Technical Writer | `engineering/engineering-technical-writer.md` |
 
-This is a starting point. If the project's unique characteristics suggest an agent not listed here, browse the [full agency-agents catalog](https://github.com/msitarzewski/agency-agents) and fetch it.
+This is a starting point. If the project's unique characteristics suggest an agent not listed here, browse the catalog below for the correct filename.
+
+### agency-agents Repository Structure
+
+Complete catalog of available agents with descriptions. Use `curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{path}` to fetch.
+
+#### engineering/
+
+| File | Description |
+|------|-------------|
+| `engineering-software-architect.md` | System design, domain-driven design, architectural patterns, technical decisions for scalable systems |
+| `engineering-senior-developer.md` | Premium implementation specialist — full-stack, advanced patterns |
+| `engineering-code-reviewer.md` | Constructive code review focused on correctness, maintainability, security, performance |
+| `engineering-frontend-developer.md` | Modern web technologies, React/Vue/Angular, UI implementation, performance optimization |
+| `engineering-backend-architect.md` | Scalable system design, database architecture, API development, cloud infrastructure |
+| `engineering-security-engineer.md` | Threat modeling, vulnerability assessment, secure code review, security architecture |
+| `engineering-database-optimizer.md` | Schema design, query optimization, indexing strategies, performance tuning (PostgreSQL, MySQL, etc.) |
+| `engineering-devops-automator.md` | Infrastructure automation, CI/CD pipelines, cloud operations |
+| `engineering-sre.md` | SLOs, error budgets, observability, chaos engineering, toil reduction |
+| `engineering-ai-engineer.md` | ML model development, deployment, AI-powered applications, data pipelines |
+| `engineering-mobile-app-builder.md` | Native iOS/Android and cross-platform mobile development |
+| `engineering-technical-writer.md` | Developer docs, API references, READMEs, tutorials |
+| `engineering-data-engineer.md` | Data pipelines, lakehouse architectures, ETL/ELT, Spark, dbt, streaming |
+| `engineering-git-workflow-master.md` | Git workflows, branching strategies, conventional commits, rebasing |
+| `engineering-rapid-prototyper.md` | Ultra-fast proof-of-concept and MVP creation |
+| `engineering-incident-response-commander.md` | Production incident management, response coordination, post-mortems |
+| `engineering-embedded-firmware-engineer.md` | Embedded systems and firmware development |
+| `engineering-solidity-smart-contract-engineer.md` | Solidity smart contracts, blockchain development |
+| `engineering-threat-detection-engineer.md` | Security threat detection and monitoring |
+| `engineering-autonomous-optimization-architect.md` | Autonomous system optimization |
+| `engineering-ai-data-remediation-engineer.md` | AI data quality and remediation |
+
+#### product/
+
+| File | Description |
+|------|-------------|
+| `product-manager.md` | Full product lifecycle — discovery, strategy, roadmap, stakeholder alignment, GTM, outcome measurement |
+| `product-feedback-synthesizer.md` | Collecting and synthesizing user feedback into actionable product insights |
+| `product-sprint-prioritizer.md` | Sprint planning, feature prioritization, resource allocation, data-driven frameworks |
+| `product-trend-researcher.md` | Market intelligence, emerging trends, competitive analysis, opportunity assessment |
+| `product-behavioral-nudge-engine.md` | Behavioral design and nudge strategies |
+
+#### design/
+
+| File | Description |
+|------|-------------|
+| `design-ui-designer.md` | Visual design systems, component libraries, pixel-perfect interfaces |
+| `design-ux-architect.md` | Technical architecture and UX, CSS systems, implementation guidance |
+| `design-ux-researcher.md` | User behavior analysis, usability testing, data-driven design insights |
+| `design-brand-guardian.md` | Brand identity, consistency, strategic positioning |
+| `design-image-prompt-engineer.md` | AI image prompt engineering |
+| `design-visual-storyteller.md` | Visual narrative and storytelling |
+| `design-inclusive-visuals-specialist.md` | Inclusive and accessible visual design |
+| `design-whimsy-injector.md` | Delight and personality in UI/UX |
+
+#### testing/
+
+| File | Description |
+|------|-------------|
+| `testing-api-tester.md` | API validation, performance testing, QA across systems and integrations |
+| `testing-performance-benchmarker.md` | System performance measurement, analysis, optimization |
+| `testing-accessibility-auditor.md` | WCAG audits, assistive technology testing, inclusive design |
+| `testing-evidence-collector.md` | Screenshot-based QA, visual proof collection |
+| `testing-reality-checker.md` | Reality validation and fact-checking |
+| `testing-test-results-analyzer.md` | Test result analysis and reporting |
+| `testing-tool-evaluator.md` | Tool and technology evaluation |
+| `testing-workflow-optimizer.md` | Testing workflow optimization |
+
+#### project-management/
+
+| File | Description |
+|------|-------------|
+| `project-manager-senior.md` | Specs to tasks, realistic scope, exact requirements |
+| `project-management-project-shepherd.md` | Cross-functional coordination, timeline management, stakeholder alignment |
+| `project-management-jira-workflow-steward.md` | Jira workflow management |
+| `project-management-experiment-tracker.md` | Experiment tracking and analysis |
+| `project-management-studio-operations.md` | Studio operations management |
+| `project-management-studio-producer.md` | Studio production management |
+
+#### support/
+
+| File | Description |
+|------|-------------|
+| `support-support-responder.md` | Customer support, issue resolution, multi-channel support |
+| `support-analytics-reporter.md` | Support analytics and reporting |
+| `support-finance-tracker.md` | Financial tracking and reporting |
+| `support-infrastructure-maintainer.md` | System reliability, performance optimization, technical operations |
+| `support-legal-compliance-checker.md` | Legal compliance checking |
+| `support-executive-summary-generator.md` | Executive summary generation |
+
+#### marketing/
+
+| File | Description |
+|------|-------------|
+| `marketing-content-creator.md` | Multi-platform content strategy, editorial calendars, brand storytelling |
+| `marketing-growth-hacker.md` | Rapid user acquisition, viral loops, conversion funnels |
+| `marketing-seo-specialist.md` | Technical SEO, content optimization, organic search growth |
+| `marketing-social-media-strategist.md` | Social media strategy |
+| `marketing-linkedin-content-creator.md` | LinkedIn content strategy |
+| `marketing-podcast-strategist.md` | Podcast strategy |
+| `marketing-reddit-community-builder.md` | Reddit community building |
+| `marketing-tiktok-strategist.md` | TikTok content strategy |
+| `marketing-twitter-engager.md` | Twitter engagement strategy |
+| `marketing-instagram-curator.md` | Instagram curation |
+| `marketing-book-co-author.md` | Book co-authoring |
+| `marketing-ai-citation-strategist.md` | AI citation strategy |
+| `marketing-app-store-optimizer.md` | App store optimization |
+| `marketing-carousel-growth-engine.md` | Carousel growth strategy |
+| `marketing-short-video-editing-coach.md` | Short video editing coaching |
+| *(+ regional specialists: douyin, kuaishou, xiaohongshu, weibo, zhihu, baidu, bilibili, wechat)* |
+
+#### sales/
+
+| File | Description |
+|------|-------------|
+| `sales-engineer.md` | Pre-sales engineering, technical discovery, demos, POC scoping |
+| `sales-coach.md` | Rep development, pipeline review, call coaching, deal strategy |
+| `sales-deal-strategist.md` | Deal strategy |
+| `sales-discovery-coach.md` | Discovery coaching |
+| `sales-outbound-strategist.md` | Outbound strategy |
+| `sales-pipeline-analyst.md` | Pipeline analysis |
+| `sales-account-strategist.md` | Account strategy |
+| `sales-proposal-strategist.md` | Proposal strategy |
+
+#### specialized/
+
+| File | Description |
+|------|-------------|
+| `specialized-mcp-builder.md` | MCP server development — custom tools, resources, prompts |
+| `specialized-workflow-architect.md` | Complete workflow trees, branch conditions, failure modes, handoff contracts |
+| `specialized-developer-advocate.md` | Developer communities, DX optimization, platform adoption |
+| `specialized-document-generator.md` | PDF, PPTX, DOCX, XLSX generation |
+| `specialized-salesforce-architect.md` | Salesforce multi-cloud design, integration patterns |
+| `specialized-model-qa.md` | AI model QA |
+| `compliance-auditor.md` | SOC 2, ISO 27001, HIPAA, PCI-DSS compliance |
+| `agents-orchestrator.md` | Multi-agent workflow orchestration |
+| *(+ more: recruitment-specialist, supply-chain-strategist, blockchain-security-auditor, etc.)* |
+
+#### game-development/
+
+| File | Description |
+|------|-------------|
+| `game-designer.md` | Game design |
+| `game-audio-engineer.md` | Game audio engineering |
+| `level-designer.md` | Level design |
+| `narrative-designer.md` | Narrative design |
+| `technical-artist.md` | Technical art |
+| *(+ engine-specific: godot/, unity/, unreal-engine/, roblox-studio/, blender/)* |
+
+#### spatial-computing/
+
+| File | Description |
+|------|-------------|
+| `visionos-spatial-engineer.md` | visionOS spatial computing |
+| `xr-immersive-developer.md` | XR immersive development |
+| `xr-interface-architect.md` | XR interface architecture |
+| `macos-spatial-metal-engineer.md` | macOS spatial Metal engineering |
 
 ### Required Agent Structure
 
@@ -489,7 +647,7 @@ When you fetch an agent from agency-agents, adapt it:
 
 ### Quality Criteria
 
-- [ ] Agent was **fetched from agency-agents via WebFetch** (not composed from scratch unless fetch failed)
+- [ ] Agent was **fetched from agency-agents via `curl -s`** (not WebFetch, not composed from scratch unless curl failed)
 - [ ] Agent has **all 7 required sections** — if the fetched original has additional sections, keep them
 - [ ] Agent is **at least 80 lines** — agency-agents originals are 200-400 lines; tailored versions must preserve substantial depth
 - [ ] **Stack Expertise is the longest section** — this is where project-specific knowledge lives (at least 5 project-specific bullet points)
@@ -508,9 +666,9 @@ When you fetch an agent from agency-agents, adapt it:
 | `allowed-tools` | Yes | Comma-separated tool list |
 | `isolation` | No | `worktree` for agents that write code |
 
-### Fallback (only when WebFetch actually fails)
+### Fallback (only when curl actually fails)
 
-Only if WebFetch returns an error after you attempt the fetch, compose agents from scratch following the 7-section structure above. You must still meet the minimum 80-line depth and all quality criteria. Do NOT use this fallback to save tokens — always attempt WebFetch first.
+Only if `curl` returns an error or empty content after you attempt the fetch, compose agents from scratch following the 7-section structure above. You must still meet the minimum 80-line depth and all quality criteria. Do NOT use this fallback to save tokens — always attempt `curl` first.
 
 ---
 
