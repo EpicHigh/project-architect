@@ -334,22 +334,105 @@ allowed-tools: Bash, Read, Write, Glob, Grep, Agent
 
 ## 9.3 Skill Guidelines
 
-Skills are `SKILL.md` files in `.claude/skills/<name>/`. They encode **methodology** — how to think about recurring tasks in this specific codebase.
+Skills are `SKILL.md` files in `.claude/skills/<name>/`. They encode **methodology** — how to think about recurring tasks in this specific codebase. Based on [Anthropic's official skill best practices](https://github.com/anthropics/skills/tree/main/skills/skill-creator).
 
 ### Principles
 
-- Skills teach decision-making methodology, not information dumps
-- A skill answers "how should I approach X in THIS codebase?" — not "here are facts about X"
-- The `description` field determines auto-activation — list 3-7 specific intent phrases using action verbs
-- Never duplicate CLAUDE.md content: skills are for methodology, CLAUDE.md is for facts
-- Skills should reference specific patterns, files, and conventions found in Phase 1
+1. **Description is the trigger** — The `description` field is the PRIMARY mechanism that determines when Claude activates the skill. Write ~100 words that are "a little pushy" — explicitly state WHEN to use this skill with 5+ action-verb trigger phrases. Combat Claude's natural under-triggering tendency by being specific about contexts where the skill applies.
+
+2. **Explain WHY, not just rules** — Appeal to Claude's theory of mind. Instead of rigid MUSTs and all-caps ALWAYS/NEVER, explain the reasoning behind each guideline. Claude follows reasoning better than rote commands.
+
+3. **Lean instructions** — Every section must earn its place. Remove things that aren't pulling weight. If a guideline doesn't change behavior, cut it. Read transcripts of Claude using the skill to identify unproductive steps.
+
+4. **Progressive disclosure** — Keep SKILL.md under 500 lines. If you need more depth, use `references/` subdirectory for larger content the skill can point to.
+
+5. **Concrete examples** — Include at least 2 Input/Output pairs showing the pattern in action with real project code. These are more effective than abstract rules.
+
+6. **No duplication with CLAUDE.md** — Skills teach methodology ("how to approach X"). CLAUDE.md teaches facts ("what tools/commands exist"). Never repeat CLAUDE.md content in a skill.
+
+### Skill Structure
+
+```
+.claude/skills/<name>/
+├── SKILL.md           # Required — instructions + methodology
+└── evals/
+    └── evals.json     # Required — 2-3 test prompts + assertions
+```
+
+### SKILL.md Anatomy
+
+```markdown
+---
+name: skill-name
+description: >
+  ~100 words. Be pushy about when to activate. Use action verbs.
+  Include 5+ specific trigger phrases that match how developers
+  phrase requests. Example: "Use when: creating API endpoints,
+  adding new routes, designing request schemas, handling API errors,
+  adding middleware, structuring route handlers, connecting routes
+  to services."
+---
+
+# Skill Title
+
+## Why This Matters
+Brief context on why this methodology exists in this project.
+Appeal to reasoning, not just authority.
+
+## Methodology
+Step-by-step approach with WHY for each step.
+
+## Examples
+At least 2 concrete Input/Output pairs from the actual project.
+
+## Patterns to Follow
+Project-specific patterns with file references.
+
+## Anti-Patterns
+Common mistakes in this codebase and why they cause problems.
+```
+
+### Evals (evals.json)
+
+Every generated skill MUST include `evals/evals.json` with 2-3 realistic test prompts. Evals verify the skill produces correct behavior.
+
+**Schema:**
+
+```json
+{
+  "skill_name": "skill-name",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "What a real developer would type",
+      "expected_output": "Description of what correct output looks like",
+      "assertions": [
+        "Objectively verifiable assertion 1",
+        "Objectively verifiable assertion 2"
+      ]
+    }
+  ]
+}
+```
+
+**Rules for evals:**
+- Prompts must be realistic — what a developer would actually say, not artificial test cases
+- Assertions must be **objectively verifiable** (can check yes/no) and **discriminating** (fail when the skill really fails, pass when it succeeds)
+- Skip assertions for subjective qualities (writing style, design aesthetics)
+- 2-3 evals per skill is sufficient — these are for iteration speed, not exhaustive coverage
 
 ### Quality Criteria
 
-- [ ] Skill contains project-specific methodology, not generic framework docs
-- [ ] Each section references actual files/patterns from the scan
+- [ ] Description is ~100 words and includes 5+ specific trigger phrases with action verbs
+- [ ] Description is "pushy" — tells Claude WHEN to use this skill, not just what it does
+- [ ] Instructions explain WHY (theory of mind), not just rigid rules
+- [ ] Contains at least 2 concrete Input/Output examples from the actual project
+- [ ] SKILL.md is under 500 lines
+- [ ] No duplicate content with CLAUDE.md (skills = methodology, CLAUDE.md = facts)
+- [ ] References actual files, directories, patterns from Phase 1
 - [ ] Principles survive codebase changes (not brittle line-number references)
-- [ ] Description uses action verbs matching how developers phrase requests
+- [ ] `evals/evals.json` exists with 2-3 test prompts and objectively verifiable assertions
+- [ ] **Connection check:** Skill references which agent(s) apply it
 
 ### Always Generate
 
@@ -371,55 +454,104 @@ Skills are `SKILL.md` files in `.claude/skills/<name>/`. They encode **methodolo
 ---
 name: api-patterns
 description: >
-  API design patterns for this FastAPI project. Activates when: creating endpoints,
-  designing request/response schemas, handling API errors, adding middleware,
-  structuring routes.
+  API route design patterns for this FastAPI + SQLAlchemy project. Use this skill
+  when: creating new API endpoints, adding route handlers, designing request or
+  response Pydantic schemas, handling API errors or validation, adding middleware,
+  structuring router files, connecting routes to the service layer, setting up
+  dependency injection for database sessions, or reviewing existing endpoint
+  patterns. This skill teaches the 4-layer pattern (router → schema → service → model)
+  that keeps endpoints consistent and testable.
 ---
 
 # API Patterns
 
-## How Endpoints Are Structured
+## Why This Pattern Exists
 
-This project follows a consistent pattern. Before creating a new endpoint, read 2-3 existing routers in `app/api/` to see it in action.
+This project separates HTTP concerns from business logic using a 4-layer architecture.
+This matters because it keeps endpoints testable (you can test services without HTTP),
+prevents business logic from leaking into route handlers, and makes it easy for multiple
+endpoints to share the same service logic.
+
+## The 4-Layer Pattern
+
+Before creating a new endpoint, read 2-3 existing routers in `app/api/` to see this in action.
 
 1. **Router file** in `app/api/` — one file per resource (e.g., `users.py`, `invoices.py`)
-2. **Pydantic models** for request/response in `app/schemas/` — validate input, shape output
-3. **Service layer** in `app/services/` — business logic, separated from HTTP concerns
+2. **Pydantic models** in `app/schemas/` — validate input, shape output
+3. **Service layer** in `app/services/` — business logic, separated from HTTP
 4. **DB access** via SQLAlchemy in `app/models/` — use `Depends(get_db)` for session injection
 
-## Key Conventions
+## Examples
 
-- Route naming: plural nouns, kebab-case (`/api/v1/tax-invoices`)
-- Auth: `Depends(get_current_user)` on protected endpoints
-- Errors: raise `HTTPException` with appropriate status codes, never return raw exceptions
-- Validation: Pydantic handles it — don't duplicate validation in service layer
+**Example 1: Creating a new CRUD endpoint**
+
+Input: "Create an endpoint for managing invoices"
+
+Output pattern:
+```python
+# app/api/invoices.py
+router = APIRouter(prefix="/api/v1/invoices", tags=["invoices"])
+
+@router.post("/", response_model=InvoiceResponse)
+async def create_invoice(
+    data: InvoiceCreate,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return await invoice_service.create(db, data, user)
+```
+
+**Example 2: Adding error handling**
+
+Input: "Handle the case where an invoice is not found"
+
+Output pattern:
+```python
+invoice = await invoice_service.get_by_id(db, invoice_id)
+if not invoice:
+    raise HTTPException(status_code=404, detail="Invoice not found")
+```
+Why `HTTPException` instead of returning a dict: FastAPI auto-generates OpenAPI error docs
+from HTTPException, and middleware can catch it consistently.
+
+## Anti-Patterns
+
+- **Don't put business logic in route handlers** — if you need an `if/else` beyond input
+  validation, it belongs in the service layer
+- **Don't create Pydantic models in the router file** — they live in `app/schemas/`
+- **Don't duplicate Pydantic validation in services** — Pydantic already validated the input
 `````
 
-### Example: design-system skill for a React + Tailwind + shadcn/ui project
+**Corresponding evals/evals.json:**
 
-`````markdown
----
-name: design-system
-description: >
-  Design system and styling patterns. Activates when: styling components,
-  choosing colors or spacing, creating layouts, using Tailwind utilities,
-  working with shadcn/ui components.
----
-
-# Design System
-
-## Before Building UI
-
-1. Check `components/ui/` for shadcn primitives — Button, Card, Dialog, etc. are already there.
-2. Check existing pages for similar layouts — reuse before creating.
-3. Reference `tailwind.config.ts` for custom theme tokens (colors, spacing, breakpoints).
-
-## Styling Rules
-
-- Use Tailwind utilities directly. Avoid `@apply` unless extracting a reusable component style.
-- Follow the existing class ordering pattern (check nearby components).
-- Don't introduce new color/spacing values without checking the config first.
-- For dark mode: use `dark:` variant classes. The project uses class-based dark mode.
+`````json
+{
+  "skill_name": "api-patterns",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a new API endpoint for managing invoices with CRUD operations",
+      "expected_output": "Router file with endpoints following the 4-layer pattern",
+      "assertions": [
+        "Creates router file in app/api/ directory",
+        "Uses Pydantic models from app/schemas/ for request/response",
+        "Delegates business logic to a service in app/services/",
+        "Uses Depends(get_db) for database session injection",
+        "Uses Depends(get_current_user) for authentication"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add error handling to the invoices endpoint for not-found cases",
+      "expected_output": "HTTPException usage with appropriate status codes",
+      "assertions": [
+        "Uses HTTPException (not plain dict responses) for errors",
+        "Returns 404 status code for not-found cases",
+        "Error handling is in the route handler, not the service layer"
+      ]
+    }
+  ]
+}
 `````
 
 ### Frontmatter Reference
@@ -427,7 +559,7 @@ description: >
 | Field | Required | Values |
 |-------|----------|--------|
 | `name` | Yes | Skill name (kebab-case) |
-| `description` | Yes | Multi-line: purpose + activation triggers |
+| `description` | Yes | ~100 words: purpose + 5+ trigger phrases with action verbs. Be pushy. |
 
 ---
 
@@ -788,7 +920,7 @@ These are **hard requirements**, not suggestions. If a detection matches, you MU
 | `CLAUDE.md` | Project documentation |
 | `INSTRUCTION.md` | Onboarding guide |
 | `commit`, `implement`, `fix`, `review` | Commands |
-| `implement-feature`, `fix-bug`, `improve-architecture` | Skills |
+| `implement-feature`, `fix-bug`, `improve-architecture` (each with `evals/evals.json`) | Skills |
 | `architect`, `product-manager`, `code-reviewer` agents | Agents |
 
 ### Generate When Detected (mandatory — if detection matches, GENERATE it)
@@ -955,6 +1087,9 @@ For each generated file:
 - [ ] **Valid frontmatter** — YAML frontmatter has all required fields
 - [ ] **Agent depth check** — each agent file is at least 80 lines with all 7 required sections
 - [ ] **Agent source check** — agents were fetched from agency-agents via `curl -s` (not WebFetch, not composed from scratch unless curl failed)
+- [ ] **Skill description check** — each skill description is ~100 words with 5+ action-verb trigger phrases
+- [ ] **Skill evals check** — each skill has `evals/evals.json` with 2-3 test prompts and discriminating assertions
+- [ ] **Skill size check** — each SKILL.md is under 500 lines
 
 ### Cross-File Checks
 

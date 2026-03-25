@@ -182,14 +182,26 @@ Refine until each command is project-specific and connected to Layer 1.
 
 #### Layer 3: Skills
 
-Compose all skills (universal + conditional). Then review each skill:
+Compose all skills following [Anthropic's skill best practices](https://github.com/anthropics/skills/tree/main/skills/skill-creator) (see section 9.3 for full guidelines). For each skill:
 
-- Does the skill teach methodology specific to THIS project's stack intersection?
-- Does it reference actual files, directories, and patterns from Phase 1?
-- Does it avoid duplicating CLAUDE.md content? (Skills = methodology, CLAUDE.md = facts)
-- **Connection check:** Does each skill reference which agent(s) apply it? (e.g., `implement-feature` should mention the `developer` agent)
+**Step 1: Write SKILL.md** — Follow the SKILL.md anatomy in section 9.3. Key requirements:
+- Description must be ~100 words and "pushy" — explicitly state WHEN to activate with 5+ action-verb trigger phrases
+- Instructions must explain WHY (theory of mind), not just rigid rules
+- Include at least 2 concrete Input/Output examples from the actual project
+- Keep under 500 lines
 
-Refine until each skill is project-specific and connected to Layers 1-2.
+**Step 2: Write evals** — Generate `evals/evals.json` with 2-3 realistic test prompts and objectively verifiable assertions. Prompts should be what a real developer would type. Assertions must discriminate (fail when skill fails, pass when it succeeds).
+
+**Step 3: Self-review** — For each skill:
+- **Description check:** Is it ~100 words with 5+ trigger phrases? Is it "pushy" enough to combat under-triggering?
+- **WHY check:** Do instructions explain reasoning, or just list rigid MUSTs?
+- **Examples check:** Are there at least 2 Input/Output pairs from the actual project?
+- **Size check:** Is SKILL.md under 500 lines?
+- **Duplication check:** Does it avoid repeating CLAUDE.md content?
+- **Evals check:** Does `evals/evals.json` have 2-3 prompts with discriminating assertions?
+- **Connection check:** Does it reference which agent(s) apply it?
+
+Refine until each skill is project-specific, follows Anthropic best practices, and is connected to Layers 1-2.
 
 #### Layer 4: Agents (Fetch & Tailor)
 

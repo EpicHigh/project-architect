@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-03-25
+
+### Changed
+
+- **Skill generation aligned with Anthropic best practices** — Skills now follow [Anthropic's official skill-creator methodology](https://github.com/anthropics/skills/tree/main/skills/skill-creator): ~100 word "pushy" descriptions for better triggering, WHY-based instructions (theory of mind), concrete Input/Output examples, and lean content under 500 lines.
+
+### Added
+
+- **Evals for every skill** — Each generated skill now includes `evals/evals.json` with 2-3 realistic test prompts and objectively verifiable assertions, following Anthropic's eval framework.
+- **Skill quality checks** — Per-file and cross-layer validation now includes description quality, eval existence, and size checks.
+
 ## [1.4.0] - 2026-03-25
 
 ### Fixed

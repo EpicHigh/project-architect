@@ -1,6 +1,6 @@
 {
   "name": "project-architect",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Analyze any codebase and generate Claude Code configuration — CLAUDE.md, commands, skills, agents, hooks — tailored to your project.",
   "author": {
     "name": "EpicHigh",
