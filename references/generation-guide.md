@@ -623,6 +623,8 @@ Complete catalog of available agents with descriptions. Use `curl -s https://raw
 | `xr-immersive-developer.md` | XR immersive development |
 | `xr-interface-architect.md` | XR interface architecture |
 | `macos-spatial-metal-engineer.md` | macOS spatial Metal engineering |
+| `terminal-integration-specialist.md` | Terminal integration for spatial computing |
+| `xr-cockpit-interaction-specialist.md` | XR cockpit interaction design |
 
 #### academic/
 
@@ -952,7 +954,7 @@ For each generated file:
 - [ ] **Correct file path** — placed in the right directory (`.claude/commands/`, `.claude/skills/<name>/`, `.claude/agents/`)
 - [ ] **Valid frontmatter** — YAML frontmatter has all required fields
 - [ ] **Agent depth check** — each agent file is at least 80 lines with all 7 required sections
-- [ ] **Agent source check** — agents were fetched from agency-agents via WebFetch (not composed from scratch unless fetch failed)
+- [ ] **Agent source check** — agents were fetched from agency-agents via `curl -s` (not WebFetch, not composed from scratch unless curl failed)
 
 ### Cross-File Checks
 
