@@ -185,6 +185,7 @@ Refine until each command is project-specific and connected to Layer 1.
 Compose all skills following [Anthropic's skill best practices](https://github.com/anthropics/skills/tree/main/skills/skill-creator) (see section 9.3 for full guidelines). For each skill:
 
 **Step 1: Write SKILL.md** — Follow the SKILL.md anatomy in section 9.3. Key requirements:
+
 - Description must be ~100 words and "pushy" — explicitly state WHEN to activate with 5+ action-verb trigger phrases
 - Instructions must explain WHY (theory of mind), not just rigid rules
 - Include at least 2 concrete Input/Output examples from the actual project
@@ -193,6 +194,7 @@ Compose all skills following [Anthropic's skill best practices](https://github.c
 **Step 2: Write evals** — Generate `evals/evals.json` with 2-3 realistic test prompts and objectively verifiable assertions. Prompts should be what a real developer would type. Assertions must discriminate (fail when skill fails, pass when it succeeds).
 
 **Step 3: Self-review** — For each skill:
+
 - **Description check:** Is it ~100 words with 5+ trigger phrases? Is it "pushy" enough to combat under-triggering?
 - **WHY check:** Do instructions explain reasoning, or just list rigid MUSTs?
 - **Examples check:** Are there at least 2 Input/Output pairs from the actual project?

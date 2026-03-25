@@ -416,6 +416,7 @@ Every generated skill MUST include `evals/evals.json` with 2-3 realistic test pr
 ```
 
 **Rules for evals:**
+
 - Prompts must be realistic — what a developer would actually say, not artificial test cases
 - Assertions must be **objectively verifiable** (can check yes/no) and **discriminating** (fail when the skill really fails, pass when it succeeds)
 - Skip assertions for subjective qualities (writing style, design aesthetics)
@@ -686,11 +687,13 @@ avoiding class conflicts when conditionally applying styles.
 To help distinguish good from bad descriptions, here's what NOT to write:
 
 **Bad (too short, not pushy, no trigger phrases):**
+
 ```yaml
 description: Design system and styling patterns for this project.
 ```
 
 **Bad (describes WHAT, not WHEN to use):**
+
 ```yaml
 description: >
   This skill contains information about the project's UI components,
@@ -698,6 +701,7 @@ description: >
 ```
 
 **Good (pushy, ~100 words, 5+ trigger phrases with action verbs):**
+
 ```yaml
 description: >
   UI component and styling patterns for this React 19 + Tailwind CSS 4 + shadcn/ui
