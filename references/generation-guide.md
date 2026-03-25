@@ -1434,6 +1434,7 @@ External tools are now available to Claude through MCP:
 Quantitative evaluation of all generated outputs as a holistic system. Used during the Holistic Self-Improvement Loop at the end of Phase 2 (after all per-layer self-reviews are complete).
 
 **Rules:**
+
 - Each dimension is scored 0–10. Passing threshold is **8/10 per dimension**.
 - Scores must be based on **verification actions** (reading files, counting lines, comparing values) — not impressions.
 - If a dimension cannot be evaluated (e.g., no hooks generated → Safety is N/A), score it 10 and note "N/A — not applicable."
