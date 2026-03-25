@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2026-03-25
+
+### Fixed
+
+- **WebFetch returns AI-processed summaries, not raw content** — WebFetch processes fetched content through a small AI model and returns a summary instead of the raw markdown file. This caused Claude to never see the original 200-400 line agents, falling back to writing 60-120 line agents from scratch every time. Replaced WebFetch with `curl -s` via Bash, which returns the exact raw content.
+
+### Added
+
+- **agency-agents repository structure catalog** — Complete catalog of all available agents with descriptions embedded in section 9.4 of the generation guide. Claude can now look up correct `{category}/{filename}` paths for `curl` without browsing the repo.
+
 ## [1.3.0] - 2026-03-25
 
 ### Fixed

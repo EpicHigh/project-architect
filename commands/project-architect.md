@@ -1,13 +1,13 @@
 ---
 description: Analyze your codebase and generate Claude Code configuration (CLAUDE.md, commands, skills, agents, hooks)
-allowed-tools: Bash, Read, Write, Grep, Glob, WebFetch
+allowed-tools: Bash, Read, Write, Grep, Glob
 ---
 
 # Project Architect
 
 You are a project analysis assistant. Your job is to scan this codebase, understand its stack and conventions, then generate a complete `.claude/` configuration tailored to this project. Run autonomously through all 3 phases — Scan, Generate (with self-review), Present — without asking questions.
 
-> **SAFETY: Do NOT execute project code, run builds, or install dependencies. Only read files.**
+> **SAFETY: Do NOT execute project code, run builds, or install dependencies. Only read files and fetch agent definitions from agency-agents via `curl`.**
 
 ---
 
@@ -197,24 +197,28 @@ Agents are sourced from the [agency-agents](https://github.com/msitarzewski/agen
 
 **Step 1: Select** — Check the Output Requirements (section 9.7) against Phase 1 detections. Every agent in the "Always Generate" and "Generate When Detected" tables that matches a detection is **mandatory**. Also check the mapping table in section 9.4 for fetch URLs.
 
-**Step 2: Fetch** — You **MUST** use WebFetch for each agent individually. Fetch the raw agent markdown:
+**Step 2: Fetch** — Use **Bash** to run `curl -s` for each agent individually. Do **NOT** use WebFetch (it processes content through an AI model and returns a summary, not the raw file).
 
 ```
-https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{category}/{filename}.md
+curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{category}/{filename}.md
 ```
 
-Example: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
+Example: `curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
 
-**Step 3: Write the fetched content as-is, then revise** — This is critical. Do NOT rewrite from scratch.
+The curl output IS the complete raw agent markdown (200-400 lines). Verify you received the full content (not an error page) before proceeding. Refer to the agency-agents Repository Structure in section 9.4 of the generation guide for correct `{category}/{filename}` paths.
 
-1. **Write the fetched agent content directly to `.claude/agents/{name}.md`** — use the fetched markdown as the base file. Add Claude Code frontmatter (description, model, allowed-tools, isolation) at the top.
-2. **Then revise the written file** — make targeted edits to adapt it to THIS project:
+**Step 3: Write as-is, then revise in-place** — This is critical. Do NOT rewrite from scratch.
+
+1. **Write the fetched agent content directly to `.claude/agents/{name}.md`** using the Write tool. The file content must be:
+   - Claude Code frontmatter (description, model, allowed-tools, isolation) at the very top
+   - Then the **COMPLETE** raw markdown from curl output, unchanged
+2. **Then use the Edit tool to make targeted revisions** — do NOT use Write again (that would overwrite the entire file). Use Edit to make surgical changes:
    - Replace generic framework references with this project's specific technologies
    - Add actual file paths, directories, commands from Phase 1
    - Add project-specific patterns found during scan
    - Adjust success metrics to match the project's actual tools
    - Add workflow connections to commands and skills from Layers 2-3
-3. **Preserve the original depth** — the fetched agents are 200-400 lines of production expertise. Your revised version should keep most of that depth. Do NOT summarize or condense — revise in-place.
+3. **Preserve the original depth** — the fetched agents are 200-400 lines of production expertise. Your revised version must keep most of that depth. Do NOT summarize or condense — only revise in-place.
 
 **Step 4: Self-review** — For each tailored agent:
 
@@ -228,7 +232,7 @@ Example: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engi
 
 Refine until each agent is genuinely stack-specific, deeply knowledgeable, and connected to all previous layers.
 
-**Fallback:** Only if WebFetch returns an actual error after attempting the fetch, compose from scratch using section 9.4 guidelines. Do NOT use the fallback to save tokens — the fetch step is mandatory.
+**Fallback:** Only if `curl` returns an error or empty content after attempting the fetch, compose from scratch using section 9.4 guidelines. Do NOT use the fallback to save tokens — the fetch step is mandatory.
 
 #### Layer 5: Hooks + MCP
 
