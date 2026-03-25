@@ -157,7 +157,7 @@ If the project already has `.claude/` config, follow these conflict resolution r
 
 Generate each layer in order. For each layer, compose → self-review → refine until robust before moving to the next. Each layer builds on the validated output of previous layers.
 
-Follow the Composition Process (section 9.8) and Edge Case strategies (section 9.9) throughout. Use the Self-Review Criteria (section 9.11) for per-layer review. The Quality Validation Checklist (section 9.10) runs once at the end as the final cross-layer check.
+Follow the Composition Process (section 9.9), Workflow Connections (section 9.8), and Edge Case strategies (section 9.10) throughout. Use the Self-Review Criteria (section 9.12) for per-layer review. The Quality Validation Checklist (section 9.11) runs once at the end as the final cross-layer check.
 
 #### Layer 1: CLAUDE.md (foundation)
 
@@ -175,9 +175,9 @@ Compose all commands (universal + conditional). Then review each command:
 
 - Does every validation step use a real command from CLAUDE.md?
 - Are steps consistent with what CLAUDE.md documents?
-- Would a developer find this command faster than doing the steps manually?
+- **Connection check:** Does each command reference the agent that handles the same workflow in isolation? (e.g., `/implement` should mention the `developer` agent)
 
-Refine until each command is project-specific and consistent with Layer 1.
+Refine until each command is project-specific and connected to Layer 1.
 
 #### Layer 3: Skills
 
@@ -186,8 +186,9 @@ Compose all skills (universal + conditional). Then review each skill:
 - Does the skill teach methodology specific to THIS project's stack intersection?
 - Does it reference actual files, directories, and patterns from Phase 1?
 - Does it avoid duplicating CLAUDE.md content? (Skills = methodology, CLAUDE.md = facts)
+- **Connection check:** Does each skill reference which agent(s) apply it? (e.g., `implement-feature` should mention the `developer` agent)
 
-Refine until each skill would produce different guidance for a different project.
+Refine until each skill is project-specific and connected to Layers 1-2.
 
 #### Layer 4: Agents
 
@@ -197,8 +198,9 @@ Compose all agents. Then review each agent:
 - Does the agent's process reference actual commands from CLAUDE.md and Layer 2?
 - Is the agent consistent with skills from Layer 3? (No contradictions)
 - **Specificity test:** Remove the project name — can you still identify which stack this agent targets?
+- **Connection check:** Does each agent reference which skill(s) it follows and which command(s) it complements? (See section 9.8 Workflow Connections)
 
-Refine until each agent is genuinely stack-specific and consistent with all previous layers.
+Refine until each agent is genuinely stack-specific and connected to all previous layers.
 
 #### Layer 5: Hooks + MCP
 
@@ -224,12 +226,13 @@ Verify it accurately summarizes everything generated in Layers 1-5.
 
 #### Final Cross-Layer Validation
 
-After all layers are complete, run the full Quality Validation Checklist (section 9.10) across all files:
+After all layers are complete, run the full Quality Validation Checklist (section 9.11) across all files:
 
 - No contradictions between layers (CLAUDE.md commands = actual commands = agent references)
 - No duplicate content across layers
 - Every generated file passes the specificity test
 - All conditional outputs match detections
+- **Workflow connections verified:** commands reference agents, agents reference skills, skills reference agents, hooks use CLAUDE.md commands (see section 9.8)
 
 ---
 

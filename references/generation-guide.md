@@ -477,7 +477,7 @@ isolation: worktree
 
 # Developer
 
-You are a senior TypeScript developer working on this Next.js 14 App Router project with Prisma and Tailwind CSS.
+You are a senior TypeScript developer working on this Next.js 14 App Router project with Prisma and Tailwind CSS. Follows the methodology in the `implement-feature` skill. Complements the `/implement` command with worktree isolation.
 
 ## Stack-Specific Patterns
 
@@ -517,7 +517,7 @@ isolation: worktree
 
 # Developer
 
-You are a senior Go developer working on this Chi-based API with Ent ORM and PostgreSQL.
+You are a senior Go developer working on this Chi-based API with Ent ORM and PostgreSQL. Follows the methodology in the `implement-feature` skill. Complements the `/implement` command with worktree isolation.
 
 ## Stack-Specific Patterns
 
@@ -556,7 +556,7 @@ allowed-tools: Bash, Read, Grep, Glob
 
 # Reviewer
 
-You are a code reviewer for this FastAPI + SQLAlchemy project.
+You are a code reviewer for this FastAPI + SQLAlchemy project. Complements the `/review` command with deeper analysis in a separate context.
 
 ## Review Process
 
@@ -727,7 +727,47 @@ After completing Phase 1, use this guide to reason about what outputs would help
 
 ---
 
-## 9.8 Composition Process
+## 9.8 Workflow Connections
+
+Generated outputs should form a connected pipeline, not isolated files. When a developer uses your generated config, they should experience a coherent workflow where commands, agents, skills, and hooks reference each other.
+
+### The Pipeline
+
+```
+User runs /implement command
+  → Command suggests: "invoke the developer agent for worktree isolation"
+  → Developer agent follows: implement-feature skill methodology
+  → Agent validates with: same lint/test commands as CLAUDE.md
+  → On commit: pre-commit hook runs the same lint command
+```
+
+### Connection Rules
+
+When composing each layer, build explicit connections to other layers **that were actually generated**. Only reference entities that exist — if no `developer` agent was generated, don't reference it from commands.
+
+| Layer | Should Reference (when the target exists) |
+|-------|------------------------------------------|
+| Commands | Which agent handles the same workflow in isolation (e.g., "invoke `developer` agent for worktree") |
+| Skills | Which agent(s) apply this methodology (e.g., "The `developer` agent follows this methodology") |
+| Agents | Which skill(s) inform their approach and which commands they complement (e.g., "Follows `implement-feature` skill methodology") |
+| Hooks | Same lint/test commands documented in CLAUDE.md |
+
+### Example Connections for a Next.js + Prisma Project
+
+- `/implement` command → "For isolated implementation, invoke the `developer` agent"
+- `/review` command → "For deep review in separate context, invoke the `reviewer` agent"
+- `implement-feature` skill → "The `developer` agent applies this methodology in a worktree"
+- `developer` agent → "Follows the methodology in `implement-feature` skill. Complements the `/implement` command with worktree isolation"
+- `reviewer` agent → "Complements `/review` command with deeper analysis in separate context"
+- pre-commit hook → runs `npm run lint` (same command as CLAUDE.md and commit command)
+
+### Why This Matters
+
+Without connections, a developer doesn't know that `/implement` and the `developer` agent are related — they seem like duplicates. With connections, it's clear: `/implement` runs inline, the `developer` agent runs in a worktree. The skill teaches the methodology both follow.
+
+---
+
+## 9.9 Composition Process
 
 How to compose each output. Follow this process for every file you generate. Generation happens per-layer (CLAUDE.md → Commands → Skills → Agents → Hooks/MCP → INSTRUCTION.md), with self-review after each layer before moving to the next.
 
@@ -767,7 +807,7 @@ Before writing each file, check:
 
 ---
 
-## 9.9 Edge Cases and Fallbacks
+## 9.10 Edge Cases and Fallbacks
 
 ### Project With No Test Framework
 
@@ -810,7 +850,7 @@ Before writing each file, check:
 
 ---
 
-## 9.10 Quality Validation Checklist
+## 9.11 Quality Validation Checklist
 
 Run this checklist after generating all outputs, before presenting to the user.
 
@@ -830,6 +870,7 @@ For each generated file:
 - [ ] **Consistent tool references** — if CLAUDE.md says `npm test`, agents/commands also say `npm test` (not `npx jest`)
 - [ ] **No duplicate content** — skills don't repeat what's in CLAUDE.md; agents don't repeat what's in skills
 - [ ] **Hooks use validated commands** — hook commands were confirmed installed (Phase 1 should have run `command -v`)
+- [ ] **Workflow connections present** — commands reference agents, agents reference skills, skills reference agents (per section 9.8, only for entities that were actually generated)
 
 ### Completeness Checks
 
@@ -842,7 +883,7 @@ For each generated file:
 
 ---
 
-## 9.11 Self-Review Criteria
+## 9.12 Self-Review Criteria
 
 Apply after composing each layer. Read back what was written, check against these criteria, refine until no issues remain, then move to the next layer.
 
@@ -851,9 +892,9 @@ Apply after composing each layer. Read back what was written, check against thes
 | Layer | Key Review Questions |
 |-------|---------------------|
 | CLAUDE.md | Every section traces to Phase 1? Commands are real? Under 200 lines? |
-| Commands | Validation steps match CLAUDE.md? Steps use real commands? |
-| Skills | Methodology is project-specific? No CLAUDE.md duplication? References actual files? |
-| Agents | Stack-intersection knowledge present? Consistent with commands + skills? Passes specificity test? |
+| Commands | Validation steps match CLAUDE.md? Steps use real commands? Links to agents per 9.8? |
+| Skills | Methodology is project-specific? No CLAUDE.md duplication? References actual files? Links to agents per 9.8? |
+| Agents | Stack-intersection knowledge? Consistent with commands + skills? Specificity test? Links to skills + commands per 9.8? |
 | Hooks/MCP | Commands match CLAUDE.md? Binary confirmed installed? |
 
 ### Areas of Improvement
@@ -894,7 +935,7 @@ Stop refining a layer when a review pass finds **zero** issues. Typically 1-2 pa
 
 ---
 
-## 9.12 INSTRUCTION.md Template
+## 9.13 INSTRUCTION.md Template
 
 After the self-review loop completes and the quality validation checklist passes, produce an `INSTRUCTION.md` in the project root as a quick-start onboarding guide. This is tailored to what was actually generated — not a generic Claude Code tutorial.
 

@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-03-25
+
+### Added
+
+- Workflow Connections section (9.8) — teaches Claude how layers connect as a pipeline: command → agent → skill → hook
+- Connection checks in per-layer self-review (commands reference agents, skills reference agents, agents reference skills + commands)
+- Cross-layer connection validation in final validation step
+- Agent examples now show workflow connections ("Follows implement-feature skill methodology", "Complements /implement command")
+
+### Changed
+
+- Section numbering updated: 9.8 Workflow Connections, 9.9 Composition, 9.10 Edge Cases, 9.11 Quality Validation, 9.12 Self-Review, 9.13 INSTRUCTION.md
+
 ## [0.8.0] - 2026-03-24
 
 ### Changed
