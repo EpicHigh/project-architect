@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-03-25
+
+### Added
+
+- **Fetch & Tailor agent generation** — agents are now sourced from [agency-agents](https://github.com/msitarzewski/agency-agents) (144+ production agents) and tailored to each project's specific stack
+- Layer 4 now uses WebFetch to retrieve agent definitions, then adapts them with project-specific knowledge from Phase 1
+- Detection → agent mapping table covering 16+ agent types across engineering, testing, product, and design
+- Required 7-section agent structure: Persona, Philosophy, Stack Expertise, Process, Success Metrics, Deliverables, Communication Style
+- Expanded agent roster: product-manager, security-engineer, devops-automator, db-optimizer, api-tester, performance-benchmarker, ui-designer, accessibility-auditor, ai-engineer, mobile-app-builder, sre, technical-writer
+- Fallback: compose from scratch if WebFetch unavailable
+
+### Changed
+
+- Section 9.4 completely rewritten from "compose agents from guidelines" to "fetch from agency-agents repo and tailor"
+- Output Reasoning Guide (9.7) expanded with all new agent types
+
 ## [0.9.0] - 2026-03-25
 
 ### Added

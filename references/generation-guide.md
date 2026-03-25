@@ -431,168 +431,70 @@ description: >
 
 ---
 
-## 9.4 Agent Guidelines
+## 9.4 Agent Guidelines: Fetch & Tailor from agency-agents
 
-Agents are `.md` files in `.claude/agents/`. They are specialist team members that run in separate context windows, each with deep knowledge of the project's specific stack.
+Agents are `.md` files in `.claude/agents/`. They are sourced from the [agency-agents](https://github.com/msitarzewski/agency-agents) repository (144+ production-quality agent definitions) and **tailored** to the specific project using Phase 1 scan results.
 
-### Principles
+### Fetch Source
 
-- An agent embeds **stack-intersection knowledge** — not just "React" advice or "Prisma" advice, but knowledge of how React and Prisma interact in THIS project
-- Good test: "If I remove the project name, can I identify which stack this agent targets?" If no, the agent is too generic.
-- Agents that write code run in worktrees (`isolation: worktree`); read-only agents don't need isolation
-- Every agent needs: persona, philosophy, stack-specific expertise, process with actual commands, deliverables
-- An agent is worth generating when: (1) task benefits from separate context, (2) has clear deliverables, (3) project has tooling to validate output
+Base URL: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/`
+
+### Detection → Agent Mapping
+
+Select agents based on Phase 1 detections. Fetch from the corresponding file, then tailor.
+
+| When You Detect... | Fetch Agent | File Path |
+|---------------------|------------|-----------|
+| Always | Software Architect | `engineering/engineering-software-architect.md` |
+| Always | Product Manager | `product/product-manager.md` |
+| Always | Code Reviewer | `engineering/engineering-code-reviewer.md` |
+| Frontend framework | Frontend Developer | `engineering/engineering-frontend-developer.md` |
+| Frontend framework | UI Designer | `design/design-ui-designer.md` |
+| Backend framework | Backend Architect | `engineering/engineering-backend-architect.md` |
+| Backend framework | Security Engineer | `engineering/engineering-security-engineer.md` |
+| Test framework | API Tester | `testing/testing-api-tester.md` |
+| Test framework | Performance Benchmarker | `testing/testing-performance-benchmarker.md` |
+| Database/ORM | Database Optimizer | `engineering/engineering-database-optimizer.md` |
+| Docker OR CI/CD | DevOps Automator | `engineering/engineering-devops-automator.md` |
+| Large/complex project | SRE | `engineering/engineering-sre.md` |
+| Frontend + accessibility needs | Accessibility Auditor | `testing/testing-accessibility-auditor.md` |
+| ML/AI dependencies | AI Engineer | `engineering/engineering-ai-engineer.md` |
+| Mobile (React Native/Flutter/Swift) | Mobile App Builder | `engineering/engineering-mobile-app-builder.md` |
+| Any project with docs needs | Technical Writer | `engineering/engineering-technical-writer.md` |
+
+This is a starting point. If the project's unique characteristics suggest an agent not listed here, browse the [full agency-agents catalog](https://github.com/msitarzewski/agency-agents) and fetch it.
+
+### Required Agent Structure
+
+Every tailored agent must have these sections (matching agency-agents format):
+
+1. **Persona** — one-line identity with personality and expertise level
+2. **Philosophy** — 3-5 operating principles specific to this role AND this project's stack
+3. **Stack Expertise** — deep knowledge of THIS project's technologies and their interactions, edge cases, common pitfalls
+4. **Process** — specific workflow steps using the project's actual commands
+5. **Success Metrics** — measurable criteria (e.g., "zero type errors", "100% lint pass", "all tests green")
+6. **Deliverables** — concrete outputs this agent produces
+7. **Communication Style** — how the agent presents findings and results
+
+### Tailoring Process
+
+When you fetch an agent from agency-agents, adapt it:
+
+1. **Keep:** The overall structure, persona voice, philosophy principles, communication style
+2. **Replace:** Generic framework advice → project-specific stack-intersection knowledge from Phase 1
+3. **Add:** Actual file paths, directories, commands, patterns found during scan
+4. **Add:** Success metrics using the project's real tools (not generic "run tests" — specific `npm test` or `go test ./...`)
+5. **Add:** Workflow connections to commands and skills from Layers 2-3
+6. **Remove:** Any content that doesn't apply to this project's detected stack
 
 ### Quality Criteria
 
-- [ ] Agent references specific files, directories, and patterns found in Phase 1
-- [ ] Stack-specific sections reflect the intersection of technologies, not individual frameworks
-- [ ] Process uses the project's actual commands for validation
-- [ ] The agent would produce materially different output for different stack combinations
-
-### Always Generate
-
-- `architect` — read-only codebase analysis, model: opus
-
-### Consider Generating
-
-- `developer` — when test framework AND linter detected (worktree, writes code)
-- `reviewer` — when linter OR test framework detected (read-only, reviews diffs)
-- `db-specialist` — when database/ORM detected (read-only, schema/query analysis)
-- `devops` — when Docker OR CI/CD detected (read-only, pipeline/container analysis)
-- `qa` — when test framework detected (read-only, test gap analysis)
-- `fixer` — when test framework detected (worktree, bug fixes)
-
-### Example: developer.md for a Next.js 14 + Prisma + Tailwind + Jest project
-
-This example shows stack-intersection knowledge: RSC boundaries affect where Prisma queries run, Tailwind styling follows specific config, Jest tests colocate with components.
-
-`````markdown
----
-description: Implement features with Next.js App Router + Prisma patterns and validation
-model: sonnet
-allowed-tools: Bash, Read, Write, Glob, Grep
-isolation: worktree
----
-
-# Developer
-
-You are a senior TypeScript developer working on this Next.js 14 App Router project with Prisma and Tailwind CSS. Follows the methodology in the `implement-feature` skill. Complements the `/implement` command with worktree isolation.
-
-## Stack-Specific Patterns
-
-- **Server Components by default.** Only add `"use client"` when the component needs interactivity (useState, useEffect, event handlers). Data fetching and Prisma queries belong in Server Components or server actions — never in Client Components.
-- **Prisma data access:** queries live in `lib/db/` or directly in Server Components. Use `prisma.findMany()` with `select` to limit fields. Check `prisma/schema.prisma` for the data model before writing queries.
-- **Tailwind styling:** check `tailwind.config.ts` for custom tokens. Use shadcn/ui components from `components/ui/` before building custom UI.
-- **Route organization:** `app/` directory with nested folders. Each route has `page.tsx` (UI), `layout.tsx` (shared layout), optionally `loading.tsx` and `error.tsx`.
-
-## Process
-
-1. **Explore** — read 3-5 similar files to learn the patterns.
-2. **Plan** — list files to create/modify. Get approval.
-3. **Implement** — one change at a time. After each:
-   - `npm run lint`
-   - `npx tsc --noEmit`
-   - `npm test`
-4. **Test** — colocate `*.test.tsx` next to components. Mock Prisma with the singleton pattern from `__mocks__/`.
-
-## Deliverables
-
-- Working implementation following existing patterns.
-- Tests for new behavior.
-- All validation checks pass.
-`````
-
-### Example: developer.md for a Go + Chi + Ent + PostgreSQL project
-
-Different stack, different knowledge. Go idioms, Chi routing, Ent ORM patterns.
-
-`````markdown
----
-description: Implement features with Go/Chi patterns, Ent schemas, and PostgreSQL
-model: sonnet
-allowed-tools: Bash, Read, Write, Glob, Grep
-isolation: worktree
----
-
-# Developer
-
-You are a senior Go developer working on this Chi-based API with Ent ORM and PostgreSQL. Follows the methodology in the `implement-feature` skill. Complements the `/implement` command with worktree isolation.
-
-## Stack-Specific Patterns
-
-- **Standard layout:** handlers in `cmd/server/`, business logic in `internal/service/`, data access in `internal/repository/`. Keep packages focused — one concern per package.
-- **Chi routing:** sub-routers for resource groups (`r.Route("/users", ...)`) with middleware chains. Auth middleware applied at router group level, not individual handlers.
-- **Ent ORM:** schemas in `ent/schema/`. Edges define relationships. After schema changes, run `go generate ./ent`. Use eager loading with `.WithEdgeName()` to avoid N+1.
-- **Error handling:** return errors up the call stack with `fmt.Errorf("context: %w", err)`. Handle at the HTTP boundary in handlers. Use custom error types in `internal/apperror/` for domain errors.
-- **Context:** pass `context.Context` through all layers for cancellation and request-scoped values.
-
-## Process
-
-1. **Explore** — read 3-5 similar handlers/services.
-2. **Plan** — list files. Get approval.
-3. **Implement** — one change at a time. After each:
-   - `make lint` (golangci-lint)
-   - `go test ./...`
-4. **Test** — table-driven tests with `t.Run`. Test helpers in `internal/testutil/`. Use `testify/assert` for assertions.
-
-## Deliverables
-
-- Working implementation following existing patterns.
-- Table-driven tests for new behavior.
-- All checks pass.
-`````
-
-### Example: reviewer.md for a Python + FastAPI + SQLAlchemy + pytest project
-
-Shows how a reviewer embeds stack-specific checklists from the project's actual technologies.
-
-`````markdown
----
-description: Review code changes with FastAPI/SQLAlchemy-specific checklists and security awareness
-model: sonnet
-allowed-tools: Bash, Read, Grep, Glob
----
-
-# Reviewer
-
-You are a code reviewer for this FastAPI + SQLAlchemy project. Complements the `/review` command with deeper analysis in a separate context.
-
-## Review Process
-
-1. Run `git diff main` to see all changes.
-2. Apply the checklists below to each changed file.
-3. Run `pytest` — report failures.
-4. Run `ruff check .` — report violations.
-
-## FastAPI Checklist
-
-- Pydantic models validate all request input — no manual validation in route functions.
-- `Depends()` used correctly for DB session, auth, and shared dependencies.
-- Async endpoints for I/O-bound operations (DB queries, external API calls).
-- Proper HTTP status codes: 201 for creation, 404 for not found, 422 for validation errors.
-
-## SQLAlchemy Checklist
-
-- Session scoping: `Depends(get_db)` per request, not global sessions.
-- N+1 prevention: use `selectinload()` or `joinedload()` for relationship access.
-- No raw SQL string interpolation — use parameterized queries or ORM methods.
-
-## Security Checklist
-
-- Auth decorator on every state-changing endpoint.
-- No secrets in code (API keys, tokens, passwords).
-- Input validation via Pydantic — no trusting raw request data.
-- CORS configured correctly in `main.py`.
-
-## Output
-
-Tag findings: **blocker** / **suggestion** / **nit**
-
-Format: `**file:line** — severity — description — suggested fix`
-
-End with summary: findings count by severity, verdict (approve / request changes).
-`````
+- [ ] Agent has all 7 required sections
+- [ ] Stack expertise references specific files, directories, and patterns from Phase 1
+- [ ] Process uses the project's actual commands (not generic)
+- [ ] Success metrics are measurable with the project's actual tools
+- [ ] **Specificity test:** Remove the project name — can you still identify which stack this targets?
+- [ ] **Connection check:** Agent references skills it follows and commands it complements
 
 ### Frontmatter Reference
 
@@ -603,13 +505,9 @@ End with summary: findings count by severity, verdict (approve / request changes
 | `allowed-tools` | Yes | Comma-separated tool list |
 | `isolation` | No | `worktree` for agents that write code |
 
-### Composition Notes
+### Fallback
 
-When composing agents for a project, ask yourself for each agent:
-
-- **What does this agent know about THIS project's stack intersection that a generic agent would not?** If the answer is nothing, either add project-specific knowledge or skip the agent.
-- **Does the agent reference specific files, directories, commands, and patterns from Phase 1?** Generic framework advice belongs in documentation, not agents.
-- **Would this agent produce different output for a React+Prisma project vs a React+Mongoose project?** If not, it's too generic.
+If WebFetch is unavailable or fails, compose agents from scratch following the 7-section structure above. Use the principles and quality criteria as your guide. The structure matters more than the source.
 
 ---
 
@@ -708,15 +606,19 @@ After completing Phase 1, use this guide to reason about what outputs would help
 | When You Detect... | Consider Generating... |
 |---------------------|------------------------|
 | Styling framework | `design-system` skill |
-| Backend framework | `api-patterns` skill, `security-audit` command |
-| Database / ORM | `schema-patterns` skill, `optimize-db` command, `db-specialist` agent |
-| Test framework | `tdd` skill, `qa` agent, `fixer` agent |
-| Linter OR test framework | `reviewer` agent |
+| Backend framework | `api-patterns` skill, `security-audit` command, `security-engineer` agent, `backend-architect` agent |
+| Database / ORM | `schema-patterns` skill, `optimize-db` command, `db-optimizer` agent |
+| Test framework | `tdd` skill, `api-tester` agent, `performance-benchmarker` agent, `fixer` agent |
 | Test framework AND linter | `developer` agent (worktree) |
-| Docker OR CI/CD | `devops` agent |
+| Frontend framework | `ux-designer` agent, `ui-designer` agent, `accessibility-auditor` agent |
+| Docker OR CI/CD | `devops-automator` agent |
+| Large/complex project | `sre` agent |
+| ML/AI dependencies | `ai-engineer` agent |
+| Mobile (RN/Flutter/Swift) | `mobile-app-builder` agent |
 | Linter installed | lint pre-commit hook |
 | Linter + fast tests | lint + test pre-commit hook |
 | Framework with docs | Context7 MCP server |
+| Any project | Browse [agency-agents catalog](https://github.com/msitarzewski/agency-agents) for additional relevant agents |
 
 ### Reasoning, Not Lookup
 

@@ -190,17 +190,39 @@ Compose all skills (universal + conditional). Then review each skill:
 
 Refine until each skill is project-specific and connected to Layers 1-2.
 
-#### Layer 4: Agents
+#### Layer 4: Agents (Fetch & Tailor)
 
-Compose all agents. Then review each agent:
+Agents are sourced from the [agency-agents](https://github.com/msitarzewski/agency-agents) repository and tailored to this project. Follow this process:
 
-- Does the agent embed stack-intersection knowledge (not just individual framework docs)?
-- Does the agent's process reference actual commands from CLAUDE.md and Layer 2?
-- Is the agent consistent with skills from Layer 3? (No contradictions)
-- **Specificity test:** Remove the project name — can you still identify which stack this agent targets?
-- **Connection check:** Does each agent reference which skill(s) it follows and which command(s) it complements? (See section 9.8 Workflow Connections)
+**Step 1: Select** — Based on Phase 1 detections, decide which agents this project needs. See section 9.4 of the generation guide for the detection → agent mapping table.
+
+**Step 2: Fetch** — For each selected agent, use WebFetch to retrieve the raw agent definition:
+
+```
+https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{category}/{filename}.md
+```
+
+Example: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
+
+**Step 3: Tailor** — Adapt each fetched agent to THIS project:
+
+- Keep the structure (persona, philosophy, deliverables, success metrics, communication style)
+- Replace generic expertise with project-specific stack knowledge from Phase 1
+- Add actual file paths, commands, patterns found during scan
+- Adjust success metrics to match the project's actual tools
+- Add workflow connections to commands and skills from Layers 2-3
+
+**Step 4: Self-review** — For each tailored agent:
+
+- Does it embed stack-intersection knowledge (not just the original generic content)?
+- Does the process reference actual commands from CLAUDE.md and Layer 2?
+- Is it consistent with skills from Layer 3?
+- **Specificity test:** Remove the project name — can you still identify which stack this targets?
+- **Connection check:** Does it reference which skill(s) it follows and which command(s) it complements? (See section 9.8)
 
 Refine until each agent is genuinely stack-specific and connected to all previous layers.
+
+**Note:** If WebFetch is unavailable or fails, compose agents from scratch using the structure and principles in section 9.4 of the generation guide as reference.
 
 #### Layer 5: Hooks + MCP
 
