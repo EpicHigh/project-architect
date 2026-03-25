@@ -1,6 +1,6 @@
 ---
 description: Analyze your codebase and generate Claude Code configuration (CLAUDE.md, commands, skills, agents, hooks)
-allowed-tools: Bash, Read, Write, Grep, Glob
+allowed-tools: Bash, Read, Write, Grep, Glob, WebFetch
 ---
 
 # Project Architect

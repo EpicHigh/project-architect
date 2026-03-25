@@ -607,10 +607,10 @@ After completing Phase 1, use this guide to reason about what outputs would help
 |---------------------|------------------------|
 | Styling framework | `design-system` skill |
 | Backend framework | `api-patterns` skill, `security-audit` command, `security-engineer` agent, `backend-architect` agent |
-| Database / ORM | `schema-patterns` skill, `optimize-db` command, `db-optimizer` agent |
-| Test framework | `tdd` skill, `api-tester` agent, `performance-benchmarker` agent, `fixer` agent |
+| Database / ORM | `schema-patterns` skill, `optimize-db` command, `database-optimizer` agent |
+| Test framework | `tdd` skill, `api-tester` agent, `performance-benchmarker` agent |
 | Test framework AND linter | `developer` agent (worktree) |
-| Frontend framework | `ux-designer` agent, `ui-designer` agent, `accessibility-auditor` agent |
+| Frontend framework | `frontend-developer` agent, `ui-designer` agent, `accessibility-auditor` agent |
 | Docker OR CI/CD | `devops-automator` agent |
 | Large/complex project | `sre` agent |
 | ML/AI dependencies | `ai-engineer` agent |
