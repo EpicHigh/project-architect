@@ -870,6 +870,7 @@ For each generated file:
 - [ ] **Consistent tool references** — if CLAUDE.md says `npm test`, agents/commands also say `npm test` (not `npx jest`)
 - [ ] **No duplicate content** — skills don't repeat what's in CLAUDE.md; agents don't repeat what's in skills
 - [ ] **Hooks use validated commands** — hook commands were confirmed installed (Phase 1 should have run `command -v`)
+- [ ] **Workflow connections present** — commands reference agents, agents reference skills, skills reference agents (per section 9.8, only for entities that were actually generated)
 
 ### Completeness Checks
 
@@ -891,9 +892,9 @@ Apply after composing each layer. Read back what was written, check against thes
 | Layer | Key Review Questions |
 |-------|---------------------|
 | CLAUDE.md | Every section traces to Phase 1? Commands are real? Under 200 lines? |
-| Commands | Validation steps match CLAUDE.md? Steps use real commands? |
-| Skills | Methodology is project-specific? No CLAUDE.md duplication? References actual files? |
-| Agents | Stack-intersection knowledge present? Consistent with commands + skills? Passes specificity test? |
+| Commands | Validation steps match CLAUDE.md? Steps use real commands? Links to agents per 9.8? |
+| Skills | Methodology is project-specific? No CLAUDE.md duplication? References actual files? Links to agents per 9.8? |
+| Agents | Stack-intersection knowledge? Consistent with commands + skills? Specificity test? Links to skills + commands per 9.8? |
 | Hooks/MCP | Commands match CLAUDE.md? Binary confirmed installed? |
 
 ### Areas of Improvement
