@@ -197,7 +197,7 @@ Agents are sourced from the [agency-agents](https://github.com/msitarzewski/agen
 
 **Step 1: Select** — Check the Output Requirements (section 9.7) against Phase 1 detections. Every agent in the "Always Generate" and "Generate When Detected" tables that matches a detection is **mandatory**. Also check the mapping table in section 9.4 for fetch URLs.
 
-**Step 2: Fetch** — You **MUST** use WebFetch for each agent individually. Do NOT skip this step. Fetch the raw agent definition:
+**Step 2: Fetch** — You **MUST** use WebFetch for each agent individually. Fetch the raw agent markdown:
 
 ```
 https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{category}/{filename}.md
@@ -205,16 +205,16 @@ https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{category}/{fi
 
 Example: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
 
-Fetch each agent one by one. The fetched content is the **starting point** — it contains deep, production-quality expertise (200-400 lines per agent) that you will tailor to this project.
+**Step 3: Write the fetched content as-is, then revise** — This is critical. Do NOT rewrite from scratch.
 
-**Step 3: Tailor** — Adapt the fetched agent content to THIS project. Keep as much of the original depth as possible:
-
-- Keep the full structure and all sections from the original (persona, philosophy, deliverables, success metrics, communication style, and any additional sections)
-- Replace generic framework references with project-specific stack knowledge from Phase 1
-- Add actual file paths, commands, patterns found during scan
-- Adjust success metrics to match the project's actual tools
-- Add workflow connections to commands and skills from Layers 2-3
-- The tailored agent should be **at least 80 lines** — agency-agents originals are 200-400 lines, so your tailored version should preserve most of that depth
+1. **Write the fetched agent content directly to `.claude/agents/{name}.md`** — use the fetched markdown as the base file. Add Claude Code frontmatter (description, model, allowed-tools, isolation) at the top.
+2. **Then revise the written file** — make targeted edits to adapt it to THIS project:
+   - Replace generic framework references with this project's specific technologies
+   - Add actual file paths, directories, commands from Phase 1
+   - Add project-specific patterns found during scan
+   - Adjust success metrics to match the project's actual tools
+   - Add workflow connections to commands and skills from Layers 2-3
+3. **Preserve the original depth** — the fetched agents are 200-400 lines of production expertise. Your revised version should keep most of that depth. Do NOT summarize or condense — revise in-place.
 
 **Step 4: Self-review** — For each tailored agent:
 

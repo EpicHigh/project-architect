@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-03-25
+
+### Fixed
+
+- **Fetched agents discarded and rewritten from scratch** — Claude fetched 200-400 line agents then wrote 60-line versions from memory. Step 3 now explicitly says: "Write the fetched content directly to the file as-is, then revise in-place with targeted edits." No more rewriting from scratch after fetching.
+
+### Changed
+
+- Layer 4 Step 3 renamed from "Tailor" to "Write the fetched content as-is, then revise"
+- Explicit 3-step process: (1) Write fetched content to file, (2) Revise with targeted edits, (3) Preserve original depth — do NOT summarize or condense
+
 ## [1.2.0] - 2026-03-25
 
 ### Fixed
