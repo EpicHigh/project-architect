@@ -554,6 +554,160 @@ from HTTPException, and middleware can catch it consistently.
 }
 `````
 
+### Example: design-system skill for a React + Tailwind + shadcn/ui project
+
+`````markdown
+---
+name: design-system
+description: >
+  UI component and styling patterns for this React 19 + Tailwind CSS 4 + shadcn/ui
+  project. Use this skill when: building new UI components, styling existing components,
+  choosing between shadcn primitives and custom components, applying Tailwind utility
+  classes, creating responsive layouts, implementing dark mode, picking colors or spacing
+  from the theme config, composing dialog or form layouts, reviewing component structure,
+  or deciding how to organize component files. This skill prevents reinventing existing
+  primitives and keeps styling consistent with the design system.
+---
+
+# Design System
+
+## Why This Matters
+
+This project uses shadcn/ui (Radix primitives + Tailwind) instead of a custom component
+library. This matters because shadcn components are copy-pasted into `components/ui/` and
+can be customized — but they should be the starting point, not bypassed. When developers
+skip existing primitives, they create inconsistent UIs that don't respect theme tokens,
+break dark mode, and duplicate effort.
+
+## Before Building Any UI
+
+1. Check `components/ui/` for existing shadcn primitives — Button, Card, Dialog, etc. are already there.
+2. Check existing pages for similar layouts — reuse before creating.
+3. Reference `tailwind.config.ts` for custom theme tokens (colors, spacing, breakpoints).
+
+## Examples
+
+**Example 1: Creating a form with validation**
+
+Input: "Build a form for editing user profile"
+
+Output pattern:
+```tsx
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+export function ProfileForm() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Edit Profile</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="name">Name</Label>
+          <Input id="name" placeholder="Enter name" />
+        </div>
+        <Button type="submit">Save</Button>
+      </CardContent>
+    </Card>
+  )
+}
+```
+Why shadcn Card + Input instead of custom divs: these primitives handle focus management,
+accessibility attributes, and theme tokens automatically.
+
+**Example 2: Conditional styling**
+
+Input: "Style a badge that changes color based on status"
+
+Output pattern:
+```tsx
+import { cn } from "@/lib/utils"
+
+function StatusBadge({ status }: { status: "active" | "pending" | "rejected" }) {
+  return (
+    <span className={cn(
+      "rounded-full px-2 py-1 text-xs font-medium",
+      status === "active" && "bg-green-100 text-green-800",
+      status === "pending" && "bg-yellow-100 text-yellow-800",
+      status === "rejected" && "bg-red-100 text-red-800",
+    )}>
+      {status}
+    </span>
+  )
+}
+```
+Why `cn()` helper: it merges Tailwind classes correctly using `clsx` + `tailwind-merge`,
+avoiding class conflicts when conditionally applying styles.
+
+## Anti-Patterns
+
+- **Don't use inline `style={}` props** — use Tailwind utilities. Inline styles bypass the
+  theme and break dark mode
+- **Don't create custom Button/Input/Card components** — shadcn versions exist in `components/ui/`
+- **Don't hardcode colors** — use theme tokens from `tailwind.config.ts` (e.g., `text-primary` not `text-blue-600`)
+`````
+
+**Corresponding evals/evals.json:**
+
+`````json
+{
+  "skill_name": "design-system",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Build a settings page with a form for updating notification preferences",
+      "expected_output": "Component using shadcn primitives with Tailwind utility classes",
+      "assertions": [
+        "Uses shadcn/ui components from components/ui/ (Card, Button, Input, etc.)",
+        "Uses Tailwind utility classes for styling (not inline styles)",
+        "Uses cn() helper from lib/utils for conditional classes",
+        "Imports use @/ path alias"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Add a status indicator badge that shows different colors for draft, published, and archived",
+      "expected_output": "Badge component with conditional Tailwind classes",
+      "assertions": [
+        "Uses cn() helper for conditional class merging",
+        "Uses Tailwind color utilities (not inline styles or hardcoded hex)",
+        "Does not create a custom base component when shadcn Badge exists"
+      ]
+    }
+  ]
+}
+`````
+
+### Description Anti-Pattern
+
+To help distinguish good from bad descriptions, here's what NOT to write:
+
+**Bad (too short, not pushy, no trigger phrases):**
+```yaml
+description: Design system and styling patterns for this project.
+```
+
+**Bad (describes WHAT, not WHEN to use):**
+```yaml
+description: >
+  This skill contains information about the project's UI components,
+  Tailwind configuration, and shadcn/ui primitives.
+```
+
+**Good (pushy, ~100 words, 5+ trigger phrases with action verbs):**
+```yaml
+description: >
+  UI component and styling patterns for this React 19 + Tailwind CSS 4 + shadcn/ui
+  project. Use this skill when: building new UI components, styling existing components,
+  choosing between shadcn primitives and custom components, applying Tailwind utility
+  classes, creating responsive layouts, implementing dark mode, picking colors or spacing
+  from the theme config, composing dialog or form layouts, reviewing component structure,
+  or deciding how to organize component files.
+```
+
 ### Frontmatter Reference
 
 | Field | Required | Values |
@@ -1128,7 +1282,7 @@ Apply after composing each layer. Read back what was written, check against thes
 |-------|---------------------|
 | CLAUDE.md | Every section traces to Phase 1? Commands are real? Under 200 lines? |
 | Commands | Validation steps match CLAUDE.md? Steps use real commands? Links to agents per 9.8? |
-| Skills | Methodology is project-specific? No CLAUDE.md duplication? References actual files? Links to agents per 9.8? |
+| Skills | Description ~100 words and "pushy" with 5+ triggers? WHY-based instructions (not rigid MUSTs)? 2+ Input/Output examples? Under 500 lines? `evals/evals.json` with 2-3 discriminating test prompts? No CLAUDE.md duplication? Links to agents per 9.8? |
 | Agents | Stack-intersection knowledge? Consistent with commands + skills? Specificity test? Links to skills + commands per 9.8? |
 | Hooks/MCP | Commands match CLAUDE.md? Binary confirmed installed? |
 
