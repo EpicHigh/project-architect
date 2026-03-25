@@ -573,7 +573,7 @@ Complete catalog of available agents with descriptions. Use `curl -s https://raw
 | `marketing-app-store-optimizer.md` | App store optimization |
 | `marketing-carousel-growth-engine.md` | Carousel growth strategy |
 | `marketing-short-video-editing-coach.md` | Short video editing coaching |
-| *(+ regional specialists: douyin, kuaishou, xiaohongshu, weibo, zhihu, baidu, bilibili, wechat)* |
+| *(+ regional specialists)* | douyin, kuaishou, xiaohongshu, weibo, zhihu, baidu, bilibili, wechat |
 
 #### sales/
 
@@ -600,7 +600,7 @@ Complete catalog of available agents with descriptions. Use `curl -s https://raw
 | `specialized-model-qa.md` | AI model QA |
 | `compliance-auditor.md` | SOC 2, ISO 27001, HIPAA, PCI-DSS compliance |
 | `agents-orchestrator.md` | Multi-agent workflow orchestration |
-| *(+ more: recruitment-specialist, supply-chain-strategist, blockchain-security-auditor, etc.)* |
+| *(+ more)* | recruitment-specialist, supply-chain-strategist, blockchain-security-auditor, etc. |
 
 #### game-development/
 
@@ -611,7 +611,7 @@ Complete catalog of available agents with descriptions. Use `curl -s https://raw
 | `level-designer.md` | Level design |
 | `narrative-designer.md` | Narrative design |
 | `technical-artist.md` | Technical art |
-| *(+ engine-specific: godot/, unity/, unreal-engine/, roblox-studio/, blender/)* |
+| *(+ engine-specific)* | godot/, unity/, unreal-engine/, roblox-studio/, blender/ |
 
 #### spatial-computing/
 
