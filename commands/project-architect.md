@@ -135,7 +135,7 @@ Follow the Output Requirements (section 9.7) — these are **hard requirements, 
 | `INSTRUCTION.md` | **Always generate** using the template in section 9.13. Under 150 lines. |
 | Commands | **Always generate** commit, implement, fix, review. **Generate when detected** (mandatory): optimize-db (DB/ORM), security-audit (backend). See section 9.2. |
 | Skills | **Always generate** implement-feature, fix-bug, improve-architecture. **Generate when detected** (mandatory): tdd (tests), design-system (styling), api-patterns (backend), schema-patterns (DB/ORM). See section 9.3. |
-| Agents | **Always generate** architect, product-manager, code-reviewer. **Generate when detected** (mandatory, not optional): see section 9.7 for full mapping. Fetch from agency-agents and tailor — see section 9.4. |
+| Agents | **No mandatory agents.** Select agents that fit the project based on scan results + judgment. Use the Detection → Agent Mapping in section 9.4 as recommendations, not requirements. Fetch from agency-agents and tailor — see section 9.4. If zero agents are appropriate, justify in Phase 3. |
 | Hooks | Generate **only** when ALL 3 conditions are true: (1) tool binary confirmed installed via `command -v`, (2) command runs in under 30 seconds, (3) hook includes a disable comment. Use the exact format in section 9.5. |
 | `.mcp.json` | Generate when frameworks detected benefit from MCP servers. Use the exact format in section 9.6. |
 
@@ -361,12 +361,14 @@ After the Self-Improvement Loop completes and all files pass quality validation,
 6. **MCP servers** — list each server added to `.mcp.json`
 7. **INSTRUCTION.md** — mention where to find the onboarding guide
 
-### 3.2 Explain why each was generated
+### 3.2 Explain why each was generated (and why agents were skipped)
 
 For every generated item, state which Phase 1 detection triggered it:
 
 - `developer` agent → "Next.js + Prisma + Jest detected — agent embeds RSC/Prisma intersection patterns"
 - `design-system` skill → "Tailwind CSS + shadcn/ui detected in devDependencies"
+
+If zero agents were generated, explain why no agents are appropriate for this project (e.g., "Single-file config utility with no build system, tests, or deployment — agents would add no value").
 
 ### 3.3 Flag hooks with warnings
 

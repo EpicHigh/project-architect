@@ -749,15 +749,15 @@ curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engine
 3. **Read each `/tmp/agent-{name}.md`**, prepend Claude Code frontmatter, and **Write to `.claude/agents/{name}.md`** — then tailor in-place with Edit
 4. **Only agents where curl returned 404/empty** may be composed from scratch
 
-### Detection → Agent Mapping
+### Detection → Agent Mapping (Recommendations, Not Requirements)
 
-Select agents based on Phase 1 detections. Fetch from the corresponding file, then tailor.
+Use this table as a starting point for agent selection. **No agent is mandatory** — select only the agents that genuinely benefit this specific project based on Phase 1 scan results and your judgment.
 
-| When You Detect... | Fetch Agent | File Path |
+| When You Detect... | Recommended Agent | File Path |
 |---------------------|------------|-----------|
-| Always | Software Architect | `engineering/engineering-software-architect.md` |
-| Always | Product Manager | `product/product-manager.md` |
-| Always | Code Reviewer | `engineering/engineering-code-reviewer.md` |
+| Complex architecture / multi-service | Software Architect | `engineering/engineering-software-architect.md` |
+| Active development with PRs | Code Reviewer | `engineering/engineering-code-reviewer.md` |
+| Product with multiple user personas | Product Manager | `product/product-manager.md` |
 | Frontend framework | Frontend Developer | `engineering/engineering-frontend-developer.md` |
 | Frontend framework | UI Designer | `design/design-ui-designer.md` |
 | Backend framework | Backend Architect | `engineering/engineering-backend-architect.md` |
@@ -771,6 +771,13 @@ Select agents based on Phase 1 detections. Fetch from the corresponding file, th
 | ML/AI dependencies | AI Engineer | `engineering/engineering-ai-engineer.md` |
 | Mobile (React Native/Flutter/Swift) | Mobile App Builder | `engineering/engineering-mobile-app-builder.md` |
 | Any project with docs needs | Technical Writer | `engineering/engineering-technical-writer.md` |
+
+**Selection guidance:**
+
+- A small single-purpose library may need only 0-2 agents (e.g., code-reviewer)
+- A full-stack app typically benefits from 3-5 agents
+- A large monorepo with multiple teams may warrant 5-8+ agents
+- If zero agents are appropriate (e.g., trivial config-only repo), justify in Phase 3
 
 This is a starting point. If the project's unique characteristics suggest an agent not listed here, browse the catalog below for the correct filename.
 
@@ -1006,7 +1013,7 @@ When you fetch an agent from agency-agents, adapt it:
 
 Only if `curl` returns a 404 or empty content for a **specific** agent, compose that one agent from scratch following the 7-section structure above. You must still meet the minimum 80-line depth and all quality criteria. If curl returned valid content for an agent, you MUST use that content — do not discard it and write from scratch.
 
-**Self-check:** If you are writing ALL agents from scratch, something went wrong — go back to Step 2 and run the curl commands. At minimum, the "Always Generate" agents (architect, product-manager, code-reviewer) exist in the repo and will succeed.
+**Self-check:** If you are writing ALL agents from scratch, something went wrong — go back to Step 2 and run the curl commands. The most commonly used agents (architect, product-manager, code-reviewer, security-engineer, database-optimizer) all exist in the repo and will succeed.
 
 ---
 
@@ -1099,31 +1106,36 @@ These are **hard requirements**, not suggestions. If a detection matches, you MU
 | `INSTRUCTION.md` | Onboarding guide |
 | `commit`, `implement`, `fix`, `review` | Commands |
 | `implement-feature`, `fix-bug`, `improve-architecture` (each with `evals/evals.json`) | Skills |
-| `architect`, `product-manager`, `code-reviewer` agents | Agents |
 
-### Generate When Detected (mandatory — if detection matches, GENERATE it)
+### Generate When Detected (commands, skills, hooks, MCP)
 
-| When You Detect... | You MUST Generate... |
+| When You Detect... | Generate... |
 |---------------------|----------------------|
 | Styling framework | `design-system` skill |
-| Backend framework | `api-patterns` skill, `security-audit` command, `security-engineer` agent, `backend-architect` agent |
-| Database / ORM | `schema-patterns` skill, `optimize-db` command, `database-optimizer` agent |
-| Test framework | `tdd` skill, `api-tester` agent |
-| Test framework AND linter | `developer` agent (worktree) |
-| Frontend framework | `frontend-developer` agent |
-| Docker OR CI/CD | `devops-automator` agent |
-| ML/AI dependencies | `ai-engineer` agent |
-| Mobile (RN/Flutter/Swift) | `mobile-app-builder` agent |
+| Backend framework | `api-patterns` skill, `security-audit` command |
+| Database / ORM | `schema-patterns` skill, `optimize-db` command |
+| Test framework | `tdd` skill |
 | Linter installed | lint pre-commit hook |
 | Linter + fast tests | lint + test pre-commit hook |
 | Framework with docs | Context7 MCP server |
 
-### Enforce Minimum, Reason Beyond
+### Agents (selection by judgment, not by rule)
 
-- The tables above define the **minimum** outputs. Generate all that match.
+**No agents are mandatory.** Select agents based on Phase 1 scan results combined with your judgment about what the project actually needs. Use the Detection → Agent Mapping table in section 9.4 as recommendations — add or skip agents as the project context warrants.
+
+**Guidance:**
+
+- A small library or config-only repo may need 0-2 agents
+- A typical web app benefits from 3-5 agents
+- A large monorepo or complex system may warrant 5-8+ agents
+- If you generate zero agents, you MUST justify this in Phase 3
+
+### Reason Beyond the Tables
+
+- The tables above define the **minimum** for commands, skills, hooks, and MCP. Generate all that match.
+- For agents, the Detection → Agent Mapping is a recommendation — use judgment to add, skip, or substitute agents.
 - If the project's unique stack suggests ADDITIONAL agents or skills not listed here, generate those too.
-- **Never skip a detection-triggered output.** If the content feels generic, refine it until it embeds project-specific knowledge — do not delete it.
-- Browse the [agency-agents catalog](https://github.com/msitarzewski/agency-agents) for additional agents that would benefit this project beyond the minimum.
+- Browse the [agency-agents catalog](https://github.com/msitarzewski/agency-agents) for additional agents that would benefit this project.
 
 ---
 
@@ -1283,14 +1295,12 @@ For each generated file:
 - [ ] **INSTRUCTION.md generated** — always required (unless one already exists)
 - [ ] **Universal commands generated** — commit, implement, fix, review — all four must exist
 - [ ] **Universal skills generated** — implement-feature, fix-bug, improve-architecture — all three must exist
-- [ ] **Universal agents generated** — architect, product-manager, code-reviewer — all three must exist
+- [ ] **Agents justified** — agents generated match project needs (per Detection → Agent Mapping recommendations in section 9.4). If zero agents were generated, justification is present in Phase 3
 - [ ] **Detection-triggered outputs exist** — for EVERY detection in Phase 1, check the mapping in section 9.7:
-  - Frontend framework detected → frontend-developer agent EXISTS, design-system skill EXISTS
-  - Backend framework detected → backend-architect agent EXISTS, security-engineer agent EXISTS, api-patterns skill EXISTS, security-audit command EXISTS
-  - Database/ORM detected → database-optimizer agent EXISTS, schema-patterns skill EXISTS, optimize-db command EXISTS
-  - Test framework detected → api-tester agent EXISTS, tdd skill EXISTS
-  - Test + linter detected → developer agent EXISTS
-  - Docker/CI detected → devops-automator agent EXISTS
+  - Frontend framework detected → design-system skill EXISTS
+  - Backend framework detected → api-patterns skill EXISTS, security-audit command EXISTS
+  - Database/ORM detected → schema-patterns skill EXISTS, optimize-db command EXISTS
+  - Test framework detected → tdd skill EXISTS
   - Linter installed → lint pre-commit hook EXISTS
 - [ ] **No outputs deleted during self-review** — if the self-review found a file too generic, it was REFINED, not deleted
 
@@ -1465,13 +1475,13 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 **Definition:** All mandatory outputs from section 9.7 are generated. No required file is missing.
 
-**Verification action:** Check every row in the "Always Generate" table and every matching row in "Generate When Detected" table. Count missing outputs.
+**Verification action:** Check every row in the "Always Generate" table and every matching row in "Generate When Detected" table. For agents, verify selection is justified per section 9.4 guidance. Count missing outputs.
 
 | Score | Criteria |
 |-------|----------|
 | 0 | More than half of mandatory outputs missing |
-| 5 | All universal outputs present (CLAUDE.md, 4 commands, 3 skills, 3 agents), but some detection-triggered outputs missing |
-| 10 | Every mandatory output from section 9.7 is present, including all detection-triggered ones |
+| 5 | All universal outputs present (CLAUDE.md, 4 commands, 3 skills), agents justified, but some detection-triggered outputs missing |
+| 10 | Every mandatory output from section 9.7 is present, including all detection-triggered ones, and agent selection matches project needs |
 
 ---
 
