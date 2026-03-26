@@ -1475,13 +1475,13 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 **Definition:** All mandatory outputs from section 9.7 are generated. No required file is missing.
 
-**Verification action:** Check every row in the "Always Generate" table and every matching row in "Generate When Detected" table. Count missing outputs.
+**Verification action:** Check every row in the "Always Generate" table and every matching row in "Generate When Detected" table. For agents, verify selection is justified per section 9.4 guidance. Count missing outputs.
 
 | Score | Criteria |
 |-------|----------|
 | 0 | More than half of mandatory outputs missing |
-| 5 | All universal outputs present (CLAUDE.md, 4 commands, 3 skills, 3 agents), but some detection-triggered outputs missing |
-| 10 | Every mandatory output from section 9.7 is present, including all detection-triggered ones |
+| 5 | All universal outputs present (CLAUDE.md, 4 commands, 3 skills), agents justified, but some detection-triggered outputs missing |
+| 10 | Every mandatory output from section 9.7 is present, including all detection-triggered ones, and agent selection matches project needs |
 
 ---
 
