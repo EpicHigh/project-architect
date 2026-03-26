@@ -213,20 +213,14 @@ Refine until each skill is project-specific, follows Anthropic best practices, a
 
 **Step 2: Fetch ALL agents first (before writing any files)** — Run `curl -s` via **Bash** for EVERY selected agent. Do this as a batch before writing any agent files. Do **NOT** use WebFetch or Fetch (they process content through an AI model and return summaries, not raw files).
 
-Fetch multiple agents efficiently by running parallel curl calls in a single Bash invocation:
+Fetch all agents in parallel by redirecting each to a temp file:
 
 ```bash
 curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-software-architect.md > /tmp/agent-architect.md &
 curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/product/product-manager.md > /tmp/agent-pm.md &
 curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-code-reviewer.md > /tmp/agent-reviewer.md &
-# ... add all selected agents
+# ... add all selected agents with consistent naming: /tmp/agent-{name}.md
 wait
-```
-
-Or fetch them sequentially with separator output:
-
-```bash
-echo "=== architect ===" && curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-software-architect.md && echo "=== product-manager ===" && curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/product/product-manager.md
 ```
 
 Refer to the agency-agents Repository Structure in section 9.4 of the generation guide for correct `{category}/{filename}` paths.
@@ -238,7 +232,7 @@ Refer to the agency-agents Repository Structure in section 9.4 of the generation
 
 **Step 3: Write each fetched agent to disk, then tailor in-place** — For each successfully fetched agent:
 
-1. **Write the fetched content directly to `.claude/agents/{name}.md`** using the Write tool. The file content must be:
+1. **Read the fetched content from `/tmp/agent-{name}.md`**, then **Write it to `.claude/agents/{name}.md`** using the Write tool. The file content must be:
    - Claude Code frontmatter (description, model, allowed-tools, isolation) at the very top
    - Then the **COMPLETE** raw markdown from curl output, unchanged
 2. **Then use the Edit tool to make targeted revisions** — do NOT use Write again (that would overwrite the entire file). Use Edit to make surgical changes:
