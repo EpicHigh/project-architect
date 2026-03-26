@@ -744,9 +744,9 @@ curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engine
 
 ### Mandatory Fetch-First Workflow
 
-1. **Fetch ALL selected agents via curl BEFORE writing any files** — batch all curl calls first
-2. **Verify each curl returned valid markdown** (starts with `---` YAML frontmatter, not "404: Not Found")
-3. **Only then** write each fetched agent to `.claude/agents/{name}.md` and tailor with Edit
+1. **Fetch ALL selected agents via parallel curl, redirecting each to `/tmp/agent-{name}.md`** — batch all curl calls in a single Bash invocation with `&` and `wait`
+2. **Verify each file contains valid markdown** — run `head -1 /tmp/agent-*.md` and confirm each starts with `---` (YAML frontmatter), not "404: Not Found"
+3. **Read each `/tmp/agent-{name}.md`**, prepend Claude Code frontmatter, and **Write to `.claude/agents/{name}.md`** — then tailor in-place with Edit
 4. **Only agents where curl returned 404/empty** may be composed from scratch
 
 ### Detection → Agent Mapping

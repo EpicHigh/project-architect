@@ -226,9 +226,14 @@ wait
 Refer to the agency-agents Repository Structure in section 9.4 of the generation guide for correct `{category}/{filename}` paths.
 
 **CHECKPOINT — Verify before proceeding to Step 3:**
+
+```bash
+head -1 /tmp/agent-*.md
+```
+
+- Every file must start with `---` (YAML frontmatter). Any file showing "404: Not Found" or empty = failed fetch.
 - Did you run `curl -s` for every selected agent? If not, go back and run the missing ones.
-- Did each curl return markdown content (starting with `---` YAML frontmatter)? If any returned "404: Not Found" or empty content, note which ones failed — only those may be composed from scratch.
-- Do NOT proceed to writing files until all curl commands have been executed.
+- Only agents that failed may be composed from scratch. Do NOT proceed to writing files until all curl commands have been executed.
 
 **Step 3: Write each fetched agent to disk, then tailor in-place** — For each successfully fetched agent:
 
