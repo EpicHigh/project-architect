@@ -723,13 +723,31 @@ description: >
 
 ## 9.4 Agent Guidelines: Fetch & Tailor from agency-agents
 
+> **NON-NEGOTIABLE:** Every agent MUST be downloaded from the agency-agents repository via `curl -s` before any agent file is written. Composing agents from scratch (without fetching) is a quality failure — the fetched templates contain 200-400 lines of production expertise that cannot be replicated by writing from memory. The ONLY exception is when curl returns a 404 or empty response for a specific agent.
+
 Agents are `.md` files in `.claude/agents/`. They are sourced from the [agency-agents](https://github.com/msitarzewski/agency-agents) repository (144+ production-quality agent definitions) and **tailored** to the specific project using Phase 1 scan results.
 
 ### Fetch Source
 
 Base URL: `https://raw.githubusercontent.com/msitarzewski/agency-agents/main/`
 
-**IMPORTANT:** Use `curl -s` via Bash to fetch agents (NOT WebFetch). WebFetch processes content through an AI model and returns a summary — not the raw markdown file. You need the raw content to write as-is. Example: `curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
+**CRITICAL:** Use `curl -s` via **Bash** to fetch agents. Do NOT use WebFetch or Fetch tools — they process content through an AI model and return a summary, not the raw markdown file. You need the exact raw content to write as-is.
+
+```bash
+# Correct — raw content via curl
+curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md
+
+# WRONG — do NOT use these (they return AI-processed summaries)
+# WebFetch(url)
+# Fetch(url)
+```
+
+### Mandatory Fetch-First Workflow
+
+1. **Fetch ALL selected agents via curl BEFORE writing any files** — batch all curl calls first
+2. **Verify each curl returned valid markdown** (starts with `---` YAML frontmatter, not "404: Not Found")
+3. **Only then** write each fetched agent to `.claude/agents/{name}.md` and tailor with Edit
+4. **Only agents where curl returned 404/empty** may be composed from scratch
 
 ### Detection → Agent Mapping
 
@@ -984,9 +1002,11 @@ When you fetch an agent from agency-agents, adapt it:
 | `allowed-tools` | Yes | Comma-separated tool list |
 | `isolation` | No | `worktree` for agents that write code |
 
-### Fallback (only when curl actually fails)
+### Fallback (ONLY for individual agents where curl returned 404/empty)
 
-Only if `curl` returns an error or empty content after you attempt the fetch, compose agents from scratch following the 7-section structure above. You must still meet the minimum 80-line depth and all quality criteria. Do NOT use this fallback to save tokens — always attempt `curl` first.
+Only if `curl` returns a 404 or empty content for a **specific** agent, compose that one agent from scratch following the 7-section structure above. You must still meet the minimum 80-line depth and all quality criteria. If curl returned valid content for an agent, you MUST use that content — do not discard it and write from scratch.
+
+**Self-check:** If you are writing ALL agents from scratch, something went wrong — go back to Step 2 and run the curl commands. At minimum, the "Always Generate" agents (architect, product-manager, code-reviewer) exist in the repo and will succeed.
 
 ---
 
@@ -1244,7 +1264,7 @@ For each generated file:
 - [ ] **Correct file path** — placed in the right directory (`.claude/commands/`, `.claude/skills/<name>/`, `.claude/agents/`)
 - [ ] **Valid frontmatter** — YAML frontmatter has all required fields
 - [ ] **Agent depth check** — each agent file is at least 80 lines with all 7 required sections
-- [ ] **Agent source check** — agents were fetched from agency-agents via `curl -s` (not WebFetch, not composed from scratch unless curl failed)
+- [ ] **Agent source check** — EVERY agent was fetched from agency-agents via `curl -s` in Bash (not WebFetch/Fetch, not composed from scratch). If ALL agents were written without curl, this is a hard failure — go back to Layer 4 Step 2 and re-do the fetch
 - [ ] **Skill description check** — each skill description is ~100 words with 5+ action-verb trigger phrases
 - [ ] **Skill evals check** — each skill has `evals/evals.json` with 2-3 test prompts and discriminating assertions
 - [ ] **Skill size check** — each SKILL.md is under 500 lines

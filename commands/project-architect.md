@@ -207,23 +207,38 @@ Refine until each skill is project-specific, follows Anthropic best practices, a
 
 #### Layer 4: Agents (Fetch & Tailor)
 
-Agents are sourced from the [agency-agents](https://github.com/msitarzewski/agency-agents) repository and tailored to this project. Follow this process:
+> **Agents MUST be fetched from agency-agents via `curl -s`. Writing from scratch is FORBIDDEN unless curl returns 404.**
 
 **Step 1: Select** — Check the Output Requirements (section 9.7) against Phase 1 detections. Every agent in the "Always Generate" and "Generate When Detected" tables that matches a detection is **mandatory**. Also check the mapping table in section 9.4 for fetch URLs.
 
-**Step 2: Fetch** — Use **Bash** to run `curl -s` for each agent individually. Do **NOT** use WebFetch (it processes content through an AI model and returns a summary, not the raw file).
+**Step 2: Fetch ALL agents first (before writing any files)** — Run `curl -s` via **Bash** for EVERY selected agent. Do this as a batch before writing any agent files. Do **NOT** use WebFetch or Fetch (they process content through an AI model and return summaries, not raw files).
 
+Fetch multiple agents efficiently by running parallel curl calls in a single Bash invocation:
+
+```bash
+curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-software-architect.md > /tmp/agent-architect.md &
+curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/product/product-manager.md > /tmp/agent-pm.md &
+curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-code-reviewer.md > /tmp/agent-reviewer.md &
+# ... add all selected agents
+wait
 ```
-curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/{category}/{filename}.md
+
+Or fetch them sequentially with separator output:
+
+```bash
+echo "=== architect ===" && curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-software-architect.md && echo "=== product-manager ===" && curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/product/product-manager.md
 ```
 
-Example: `curl -s https://raw.githubusercontent.com/msitarzewski/agency-agents/main/engineering/engineering-security-engineer.md`
+Refer to the agency-agents Repository Structure in section 9.4 of the generation guide for correct `{category}/{filename}` paths.
 
-The curl output IS the complete raw agent markdown (200-400 lines). Verify you received the full content (not an error page) before proceeding. Refer to the agency-agents Repository Structure in section 9.4 of the generation guide for correct `{category}/{filename}` paths.
+**CHECKPOINT — Verify before proceeding to Step 3:**
+- Did you run `curl -s` for every selected agent? If not, go back and run the missing ones.
+- Did each curl return markdown content (starting with `---` YAML frontmatter)? If any returned "404: Not Found" or empty content, note which ones failed — only those may be composed from scratch.
+- Do NOT proceed to writing files until all curl commands have been executed.
 
-**Step 3: Write as-is, then revise in-place** — This is critical. Do NOT rewrite from scratch.
+**Step 3: Write each fetched agent to disk, then tailor in-place** — For each successfully fetched agent:
 
-1. **Write the fetched agent content directly to `.claude/agents/{name}.md`** using the Write tool. The file content must be:
+1. **Write the fetched content directly to `.claude/agents/{name}.md`** using the Write tool. The file content must be:
    - Claude Code frontmatter (description, model, allowed-tools, isolation) at the very top
    - Then the **COMPLETE** raw markdown from curl output, unchanged
 2. **Then use the Edit tool to make targeted revisions** — do NOT use Write again (that would overwrite the entire file). Use Edit to make surgical changes:
@@ -236,6 +251,7 @@ The curl output IS the complete raw agent markdown (200-400 lines). Verify you r
 
 **Step 4: Self-review** — For each tailored agent:
 
+- **Provenance check:** Was this agent fetched via `curl -s`? If not, this is a failure — go back to Step 2.
 - Does it embed stack-intersection knowledge (not just the original generic content)?
 - Does the process reference actual commands from CLAUDE.md and Layer 2?
 - Is it consistent with skills from Layer 3?
@@ -246,7 +262,7 @@ The curl output IS the complete raw agent markdown (200-400 lines). Verify you r
 
 Refine until each agent is genuinely stack-specific, deeply knowledgeable, and connected to all previous layers.
 
-**Fallback:** Only if `curl` returns an error or empty content after attempting the fetch, compose from scratch using section 9.4 guidelines. Do NOT use the fallback to save tokens — the fetch step is mandatory.
+**Fallback (ONLY for individual agents where curl returned 404/empty):** Compose that one agent from scratch using section 9.4 guidelines. You must still meet the minimum 80-line depth and all quality criteria. If you are writing ALL agents from scratch, something went wrong — go back to Step 2 and run the curl commands.
 
 #### Layer 5: Hooks + MCP
 
