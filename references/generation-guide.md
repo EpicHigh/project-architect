@@ -466,7 +466,7 @@ Model selects which workflow skills to generate based on scan results + judgment
 - [ ] Vertical slices used (not horizontal layers) where applicable
 - [ ] User validation checkpoints before irreversible steps
 
-**Example: feature-development workflow skill**
+#### Example: feature-development workflow skill
 
 `````markdown
 ---
@@ -566,7 +566,7 @@ Each step uses actual commands detected in Phase 1.
 - `review` — when git detected (code review checklist)
 - Others by judgment based on project needs
 
-**Example: commit invocable skill for a TypeScript + ESLint + Conventional Commits project**
+#### Example: commit invocable skill for a TypeScript + ESLint + Conventional Commits project
 
 `````markdown
 ---
