@@ -8,8 +8,8 @@
   "plugins": [
     {
       "name": "project-architect",
-      "description": "Analyze any codebase and generate Claude Code configuration — CLAUDE.md, commands, skills, agents, hooks — tailored to your project.",
-      "version": "1.6.0",
+      "description": "Analyze any codebase and generate Claude Code configuration — CLAUDE.md, skills, agents, hooks — tailored to your project.",
+      "version": "1.7.0",
       "source": {
         "source": "github",
         "repo": "EpicHigh/claude-project-architect"

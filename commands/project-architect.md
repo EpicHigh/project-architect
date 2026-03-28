@@ -1,5 +1,5 @@
 ---
-description: Analyze your codebase and generate Claude Code configuration (CLAUDE.md, commands, skills, agents, hooks)
+description: Analyze your codebase and generate Claude Code configuration (CLAUDE.md, skills, agents, hooks)
 allowed-tools: Bash, Read, Write, Edit, Grep, Glob
 ---
 
@@ -59,7 +59,7 @@ Scan for the presence of these files (do not read their full contents unless nee
 
 Look for any existing Claude Code configuration that must be preserved:
 
-- `.claude/` directory (commands, skills, agents, settings.json)
+- `.claude/` directory (skills, agents, settings.json)
 - `CLAUDE.md` at project root
 - `.mcp.json`
 
@@ -133,9 +133,10 @@ Follow the Output Requirements (section 9.7) — these are **hard requirements, 
 |-------|------|
 | `CLAUDE.md` | **Always generate** using the template in section 9.1. Under 200 lines. Every line must be project-specific. |
 | `INSTRUCTION.md` | **Always generate** using the template in section 9.13. Under 150 lines. |
-| Commands | **Always generate** commit, implement, fix, review. **Generate when detected** (mandatory): optimize-db (DB/ORM), security-audit (backend). See section 9.2. |
-| Skills | **Always generate** implement-feature, fix-bug, improve-architecture. **Generate when detected** (mandatory): tdd (tests), design-system (styling), api-patterns (backend), schema-patterns (DB/ORM). See section 9.3. |
-| Agents | **No mandatory agents.** Select agents that fit the project based on scan results + judgment. Use the Detection → Agent Mapping in section 9.4 as recommendations, not requirements. Fetch from agency-agents and tailor — see section 9.4. If zero agents are appropriate, justify in Phase 3. |
+| Methodology skills | **Always generate** implement-feature, fix-bug, improve-architecture. **Generate when detected** (mandatory): tdd (tests), design-system (styling), api-patterns (backend), schema-patterns (DB/ORM). See section 9.2. |
+| Workflow skills | **No mandatory workflow skills.** Select by detection + judgment. Use the catalog in section 9.2.2 as recommendations. If zero workflow skills are appropriate, justify in Phase 3. |
+| Invocable skills | **Always generate** commit. **Conditional:** review (if git detected), others by judgment. See section 9.2. |
+| Agents | **No mandatory agents.** Select agents that fit the project based on scan results + judgment. Use the Detection → Agent Mapping in section 9.4 as recommendations. Fetch from agency-agents and tailor — see section 9.4. If zero agents are appropriate, justify in Phase 3. |
 | Hooks | Generate **only** when ALL 3 conditions are true: (1) tool binary confirmed installed via `command -v`, (2) command runs in under 30 seconds, (3) hook includes a disable comment. Use the exact format in section 9.5. |
 | `.mcp.json` | Generate when frameworks detected benefit from MCP servers. Use the exact format in section 9.6. |
 
@@ -146,7 +147,6 @@ Follow the Output Requirements (section 9.7) — these are **hard requirements, 
 If the project already has `.claude/` config, follow these conflict resolution rules:
 
 - **`CLAUDE.md` exists** → merge sections: keep all existing content, add only missing sections
-- **`.claude/commands/` has files** → skip existing commands, only generate new ones
 - **`.claude/skills/` has directories** → skip existing skills, only generate new ones
 - **`.claude/agents/` has files** → skip existing agents
 - **`.claude/settings.json` exists** → merge hooks into existing settings (don't overwrite other settings)
@@ -168,48 +168,54 @@ Compose `CLAUDE.md` using the template in section 9.1. Then review:
 - Are build/test/lint commands the actual commands found in Phase 1?
 - Is it under 200 lines? No generic advice?
 
-Refine until solid. **This file is the foundation — commands, skills, and agents will reference it.**
+Refine until solid. **This file is the foundation — skills and agents will reference it.**
 
-#### Layer 2: Commands
+#### Layer 2: Skills (methodology + workflow + invocable)
 
-Compose all commands (universal + conditional). Then review each command:
+Generate ALL three skill types following [Anthropic's skill best practices](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md) (see section 9.2 for full guidelines). Every skill — regardless of type — must follow these Anthropic principles:
 
-- Does every validation step use a real command from CLAUDE.md?
-- Are steps consistent with what CLAUDE.md documents?
-- **Connection check:** Does each command reference the agent that handles the same workflow in isolation? (e.g., `/implement` should mention the `developer` agent)
+**Anthropic skill principles (non-negotiable):**
 
-Refine until each command is project-specific and connected to Layer 1.
+1. **Description is the trigger** — ~100 words, "pushy", "Use when..." pattern with 5+ action-verb trigger phrases. This is the ONLY thing Claude sees when deciding to activate.
+2. **Progressive disclosure** — SKILL.md <500 lines. Use `references/` subdirectory for depth.
+3. **Explain WHY** — Theory of mind reasoning, not rigid ALWAYS/NEVER rules.
+4. **Lean instructions** — Every line must earn its place. Cut anything that doesn't change behavior.
+5. **Exact output formats** — Precise templates with Input → Output examples from the actual project.
+6. **No duplication with CLAUDE.md** — Skills = methodology, CLAUDE.md = facts.
+7. **Evals required** — `evals/evals.json` with 2-3 realistic prompts + objectively verifiable assertions.
 
-#### Layer 3: Skills
+**For each skill type:**
 
-Compose all skills following [Anthropic's skill best practices](https://github.com/anthropics/skills/tree/main/skills/skill-creator) (see section 9.3 for full guidelines). For each skill:
+**Methodology skills** — Auto-activate, teach how to think about recurring tasks. Structure: Why This Matters → Methodology (with WHY per step) → Examples (2+ I/O pairs) → Patterns → Anti-Patterns → Agent Reference.
 
-**Step 1: Write SKILL.md** — Follow the SKILL.md anatomy in section 9.3. Key requirements:
+**Workflow skills** — Auto-activate on complex multi-step tasks. Orchestrate named agents. Structure (inspired by [mattpocock/skills](https://github.com/mattpocock/skills) and [superpowers](https://github.com/obra/superpowers)):
 
-- Description must be ~100 words and "pushy" — explicitly state WHEN to activate with 5+ action-verb trigger phrases
-- Instructions must explain WHY (theory of mind), not just rigid rules
-- Include at least 2 concrete Input/Output examples from the actual project
-- Keep under 500 lines
+- **Phases** (5-8 sequential steps) with verification gates between phases
+- **Agent dispatch table** — which agent, which phase, what purpose (use exact agent names)
+- **Vertical slices** — each increment cuts through ALL layers end-to-end, not horizontal layers
+- **Common Mistakes** — document rationalization patterns agents use to skip steps
+- **User validation checkpoints** — resolve decision dependencies one-by-one before proceeding
 
-**Step 2: Write evals** — Generate `evals/evals.json` with 2-3 realistic test prompts and objectively verifiable assertions. Prompts should be what a real developer would type. Assertions must discriminate (fail when skill fails, pass when it succeeds).
+**Invocable skills** — User-invocable via `/skill-name`. Step-by-step guided workflows (migrated from commands). Include proper SKILL.md frontmatter with description.
 
-**Step 3: Self-review** — For each skill:
+**Self-review for each skill:**
 
-- **Description check:** Is it ~100 words with 5+ trigger phrases? Is it "pushy" enough to combat under-triggering?
-- **WHY check:** Do instructions explain reasoning, or just list rigid MUSTs?
-- **Examples check:** Are there at least 2 Input/Output pairs from the actual project?
-- **Size check:** Is SKILL.md under 500 lines?
-- **Duplication check:** Does it avoid repeating CLAUDE.md content?
-- **Evals check:** Does `evals/evals.json` have 2-3 prompts with discriminating assertions?
-- **Connection check:** Does it reference which agent(s) apply it?
+- **Description check:** ~100 words with 5+ trigger phrases? "Pushy" enough?
+- **WHY check:** Instructions explain reasoning, not just rigid MUSTs?
+- **Examples check:** At least 2 Input/Output pairs from the actual project?
+- **Size check:** SKILL.md under 500 lines?
+- **Duplication check:** No overlap with CLAUDE.md content?
+- **Evals check:** `evals/evals.json` has 2-3 prompts with discriminating assertions?
+- **Workflow check (workflow skills only):** Agent dispatch table present? Verification gates? Common Mistakes section?
+- **Connection check:** References which agent(s) it dispatches or works with?
 
-Refine until each skill is project-specific, follows Anthropic best practices, and is connected to Layers 1-2.
+Refine until each skill is project-specific, follows Anthropic best practices, and is connected to Layer 1.
 
-#### Layer 4: Agents (Fetch & Tailor)
+#### Layer 3: Agents (Fetch & Tailor)
 
 > **Agents MUST be fetched from agency-agents via `curl -s`. Writing from scratch is FORBIDDEN unless curl returns 404.**
 
-**Step 1: Select** — Check the Output Requirements (section 9.7) against Phase 1 detections. Every agent in the "Always Generate" and "Generate When Detected" tables that matches a detection is **mandatory**. Also check the mapping table in section 9.4 for fetch URLs.
+**Step 1: Select** — Check the Output Requirements (section 9.7) against Phase 1 detections. Use the Detection → Agent Mapping in section 9.4 as recommendations. Also check which agents are referenced by workflow skills from Layer 2 — if a workflow skill dispatches an agent by name, that agent MUST be generated.
 
 **Step 2: Fetch ALL agents first (before writing any files)** — Run `curl -s` via **Bash** for EVERY selected agent. Do this as a batch before writing any agent files. Do **NOT** use WebFetch or Fetch (they process content through an AI model and return summaries, not raw files).
 
@@ -242,28 +248,28 @@ head -1 /tmp/agent-*.md
    - Then the **COMPLETE** raw markdown from curl output, unchanged
 2. **Then use the Edit tool to make targeted revisions** — do NOT use Write again (that would overwrite the entire file). Use Edit to make surgical changes:
    - Replace generic framework references with this project's specific technologies
-   - Add actual file paths, directories, commands from Phase 1
+   - Add actual file paths, directories, patterns from Phase 1
    - Add project-specific patterns found during scan
    - Adjust success metrics to match the project's actual tools
-   - Add workflow connections to commands and skills from Layers 2-3
+   - Add workflow connections to skills from Layer 2
 3. **Preserve the original depth** — the fetched agents are 200-400 lines of production expertise. Your revised version must keep most of that depth. Do NOT summarize or condense — only revise in-place.
 
 **Step 4: Self-review** — For each tailored agent:
 
 - **Provenance check:** Was this agent fetched via `curl -s`? If not, this is a failure — go back to Step 2.
 - Does it embed stack-intersection knowledge (not just the original generic content)?
-- Does the process reference actual commands from CLAUDE.md and Layer 2?
-- Is it consistent with skills from Layer 3?
+- Does the process reference actual patterns from CLAUDE.md and Layer 2?
+- Is it consistent with skills from Layer 2?
 - **Depth check:** Is the agent at least 80 lines with all 7 sections? If not, add more project-specific knowledge.
 - **Stack Expertise longest:** Is the Stack Expertise section the longest section in the agent? This is where project-specific knowledge lives.
 - **Specificity test:** Remove the project name — can you still identify which stack this targets?
-- **Connection check:** Does it reference which skill(s) it follows and which command(s) it complements? (See section 9.8)
+- **Connection check:** Does it reference which skill(s) it follows and which workflow skill(s) dispatch it? (See section 9.8)
 
 Refine until each agent is genuinely stack-specific, deeply knowledgeable, and connected to all previous layers.
 
 **Fallback (ONLY for individual agents where curl returned 404/empty):** Compose that one agent from scratch using section 9.4 guidelines. You must still meet the minimum 80-line depth and all quality criteria. If you are writing ALL agents from scratch, something went wrong — go back to Step 2 and run the curl commands.
 
-#### Layer 5: Hooks + MCP
+#### Layer 4: Hooks + MCP
 
 Generate hooks and MCP config using exact formats from sections 9.5/9.6. Verify:
 
@@ -271,19 +277,19 @@ Generate hooks and MCP config using exact formats from sections 9.5/9.6. Verify:
 - Binary confirmed installed (Phase 1 `command -v` check)
 - MCP servers match detected frameworks
 
-#### Layer 6: INSTRUCTION.md
+#### Layer 5: INSTRUCTION.md
 
 Generate using the template from the generation guide. This is a quick-start onboarding guide, not documentation. If one already exists, skip this layer.
 
 Composition constraints for this layer:
 
-- Include only sections for layers that were actually generated (commands, skills, agents, hooks, MCP)
-- Fill in all project-specific values — stack names, framework versions, real command names
+- Include only sections for layers that were actually generated (skills, agents, hooks, MCP)
+- Fill in all project-specific values — stack names, framework versions, real commands
 - Add 3–5 tips specific to the developer's detected stack
 - Keep it under 150 lines
 - Use a friendly, conversational tone
 
-Verify it accurately summarizes everything generated in Layers 1-5.
+Verify it accurately summarizes everything generated in Layers 1-4.
 
 #### Holistic Self-Improvement Loop
 
@@ -354,21 +360,23 @@ After the Self-Improvement Loop completes and all files pass quality validation,
 ### 3.1 List every generated file grouped by layer
 
 1. **CLAUDE.md** — show the file path
-2. **Commands** — list each as `/command-name` with its one-line description
-3. **Skills** — list each skill name with its description
-4. **Agents** — list each with its isolation mode and what stack-specific knowledge it embeds
-5. **Hooks** — list each with its lifecycle event
-6. **MCP servers** — list each server added to `.mcp.json`
-7. **INSTRUCTION.md** — mention where to find the onboarding guide
+2. **Methodology skills** — list each skill name with its description
+3. **Workflow skills** — list each with its phases and which agents it dispatches
+4. **Invocable skills** — list each as `/skill-name` with its one-line description
+5. **Agents** — list each with its isolation mode and what stack-specific knowledge it embeds
+6. **Hooks** — list each with its lifecycle event
+7. **MCP servers** — list each server added to `.mcp.json`
+8. **INSTRUCTION.md** — mention where to find the onboarding guide
 
-### 3.2 Explain why each was generated (and why agents were skipped)
+### 3.2 Explain why each was generated (and why items were skipped)
 
 For every generated item, state which Phase 1 detection triggered it:
 
 - `developer` agent → "Next.js + Prisma + Jest detected — agent embeds RSC/Prisma intersection patterns"
-- `design-system` skill → "Tailwind CSS + shadcn/ui detected in devDependencies"
+- `feature-development` workflow skill → "Full-stack app with 4+ layers detected — orchestrates vertical slice implementation with developer + reviewer agents"
+- `design-system` methodology skill → "Tailwind CSS + shadcn/ui detected in devDependencies"
 
-If zero agents were generated, explain why no agents are appropriate for this project (e.g., "Single-file config utility with no build system, tests, or deployment — agents would add no value").
+If zero agents or zero workflow skills were generated, explain why none are appropriate for this project.
 
 ### 3.3 Flag hooks with warnings
 
@@ -399,7 +407,7 @@ Present the final score card from the Holistic Self-Improvement Loop as a markdo
 Include after the table:
 
 - **Rounds completed:** How many self-improvement rounds ran
-- **Improvements per round:** Brief bullet list of what was fixed in each round (e.g., "Round 1: Added Prisma intersection knowledge to developer agent, fixed lint command in review command")
+- **Improvements per round:** Brief bullet list of what was fixed in each round
 - **Convergence reason:** Why the loop stopped (all dimensions ≥ 8 / no improvement for 2 rounds / max 5 rounds reached)
 - **Known limitations:** Any dimensions that remained below 8 despite improvement attempts
 
@@ -407,7 +415,7 @@ Include after the table:
 
 End with:
 
-> Everything generated is yours to edit. To re-run with different settings, use `/project-architect` again — it merges with existing config, never overwrites. To add commands, skills, or agents manually, create files in `.claude/commands/`, `.claude/skills/`, or `.claude/agents/`.
+> Everything generated is yours to edit. To re-run with different settings, use `/project-architect` again — it merges with existing config, never overwrites. To add skills or agents manually, create files in `.claude/skills/` or `.claude/agents/`.
 
 Do NOT ask questions. Do NOT prompt for feedback. The command is complete.
 
@@ -421,3 +429,4 @@ Do NOT ask questions. Do NOT prompt for feedback. The command is complete.
 - **Composability** — deleting any generated file breaks nothing else
 - **Safety first for hooks** — when in doubt, don't generate the hook
 - **Less is more** — five excellent customizations > twenty generic ones
+- **Anthropic skill standards** — every skill follows the official skill-creator principles

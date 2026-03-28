@@ -6,7 +6,7 @@
 
 ## What is this?
 
-**project-architect** is a [Claude Code](https://claude.ai/code) plugin that analyzes your project's tech stack and generates a complete `.claude/` configuration — CLAUDE.md, commands, skills, agents, hooks, and MCP servers — all tailored to how your project actually works. No manual setup, no guessing.
+**project-architect** is a [Claude Code](https://claude.ai/code) plugin that analyzes your project's tech stack and generates a complete `.claude/` configuration — CLAUDE.md, skills, agents, hooks, and MCP servers — all tailored to how your project actually works. No manual setup, no guessing.
 
 ## Demo
 
@@ -19,9 +19,10 @@ Scanning project...
 
 Generating configuration...
 ✓ CLAUDE.md — project overview, build/test/lint commands, conventions
-✓ Commands — commit, implement, fix, review + optimize-db (Prisma detected), security-audit (API detected)
-✓ Skills — implement-feature, fix-bug, improve-architecture, tdd, design-system, schema-patterns
-✓ Agents — architect, developer (Next.js+Prisma+Tailwind), reviewer (React+security), db-specialist (Prisma+PostgreSQL), devops (GitHub Actions), qa (Jest), fixer
+✓ Methodology skills — implement-feature, fix-bug, tdd, design-system, schema-patterns, api-patterns
+✓ Workflow skills — feature-development, bug-fix-lifecycle, code-review-fix (dispatch developer + reviewer agents)
+✓ Invocable skills — /commit, /review
+✓ Agents — developer (Next.js+Prisma+Tailwind), code-reviewer (React+security), architect, db-specialist (Prisma+PostgreSQL)
 ✓ Hook — lint + test pre-commit (ESLint + Jest confirmed installed)
 ✓ MCP — Context7 for Next.js docs
 ```
@@ -57,24 +58,44 @@ The plugin runs autonomously in 3 phases:
 
 ## What Gets Generated
 
+### Skills (3 types)
+
+| Type | Output | When |
+| --- | --- | --- |
+| Methodology | `implement-feature`, `fix-bug`, `improve-architecture` | Always |
+| Methodology | `tdd` | Test framework detected |
+| Methodology | `design-system` | Styling framework detected |
+| Methodology | `api-patterns` | Backend framework detected |
+| Methodology | `schema-patterns` | Database/ORM detected |
+| Workflow | `feature-development`, `bug-fix-lifecycle`, `code-review-fix`, etc. | By project judgment |
+| Workflow | `security-audit-workflow`, `db-optimization-workflow`, etc. | By detection + judgment |
+| Invocable | `commit` | Always |
+| Invocable | `review` | Git detected |
+
+**Methodology skills** auto-activate and teach HOW to approach tasks. **Workflow skills** orchestrate multi-step work by dispatching named agents through phases with verification gates. **Invocable skills** are user-triggered via `/skill-name`.
+
+All skills follow [Anthropic's official skill best practices](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md). Workflow patterns inspired by [mattpocock/skills](https://github.com/mattpocock/skills) and [superpowers](https://github.com/obra/superpowers).
+
+### Agents
+
+| Output | When |
+| --- | --- |
+| `architect` (stack-aware) | Complex architecture detected |
+| `code-reviewer` (stack-specific checklists) | Active development detected |
+| `developer` (framework-specific patterns) | Test framework + linter detected |
+| `database-specialist` (ORM + engine expertise) | Database/ORM detected |
+| `security-engineer` (threat modeling) | Backend framework detected |
+| `devops-automator` (Docker + CI/CD) | Docker or CI/CD detected |
+| Additional agents from [agency-agents](https://github.com/msitarzewski/agency-agents) catalog | By detection + judgment |
+
+No agents are mandatory — selection is by detection + judgment.
+
+### Other Layers
+
 | Layer | Output | When |
 | --- | --- | --- |
 | CLAUDE.md | Project overview, build/test/lint commands, conventions | Always |
-| Commands | `commit`, `implement`, `fix`, `review` | Always |
-| Commands | `optimize-db` | Database/ORM detected |
-| Commands | `security-audit` | Backend framework detected |
-| Skills | `implement-feature`, `fix-bug`, `improve-architecture` | Always |
-| Skills | `tdd` | Test framework detected |
-| Skills | `design-system` | Styling framework detected |
-| Skills | `api-patterns` | Backend framework detected |
-| Skills | `schema-patterns` | Database/ORM detected |
-| Agents | `architect` (stack-aware) | Always |
-| Agents | `reviewer` (stack-specific checklists + security) | Linter or test framework detected |
-| Agents | `developer` (framework-specific patterns) | Test framework + linter detected |
-| Agents | `db-specialist` (ORM + engine expertise) | Database/ORM detected |
-| Agents | `devops` (Docker + CI/CD optimization) | Docker or CI/CD detected |
-| Agents | `qa` (test framework patterns) | Test framework detected |
-| Agents | `fixer` (language-specific debugging) | Test framework detected |
+| INSTRUCTION.md | Quick-start onboarding guide | Always |
 | Hooks | lint pre-commit | Linter detected |
 | Hooks | lint + test pre-commit | Linter + fast tests detected |
 | MCP | Context7 docs server | Framework with docs detected |
@@ -139,15 +160,14 @@ references/generation-guide.md     → Guidelines and examples for output compos
 
 See complete generated output for different stacks:
 
-- **[React + Next.js](examples/react-nextjs/)** — commands, skills, agents tailored to Next.js + Prisma + Tailwind + Jest
-- **[Go API Server](examples/go-api/)** — commands, skills, agents tailored to Go + Gin + Ent + golangci-lint
-- **[Python + FastAPI](examples/python-fastapi/)** — commands, skills, agents tailored to FastAPI + SQLAlchemy + pytest + Ruff
+- **[React + Next.js](examples/react-nextjs/)** — skills, agents tailored to Next.js + Prisma + Tailwind + Jest
+- **[Go API Server](examples/go-api/)** — skills, agents tailored to Go + Gin + Ent + golangci-lint
+- **[Python + FastAPI](examples/python-fastapi/)** — skills, agents tailored to FastAPI + SQLAlchemy + pytest + Ruff
 
 ## Customization
 
 After generation, everything is yours to edit:
 
-- **Add commands** — create `.md` files in `.claude/commands/`
 - **Add skills** — create `SKILL.md` in `.claude/skills/<name>/`
 - **Tune hooks** — edit `.claude/settings.json`
 - **Re-run** — run `/project-architect` again to regenerate (it merges with existing config, never overwrites)

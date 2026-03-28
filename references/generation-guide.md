@@ -235,149 +235,113 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
-## 9.2 Command Guidelines
 
-Commands are `.md` files in `.claude/commands/`. They orchestrate multi-step workflows with project-specific validation.
+## 9.2 Skill Guidelines
 
-### Principles
+All output lives in `.claude/skills/<name>/`. There are three skill types — methodology, workflow, and invocable — but ALL follow the same [Anthropic skill best practices](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md).
 
-- Every validation step must use an actual command detected in Phase 1 — no placeholders
-- Commands start with context-gathering (explore codebase) before action
-- A command adds value when it orchestrates a multi-step workflow — if it's just "run this one command," skip it
-- Omit steps that don't apply: no "run tests" step if no test framework was detected
-
-### Quality Criteria
-
-- [ ] Every `run X` step uses a real command from Phase 1
-- [ ] No generic advice that applies to any project
-- [ ] Commit command embeds the project's actual commit conventions
-- [ ] Implement command references the project's actual lint/test/build commands
-
-### Always Generate
-
-`commit`, `implement`, `fix`, `review` — these workflows apply to all projects, but their content must be tailored to the project's detected stack, commands, and conventions from Phase 1.
-
-### Generate When Detected (mandatory)
-
-- `optimize-db` — when database/ORM detected
-- `security-audit` — when backend framework detected
-
-### Example: commit.md for a TypeScript + ESLint + Conventional Commits project
-
-`````markdown
----
-description: Create a guided commit following conventional commit conventions
-allowed-tools: Bash, Read, Grep, Glob
----
-
-# Guided Commit
-
-1. Run `git status` and `git diff --staged` to review changes.
-2. If nothing is staged, show unstaged changes and ask what to stage.
-3. Run `npm run lint` before committing. If it fails, show errors and ask to fix or skip.
-4. Write a commit message following conventional commits (lowercase, imperative mood).
-5. Run `git commit` with the message.
-6. Show the commit hash and summary.
-`````
-
-### Example: implement.md for a Go + golangci-lint + go test project
-
-`````markdown
----
-description: Implement a feature with structured exploration, planning, and validation
-allowed-tools: Bash, Read, Write, Glob, Grep, Agent
----
-
-# Implement Feature
-
-> Tip: For isolated implementation in a separate worktree, invoke the `developer` agent instead.
-
-## Phase 1: Understand
-
-1. Read the user's description. Ask clarifying questions if scope is ambiguous.
-2. Define what success looks like.
-
-## Phase 2: Explore
-
-3. Grep for related code: domain terms, similar features, shared utilities.
-4. Read existing implementations of the closest analog.
-5. Map: which files need to be created or modified?
-
-## Phase 3: Plan
-
-6. Write a plan (3-7 steps) in dependency order.
-7. Show the plan and wait for approval before writing code.
-
-## Phase 4: Implement
-
-8. One change at a time. After each:
-   - `golangci-lint run ./...`
-   - `go test ./...`
-9. Write tests for new behavior (table-driven tests with t.Run).
-
-## Phase 5: Validate
-
-10. `go test ./...` — all tests pass
-11. `golangci-lint run ./...` — no violations
-12. `go build ./...` — build succeeds
-13. Summarize what changed and why.
-`````
-
-### Frontmatter Reference
-
-| Field | Required | Values |
-|-------|----------|--------|
-| `description` | Yes | One-line description of the command |
-| `allowed-tools` | Yes | Comma-separated: Bash, Read, Write, Glob, Grep, Agent |
-
----
-
-## 9.3 Skill Guidelines
-
-Skills are `SKILL.md` files in `.claude/skills/<name>/`. They encode **methodology** — how to think about recurring tasks in this specific codebase. Based on [Anthropic's official skill best practices](https://github.com/anthropics/skills/tree/main/skills/skill-creator).
-
-### Principles
+### Anthropic Skill Principles (non-negotiable for ALL types)
 
 1. **Description is the trigger** — The `description` field is the PRIMARY mechanism that determines when Claude activates the skill. Write ~100 words that are "a little pushy" — explicitly state WHEN to use this skill with 5+ action-verb trigger phrases. Combat Claude's natural under-triggering tendency by being specific about contexts where the skill applies.
 
 2. **Explain WHY, not just rules** — Appeal to Claude's theory of mind. Instead of rigid MUSTs and all-caps ALWAYS/NEVER, explain the reasoning behind each guideline. Claude follows reasoning better than rote commands.
 
-3. **Lean instructions** — Every section must earn its place. Remove things that aren't pulling weight. If a guideline doesn't change behavior, cut it. Read transcripts of Claude using the skill to identify unproductive steps.
+3. **Lean instructions** — Every section must earn its place. Remove things that aren't pulling weight. If a guideline doesn't change behavior, cut it.
 
-4. **Progressive disclosure** — Keep SKILL.md under 500 lines. If you need more depth, use `references/` subdirectory for larger content the skill can point to.
+4. **Progressive disclosure** — Keep SKILL.md under 500 lines. Use `references/` subdirectory for larger content the skill can point to.
 
-5. **Concrete examples** — Include at least 2 Input/Output pairs showing the pattern in action with real project code. These are more effective than abstract rules.
+5. **Concrete examples** — Include at least 2 Input/Output pairs showing the pattern in action with real project code.
 
 6. **No duplication with CLAUDE.md** — Skills teach methodology ("how to approach X"). CLAUDE.md teaches facts ("what tools/commands exist"). Never repeat CLAUDE.md content in a skill.
+
+7. **Evals required** — `evals/evals.json` with 2-3 realistic test prompts + objectively verifiable assertions.
+
+8. **Principle of Lack of Surprise** — A skill's contents must NOT surprise users given the description.
 
 ### Skill Structure
 
 ```
 .claude/skills/<name>/
-├── SKILL.md           # Required — instructions + methodology
+├── SKILL.md           # Required — instructions + methodology (<500 lines)
+├── references/        # Optional — depth docs loaded as needed
 └── evals/
     └── evals.json     # Required — 2-3 test prompts + assertions
 ```
 
-### SKILL.md Anatomy
+### Frontmatter Reference
+
+| Field | Required | Values |
+|-------|----------|--------|
+| `name` | Yes | Skill name (kebab-case) |
+| `description` | Yes | ~100 words: purpose + 5+ trigger phrases with action verbs. Be pushy. |
+
+### Evals (evals.json)
+
+Every generated skill MUST include `evals/evals.json` with 2-3 realistic test prompts.
+
+```json
+[
+  {
+    "prompt": "What a real developer would type",
+    "assertions": [
+      "Objectively verifiable assertion 1",
+      "Objectively verifiable assertion 2"
+    ]
+  }
+]
+```
+
+- Prompts must be realistic — what a developer would actually say
+- Assertions must be **objectively verifiable** and **discriminating**
+- 2-3 evals per skill is sufficient
+
+### Description Anti-Pattern
+
+**Bad (too short, not pushy):**
+
+```yaml
+description: Design system and styling patterns for this project.
+```
+
+**Bad (describes WHAT, not WHEN):**
+
+```yaml
+description: >
+  This skill contains information about the project's UI components,
+  Tailwind configuration, and shadcn/ui primitives.
+```
+
+**Good (pushy, ~100 words, 5+ trigger phrases):**
+
+```yaml
+description: >
+  UI component and styling patterns for this React 19 + Tailwind CSS 4 + shadcn/ui
+  project. Use this skill when: building new UI components, styling existing components,
+  choosing between shadcn primitives and custom components, applying Tailwind utility
+  classes, creating responsive layouts, implementing dark mode, picking colors or spacing
+  from the theme config, composing dialog or form layouts, reviewing component structure,
+  or deciding how to organize component files.
+```
+
+---
+
+### 9.2.1 Methodology Skills
+
+Auto-activate based on description triggers. Teach HOW to think about recurring tasks. These now absorb the step-by-step workflow guidance that commands previously provided.
+
+**SKILL.md anatomy:**
 
 ```markdown
 ---
 name: skill-name
 description: >
-  ~100 words. Be pushy about when to activate. Use action verbs.
-  Include 5+ specific trigger phrases that match how developers
-  phrase requests. Example: "Use when: creating API endpoints,
-  adding new routes, designing request schemas, handling API errors,
-  adding middleware, structuring route handlers, connecting routes
-  to services."
+  ~100 words. "Use when..." with 5+ action-verb trigger phrases.
 ---
 
 # Skill Title
 
 ## Why This Matters
-Brief context on why this methodology exists in this project.
-Appeal to reasoning, not just authority.
+Brief context on why this methodology exists. Appeal to reasoning.
 
 ## Methodology
 Step-by-step approach with WHY for each step.
@@ -390,334 +354,249 @@ Project-specific patterns with file references.
 
 ## Anti-Patterns
 Common mistakes in this codebase and why they cause problems.
+
+## Agent Reference
+Which agent(s) follow this methodology when dispatched.
 ```
 
-### Evals (evals.json)
+**Always generate:**
 
-Every generated skill MUST include `evals/evals.json` with 2-3 realistic test prompts. Evals verify the skill produces correct behavior.
+- `implement-feature` — structured implementation (explore → plan → implement → validate)
+- `fix-bug` — root cause analysis (reproduce → diagnose → fix → verify → prevent)
+- `improve-architecture` — architecture improvement (explore → identify → design alternatives → evaluate → recommend)
 
-**Schema:**
-
-```json
-{
-  "skill_name": "skill-name",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "What a real developer would type",
-      "expected_output": "Description of what correct output looks like",
-      "assertions": [
-        "Objectively verifiable assertion 1",
-        "Objectively verifiable assertion 2"
-      ]
-    }
-  ]
-}
-```
-
-**Rules for evals:**
-
-- Prompts must be realistic — what a developer would actually say, not artificial test cases
-- Assertions must be **objectively verifiable** (can check yes/no) and **discriminating** (fail when the skill really fails, pass when it succeeds)
-- Skip assertions for subjective qualities (writing style, design aesthetics)
-- 2-3 evals per skill is sufficient — these are for iteration speed, not exhaustive coverage
-
-### Quality Criteria
-
-- [ ] Description is ~100 words and includes 5+ specific trigger phrases with action verbs
-- [ ] Description is "pushy" — tells Claude WHEN to use this skill, not just what it does
-- [ ] Instructions explain WHY (theory of mind), not just rigid rules
-- [ ] Contains at least 2 concrete Input/Output examples from the actual project
-- [ ] SKILL.md is under 500 lines
-- [ ] No duplicate content with CLAUDE.md (skills = methodology, CLAUDE.md = facts)
-- [ ] References actual files, directories, patterns from Phase 1
-- [ ] Principles survive codebase changes (not brittle line-number references)
-- [ ] `evals/evals.json` exists with 2-3 test prompts and objectively verifiable assertions
-- [ ] **Connection check:** Skill references which agent(s) apply it
-
-### Always Generate
-
-- `implement-feature` — structured implementation methodology (explore → plan → implement → validate)
-- `fix-bug` — root cause analysis methodology (reproduce → diagnose → fix → verify → prevent)
-- `improve-architecture` — architecture improvement methodology (explore → identify → design alternatives → evaluate → recommend)
-
-### Generate When Detected (mandatory)
+**Generate when detected (mandatory):**
 
 - `tdd` — when test framework detected
 - `design-system` — when styling framework detected
 - `api-patterns` — when backend framework detected
 - `schema-patterns` — when database/ORM detected
-- Any additional skill that addresses a recurring methodology need identified in Phase 1
 
-### Example: api-patterns skill for a FastAPI + SQLAlchemy project
+**Quality criteria (in addition to all Anthropic principles):**
+
+- [ ] Instructions explain WHY (theory of mind)
+- [ ] At least 2 Input/Output examples from the actual project
+- [ ] References which agent(s) follow this methodology
+
+---
+
+### 9.2.2 Workflow Skills
+
+Auto-activate on complex multi-step tasks. Orchestrate named agents through phases with verification gates. Inspired by [mattpocock/skills](https://github.com/mattpocock/skills) (write-a-prd, triage-issue, improve-codebase-architecture) and [superpowers](https://github.com/obra/superpowers) (subagent-driven development, systematic-debugging).
+
+**Workflow skills follow ALL Anthropic principles above** — the fact that they orchestrate agents doesn't exempt them from description quality, progressive disclosure, or lean instructions.
+
+**SKILL.md anatomy:**
+
+```markdown
+---
+name: workflow-name
+description: >
+  ~100 words. "Use when..." with 5+ trigger phrases.
+  Mention that it orchestrates agents for multi-step work.
+---
+
+# Workflow Title
+
+## Why This Workflow
+Why ad-hoc execution misses what this workflow catches.
+
+## Workflow
+
+### Phase 1: [Name]
+Steps with verification gate before next phase.
+
+### Phase 2: [Name] (dispatch [agent-name] agent)
+- Dispatch `agent-name` agent with complete task description
+- Agent follows `methodology-skill` for domain expertise
+- Verification: [what must be true before proceeding]
+
+### Phase 3: [Name] (dispatch [agent-name] agent)
+- Review → fix → re-review loop: dispatch reviewer, fix issues, repeat until zero issues remain
+
+### Phase N: Finalize
+Run tests, commit, summarize.
+
+## Agent Dispatch Reference
+
+| Phase | Agent | Purpose |
+|-------|-------|---------|
+| 2 | agent-name | What it does |
+| 3 | agent-name | What it does |
+
+## Common Mistakes
+Document rationalization patterns — how agents skip steps and why it matters.
+```
+
+**Key structural patterns:**
+
+- **Vertical slices** — each increment cuts through ALL layers end-to-end (schema → API → UI → tests), not horizontal layers. Independently demoable.
+- **Agent dispatch by name** — "Dispatch `developer` agent with complete task description." Use exact agent names from `.claude/agents/`.
+- **Review-fix loop** — dispatch reviewer → fix issues → re-review → repeat until zero issues remain. The reviewer checks **spec compliance first** (does implementation match the plan?) before checking code quality — spec drift caught late is expensive to fix. An "issue" is any finding requiring a code change — correctness bugs, security vulnerabilities, missing error handling, pattern violations, spec mismatches, or logic errors. Style nits and subjective suggestions that don't affect correctness are NOT issues (the reviewer should note them but they don't block the loop from exiting). The loop exits when the reviewer reports zero actionable findings.
+- **Verification gates** — explicit checkpoints between phases.
+- **User validation checkpoints** — present plan to user before proceeding. Resolve decision dependencies one-by-one.
+- **Common Mistakes section** — anti-rationalization. Document how agents shortcut or skip steps.
+- **Minimal questioning for execution** — execution-oriented phases minimize user interaction.
+- **Durable artifacts** — generated artifacts (plans, issues) avoid file paths, line numbers, code snippets. Describe behaviors and contracts instead.
+
+**Workflow skill catalog (all by judgment, none mandatory):**
+
+| Skill | When to Consider | Agents Dispatched |
+|-------|------------------|-------------------|
+| `feature-development` | Multi-layer feature work | developer, code-reviewer |
+| `bug-fix-lifecycle` | Bug investigation + fix | developer, code-reviewer |
+| `code-review-fix` | Review + fix cycle | code-reviewer, developer |
+| `systematic-debugging` | Deep debugging (test framework) | developer |
+| `security-audit-workflow` | Security scan + fix (backend) | security-engineer, developer |
+| `db-optimization-workflow` | DB perf analysis (database) | database-specialist, developer |
+| `refactoring-workflow` | Architectural refactor | architect, developer, code-reviewer |
+| `onboarding-workflow` | Codebase understanding | architect |
+| `migration-workflow` | Framework/lib upgrade | developer, code-reviewer |
+| `pr-workflow` | Prepare + review + PR | code-reviewer, developer |
+
+Model selects which workflow skills to generate based on scan results + judgment. If zero workflow skills are appropriate (e.g., trivial config-only repo), justify in Phase 3.
+
+**Quality criteria (in addition to all Anthropic principles):**
+
+- [ ] Phases are sequential with verification gates
+- [ ] Agent dispatch table present with exact agent names
+- [ ] Agent dispatch descriptions include project-specific context (e.g., "Dispatch `developer` agent to implement Mongoose schema + singleton service + API route with RBAC" — not just "Dispatch `developer` agent to implement")
+- [ ] Common Mistakes section documents rationalization patterns specific to this project's stack
+- [ ] Workflow skills dispatch only agents that are actually generated in Layer 3
+- [ ] Vertical slices use the project's actual layers (e.g., "schema → service → API route → UI component" for a Next.js + MongoDB project, not generic "model → controller → view")
+- [ ] User validation checkpoints before irreversible steps
+- [ ] At least 2 Input/Output examples from the actual project (same requirement as methodology skills)
+- [ ] References actual files, directories, and patterns from Phase 1
+
+#### Example: feature-development workflow skill
 
 `````markdown
 ---
-name: api-patterns
+name: feature-development
 description: >
-  API route design patterns for this FastAPI + SQLAlchemy project. Use this skill
-  when: creating new API endpoints, adding route handlers, designing request or
-  response Pydantic schemas, handling API errors or validation, adding middleware,
-  structuring router files, connecting routes to the service layer, setting up
-  dependency injection for database sessions, or reviewing existing endpoint
-  patterns. This skill teaches the 4-layer pattern (router → schema → service → model)
-  that keeps endpoints consistent and testable.
+  Use when implementing a new feature end-to-end that spans multiple layers.
+  Activates on "build this feature", "implement end-to-end", "add this capability",
+  "create a new feature across model/service/API/UI", "implement this from scratch".
+  Orchestrates planning with vertical slices, agent-delegated implementation,
+  review-fix loop, and finalization. Dispatches developer and code-reviewer
+  agents by name.
 ---
 
-# API Patterns
+# Feature Development Workflow
 
-## Why This Pattern Exists
+## Why This Workflow
 
-This project separates HTTP concerns from business logic using a 4-layer architecture.
-This matters because it keeps endpoints testable (you can test services without HTTP),
-prevents business logic from leaking into route handlers, and makes it easy for multiple
-endpoints to share the same service logic.
+Building features across multiple layers (model → service → API → UI) requires
+coordination that ad-hoc implementation misses. Vertical slices ensure each
+increment is independently demoable. Agent delegation keeps implementation
+focused while the review-fix loop catches issues iteratively until none remain.
 
-## The 4-Layer Pattern
+## Workflow
 
-Before creating a new endpoint, read 2-3 existing routers in `app/api/` to see this in action.
+### Phase 1: Understand & Plan
 
-1. **Router file** in `app/api/` — one file per resource (e.g., `users.py`, `invoices.py`)
-2. **Pydantic models** in `app/schemas/` — validate input, shape output
-3. **Service layer** in `app/services/` — business logic, separated from HTTP
-4. **DB access** via SQLAlchemy in `app/models/` — use `Depends(get_db)` for session injection
+- Read related source files to understand current patterns
+- Break feature into vertical slices — each cuts through ALL layers end-to-end
+- A good slice: schema change → service method → API endpoint → UI component → test
+- Present plan to user. Resolve decision dependencies one-by-one before proceeding
 
-## Examples
+### Phase 2: Implement (dispatch developer agent)
 
-**Example 1: Creating a new CRUD endpoint**
+For each vertical slice:
 
-Input: "Create an endpoint for managing invoices"
+- Dispatch `developer` agent with complete slice description
+- Agent follows `implement-feature` methodology skill
+- Agent runs lint + tests before completing each slice
+- Each slice must leave the codebase in a working state
 
-Output pattern:
-```python
-# app/api/invoices.py
-router = APIRouter(prefix="/api/v1/invoices", tags=["invoices"])
+### Phase 3: Review-Fix Loop (dispatch code-reviewer agent)
 
-@router.post("/", response_model=InvoiceResponse)
-async def create_invoice(
-    data: InvoiceCreate,
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user),
-):
-    return await invoice_service.create(db, data, user)
-```
+- Dispatch `code-reviewer` agent on all changes
+- Reviewer checks spec compliance first (does it match the plan?), then code quality
+- If issues found → dispatch `developer` agent to fix
+- Re-dispatch `code-reviewer` agent to verify fixes
+- Repeat until zero actionable issues remain
 
-**Example 2: Adding error handling**
+### Phase 4: Finalize
 
-Input: "Handle the case where an invoice is not found"
+- Run full test suite
+- Commit with conventional message
+- Summarize what changed and why
 
-Output pattern:
-```python
-invoice = await invoice_service.get_by_id(db, invoice_id)
-if not invoice:
-    raise HTTPException(status_code=404, detail="Invoice not found")
-```
-Why `HTTPException` instead of returning a dict: FastAPI auto-generates OpenAPI error docs
-from HTTPException, and middleware can catch it consistently.
+## Agent Dispatch Reference
 
-## Anti-Patterns
+| Phase | Agent | Purpose |
+|-------|-------|---------|
+| 2 | developer | Implement each vertical slice in worktree |
+| 3 | code-reviewer | Review all changes |
+| 3 (fix) | developer | Fix review issues |
+| 3 (loop) | code-reviewer | Re-review until zero issues |
 
-- **Don't put business logic in route handlers** — if you need an `if/else` beyond input
-  validation, it belongs in the service layer
-- **Don't create Pydantic models in the router file** — they live in `app/schemas/`
-- **Don't duplicate Pydantic validation in services** — Pydantic already validated the input
+## Common Mistakes
+
+- Implementing horizontal layers (all models, then all services) instead of vertical slices
+- Skipping the plan phase and jumping straight to code
+- Stopping after one review pass — the fix itself may introduce new issues; loop until zero remain
+- Making slices too thick — each should be independently demoable
 `````
 
-**Corresponding evals/evals.json:**
+---
 
-`````json
-{
-  "skill_name": "api-patterns",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Create a new API endpoint for managing invoices with CRUD operations",
-      "expected_output": "Router file with endpoints following the 4-layer pattern",
-      "assertions": [
-        "Creates router file in app/api/ directory",
-        "Uses Pydantic models from app/schemas/ for request/response",
-        "Delegates business logic to a service in app/services/",
-        "Uses Depends(get_db) for database session injection",
-        "Uses Depends(get_current_user) for authentication"
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Add error handling to the invoices endpoint for not-found cases",
-      "expected_output": "HTTPException usage with appropriate status codes",
-      "assertions": [
-        "Uses HTTPException (not plain dict responses) for errors",
-        "Returns 404 status code for not-found cases",
-        "Error handling is in the route handler, not the service layer"
-      ]
-    }
-  ]
-}
-`````
+### 9.2.3 Invocable Skills
 
-### Example: design-system skill for a React + Tailwind + shadcn/ui project
+User-invocable via `/skill-name`. These replace what commands previously provided — step-by-step guided workflows that users explicitly trigger. They use the same SKILL.md format with proper frontmatter.
+
+**SKILL.md anatomy:**
+
+```markdown
+---
+name: skill-name
+description: >
+  ~100 words. "Use when..." with trigger phrases.
+---
+
+# Skill Title
+
+Step-by-step workflow with project-specific validation commands.
+Each step uses actual commands detected in Phase 1.
+```
+
+**Always generate:**
+
+- `commit` — guided git commit workflow tailored to the project's conventions
+
+**Conditional:**
+
+- `review` — when git detected (code review checklist)
+- Others by judgment based on project needs
+
+#### Example: commit invocable skill for a TypeScript + ESLint + Conventional Commits project
 
 `````markdown
 ---
-name: design-system
+name: commit
 description: >
-  UI component and styling patterns for this React 19 + Tailwind CSS 4 + shadcn/ui
-  project. Use this skill when: building new UI components, styling existing components,
-  choosing between shadcn primitives and custom components, applying Tailwind utility
-  classes, creating responsive layouts, implementing dark mode, picking colors or spacing
-  from the theme config, composing dialog or form layouts, reviewing component structure,
-  or deciding how to organize component files. This skill prevents reinventing existing
-  primitives and keeps styling consistent with the design system.
+  Use when creating a git commit, staging changes, or saving work to version
+  control. Activates on "commit", "stage changes", "save my work", "create a
+  commit", "push my changes". Guides through reviewing changes, running lint,
+  writing conventional commit messages, and executing the commit.
 ---
 
-# Design System
+# Guided Commit
 
-## Why This Matters
-
-This project uses shadcn/ui (Radix primitives + Tailwind) instead of a custom component
-library. This matters because shadcn components are copy-pasted into `components/ui/` and
-can be customized — but they should be the starting point, not bypassed. When developers
-skip existing primitives, they create inconsistent UIs that don't respect theme tokens,
-break dark mode, and duplicate effort.
-
-## Before Building Any UI
-
-1. Check `components/ui/` for existing shadcn primitives — Button, Card, Dialog, etc. are already there.
-2. Check existing pages for similar layouts — reuse before creating.
-3. Reference `tailwind.config.ts` for custom theme tokens (colors, spacing, breakpoints).
-
-## Examples
-
-**Example 1: Creating a form with validation**
-
-Input: "Build a form for editing user profile"
-
-Output pattern:
-```tsx
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-export function ProfileForm() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Edit Profile</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" placeholder="Enter name" />
-        </div>
-        <Button type="submit">Save</Button>
-      </CardContent>
-    </Card>
-  )
-}
-```
-Why shadcn Card + Input instead of custom divs: these primitives handle focus management,
-accessibility attributes, and theme tokens automatically.
-
-**Example 2: Conditional styling**
-
-Input: "Style a badge that changes color based on status"
-
-Output pattern:
-```tsx
-import { cn } from "@/lib/utils"
-
-function StatusBadge({ status }: { status: "active" | "pending" | "rejected" }) {
-  return (
-    <span className={cn(
-      "rounded-full px-2 py-1 text-xs font-medium",
-      status === "active" && "bg-green-100 text-green-800",
-      status === "pending" && "bg-yellow-100 text-yellow-800",
-      status === "rejected" && "bg-red-100 text-red-800",
-    )}>
-      {status}
-    </span>
-  )
-}
-```
-Why `cn()` helper: it merges Tailwind classes correctly using `clsx` + `tailwind-merge`,
-avoiding class conflicts when conditionally applying styles.
-
-## Anti-Patterns
-
-- **Don't use inline `style={}` props** — use Tailwind utilities. Inline styles bypass the
-  theme and break dark mode
-- **Don't create custom Button/Input/Card components** — shadcn versions exist in `components/ui/`
-- **Don't hardcode colors** — use theme tokens from `tailwind.config.ts` (e.g., `text-primary` not `text-blue-600`)
+1. Run `git status` and `git diff --staged` to review changes.
+2. If nothing is staged, show unstaged changes and ask what to stage.
+3. Run `npm run lint` before committing. If it fails, show errors and ask to fix or skip.
+4. Write a commit message following conventional commits (lowercase, imperative mood).
+5. Run `git commit` with the message.
+6. Show the commit hash and summary.
 `````
 
-**Corresponding evals/evals.json:**
+**Quality criteria (in addition to all Anthropic principles):**
 
-`````json
-{
-  "skill_name": "design-system",
-  "evals": [
-    {
-      "id": 1,
-      "prompt": "Build a settings page with a form for updating notification preferences",
-      "expected_output": "Component using shadcn primitives with Tailwind utility classes",
-      "assertions": [
-        "Uses shadcn/ui components from components/ui/ (Card, Button, Input, etc.)",
-        "Uses Tailwind utility classes for styling (not inline styles)",
-        "Uses cn() helper from lib/utils for conditional classes",
-        "Imports use @/ path alias"
-      ]
-    },
-    {
-      "id": 2,
-      "prompt": "Add a status indicator badge that shows different colors for draft, published, and archived",
-      "expected_output": "Badge component with conditional Tailwind classes",
-      "assertions": [
-        "Uses cn() helper for conditional class merging",
-        "Uses Tailwind color utilities (not inline styles or hardcoded hex)",
-        "Does not create a custom base component when shadcn Badge exists"
-      ]
-    }
-  ]
-}
-`````
-
-### Description Anti-Pattern
-
-To help distinguish good from bad descriptions, here's what NOT to write:
-
-**Bad (too short, not pushy, no trigger phrases):**
-
-```yaml
-description: Design system and styling patterns for this project.
-```
-
-**Bad (describes WHAT, not WHEN to use):**
-
-```yaml
-description: >
-  This skill contains information about the project's UI components,
-  Tailwind configuration, and shadcn/ui primitives.
-```
-
-**Good (pushy, ~100 words, 5+ trigger phrases with action verbs):**
-
-```yaml
-description: >
-  UI component and styling patterns for this React 19 + Tailwind CSS 4 + shadcn/ui
-  project. Use this skill when: building new UI components, styling existing components,
-  choosing between shadcn primitives and custom components, applying Tailwind utility
-  classes, creating responsive layouts, implementing dark mode, picking colors or spacing
-  from the theme config, composing dialog or form layouts, reviewing component structure,
-  or deciding how to organize component files.
-```
-
-### Frontmatter Reference
-
-| Field | Required | Values |
-|-------|----------|--------|
-| `name` | Yes | Skill name (kebab-case) |
-| `description` | Yes | ~100 words: purpose + 5+ trigger phrases with action verbs. Be pushy. |
+- [ ] Every validation step uses a real command from Phase 1
+- [ ] Commit skill embeds the project's actual commit conventions
+- [ ] No generic advice that applies to any project
 
 ---
 
@@ -985,7 +864,7 @@ When you fetch an agent from agency-agents, adapt it:
 2. **Replace:** Generic framework advice → project-specific stack-intersection knowledge from Phase 1
 3. **Add:** Actual file paths, directories, commands, patterns found during scan
 4. **Add:** Success metrics using the project's real tools (not generic "run tests" — specific `npm test` or `go test ./...`)
-5. **Add:** Workflow connections to commands and skills from Layers 2-3
+5. **Add:** Workflow connections to skills from Layer 2 (methodology skills it follows, workflow skills that dispatch it)
 6. **Remove:** Any content that doesn't apply to this project's detected stack
 
 ### Quality Criteria
@@ -998,7 +877,7 @@ When you fetch an agent from agency-agents, adapt it:
 - [ ] Process uses the project's actual commands (not generic)
 - [ ] Success metrics are measurable with the project's actual tools
 - [ ] **Specificity test:** Remove the project name — can you still identify which stack this targets?
-- [ ] **Connection check:** Agent references skills it follows and commands it complements
+- [ ] **Connection check:** Agent references methodology skills it follows and workflow skills that dispatch it
 
 ### Frontmatter Reference
 
@@ -1104,24 +983,35 @@ These are **hard requirements**, not suggestions. If a detection matches, you MU
 |--------|----------|
 | `CLAUDE.md` | Project documentation |
 | `INSTRUCTION.md` | Onboarding guide |
-| `commit`, `implement`, `fix`, `review` | Commands |
-| `implement-feature`, `fix-bug`, `improve-architecture` (each with `evals/evals.json`) | Skills |
+| `implement-feature`, `fix-bug`, `improve-architecture` (each with `evals/evals.json`) | Methodology skills |
+| `commit` | Invocable skill |
 
-### Generate When Detected (commands, skills, hooks, MCP)
+### Generate When Detected (skills, hooks, MCP)
 
 | When You Detect... | Generate... |
 |---------------------|----------------------|
-| Styling framework | `design-system` skill |
-| Backend framework | `api-patterns` skill, `security-audit` command |
-| Database / ORM | `schema-patterns` skill, `optimize-db` command |
-| Test framework | `tdd` skill |
+| Styling framework | `design-system` methodology skill |
+| Backend framework | `api-patterns` methodology skill |
+| Database / ORM | `schema-patterns` methodology skill |
+| Test framework | `tdd` methodology skill |
+| Git detected | `review` invocable skill |
 | Linter installed | lint pre-commit hook |
 | Linter + fast tests | lint + test pre-commit hook |
 | Framework with docs | Context7 MCP server |
 
+### Workflow Skills (selection by judgment, not by rule)
+
+**No workflow skills are mandatory.** Select based on Phase 1 scan results + judgment. Use the catalog in section 9.2.2 as recommendations. If zero workflow skills are appropriate (e.g., trivial config-only repo), justify in Phase 3.
+
+**Guidance:**
+
+- A small library may need 0 workflow skills
+- A typical web app benefits from 1-3 workflow skills (e.g., feature-development, bug-fix-lifecycle)
+- A large complex system may warrant 3-5+ workflow skills
+
 ### Agents (selection by judgment, not by rule)
 
-**No agents are mandatory.** Select agents based on Phase 1 scan results combined with your judgment about what the project actually needs. Use the Detection → Agent Mapping table in section 9.4 as recommendations — add or skip agents as the project context warrants.
+**No agents are mandatory.** Select agents based on Phase 1 scan results combined with your judgment about what the project actually needs. Use the Detection → Agent Mapping table in section 9.4 as recommendations. Also ensure agents referenced by workflow skills are generated.
 
 **Guidance:**
 
@@ -1132,56 +1022,63 @@ These are **hard requirements**, not suggestions. If a detection matches, you MU
 
 ### Reason Beyond the Tables
 
-- The tables above define the **minimum** for commands, skills, hooks, and MCP. Generate all that match.
-- For agents, the Detection → Agent Mapping is a recommendation — use judgment to add, skip, or substitute agents.
-- If the project's unique stack suggests ADDITIONAL agents or skills not listed here, generate those too.
+- The tables above define the **minimum** for methodology skills, invocable skills, hooks, and MCP. Generate all that match.
+- For workflow skills and agents, use judgment to add, skip, or substitute based on project context.
+- If the project's unique stack suggests ADDITIONAL skills or agents not listed here, generate those too.
 - Browse the [agency-agents catalog](https://github.com/msitarzewski/agency-agents) for additional agents that would benefit this project.
 
 ---
 
 ## 9.8 Workflow Connections
 
-Generated outputs should form a connected pipeline, not isolated files. When a developer uses your generated config, they should experience a coherent workflow where commands, agents, skills, and hooks reference each other.
+Generated outputs should form a connected pipeline, not isolated files. When a developer uses your generated config, they should experience a coherent workflow where skills, agents, and hooks reference each other.
 
 ### The Pipeline
 
 ```
-User runs /implement command
-  → Command suggests: "invoke the developer agent for worktree isolation"
-  → Developer agent follows: implement-feature skill methodology
-  → Agent validates with: same lint/test commands as CLAUDE.md
+User describes complex task
+  → Claude activates: workflow skill (e.g., feature-development)
+  → Workflow skill follows: methodology skills (implement-feature, tdd)
+  → Workflow skill dispatches: agents (developer, code-reviewer) by name
+  → Agents follow: methodology skills for domain expertise
+  → Result validated against: CLAUDE.md conventions
   → On commit: pre-commit hook runs the same lint command
+
+User wants explicit action
+  → User invokes: /commit (invocable skill)
+  → Skill guides: staged changes → lint → conventional message → commit
 ```
 
 ### Connection Rules
 
-When composing each layer, build explicit connections to other layers **that were actually generated**. Only reference entities that exist — if no `developer` agent was generated, don't reference it from commands.
+When composing each layer, build explicit connections to other layers **that were actually generated**. Only reference entities that exist — if no `developer` agent was generated, don't reference it from skills.
 
 | Layer | Should Reference (when the target exists) |
 |-------|------------------------------------------|
-| Commands | Which agent handles the same workflow in isolation (e.g., "invoke `developer` agent for worktree") |
-| Skills | Which agent(s) apply this methodology (e.g., "The `developer` agent follows this methodology") |
-| Agents | Which skill(s) inform their approach and which commands they complement (e.g., "Follows `implement-feature` skill methodology") |
+| Methodology skills | Which agent(s) follow this methodology (e.g., "The `developer` agent follows this methodology") |
+| Workflow skills | Which agents they dispatch by name + which methodology skills agents follow |
+| Invocable skills | Same lint/test/build commands as CLAUDE.md |
+| Agents | Which methodology skill(s) inform their approach and which workflow skill(s) dispatch them |
 | Hooks | Same lint/test commands documented in CLAUDE.md |
 
 ### Example Connections for a Next.js + Prisma Project
 
-- `/implement` command → "For isolated implementation, invoke the `developer` agent"
-- `/review` command → "For deep review in separate context, invoke the `reviewer` agent"
-- `implement-feature` skill → "The `developer` agent applies this methodology in a worktree"
-- `developer` agent → "Follows the methodology in `implement-feature` skill. Complements the `/implement` command with worktree isolation"
-- `reviewer` agent → "Complements `/review` command with deeper analysis in separate context"
-- pre-commit hook → runs `npm run lint` (same command as CLAUDE.md and commit command)
+- `feature-development` workflow skill → "Phase 2: Dispatch `developer` agent. Phase 3: Dispatch `code-reviewer` agent"
+- `implement-feature` methodology skill → "The `developer` agent applies this methodology in a worktree"
+- `developer` agent → "Follows `implement-feature` skill methodology. Dispatched by `feature-development` and `bug-fix-lifecycle` workflow skills"
+- `code-reviewer` agent → "Dispatched by `feature-development` and `code-review-fix` workflow skills for two-stage review"
+- `/commit` invocable skill → runs `npm run lint` (same command as CLAUDE.md)
+- pre-commit hook → runs `npm run lint` (same command as CLAUDE.md and commit skill)
 
 ### Why This Matters
 
-Without connections, a developer doesn't know that `/implement` and the `developer` agent are related — they seem like duplicates. With connections, it's clear: `/implement` runs inline, the `developer` agent runs in a worktree. The skill teaches the methodology both follow.
+Without connections, a developer doesn't know how workflow skills, methodology skills, and agents relate — they seem like duplicates. With connections, it's clear: the workflow skill orchestrates, the methodology skill teaches HOW, and the agent executes in isolation.
 
 ---
 
 ## 9.9 Composition Process
 
-How to compose each output. Follow this process for every file you generate. Generation happens per-layer (CLAUDE.md → Commands → Skills → Agents → Hooks/MCP → INSTRUCTION.md), with self-review after each layer before moving to the next.
+How to compose each output. Follow this process for every file you generate. Generation happens per-layer (CLAUDE.md → Skills → Agents → Hooks/MCP → INSTRUCTION.md), with self-review after each layer before moving to the next.
 
 ### Step 1: Gather Context
 
@@ -1223,42 +1120,40 @@ Before writing each file, check:
 
 ### Project With No Test Framework
 
-- Skip: `tdd` skill, `qa` agent, `fixer` agent, `developer` agent (requires tests for validation)
-- Keep: `implement` and `fix` commands — but remove all "run tests" steps from them
-- The `reviewer` agent can still be generated if a linter exists
+- Skip: `tdd` skill, `developer` agent (requires tests for validation)
+- Keep: `implement-feature` and `fix-bug` methodology skills — but remove all "run tests" steps
+- The `code-reviewer` agent can still be generated if a linter exists
 
 ### Project With No Linter
 
 - Skip: lint pre-commit hook, lint+test pre-commit hook
-- The `developer` agent requires both tests AND linter — skip if linter is missing
-- The `reviewer` agent can still be generated if tests exist
-- Remove all "run lint" steps from commands
+- Remove all "run lint" steps from skills
+- The `code-reviewer` agent can still be generated if tests exist
 
 ### New Project (No Git History)
 
 - Phase 1.6 (git analysis) returns empty — this is normal
 - Skip: git conventions section in CLAUDE.md (no commit history to infer from)
-- Commit command: use a sensible default ("conventional commits, lowercase, imperative mood") but note it's a suggestion, not a detected convention
+- Commit invocable skill: use a sensible default ("conventional commits, lowercase, imperative mood") but note it's a suggestion, not a detected convention
 
 ### Monorepo
 
 - CLAUDE.md: include the Workspace Structure table with each package's path and purpose
-- Commands: validation steps should target the relevant workspace, not root (e.g., `cd packages/web && npm run lint` instead of `npm run lint`)
-- Skills: scope methodology to the workspace being worked on. An `api-patterns` skill for `packages/api` should reference that package's route structure, not the root
-- Agents: the `developer` agent should know the workspace layout and which package to work in. Include workspace navigation guidance ("check which package the target file belongs to before running validation commands")
+- Skills: scope methodology to the workspace being worked on. Validation steps should target the relevant workspace (e.g., `cd packages/web && npm run lint`)
+- Agents: the `developer` agent should know the workspace layout and which package to work in
 - Consider generating: workspace-specific skills if packages have significantly different stacks (e.g., Python backend + React frontend)
 
 ### Multiple Databases
 
 - If both PostgreSQL and Redis are detected, the `db-specialist` agent should cover both
 - `schema-patterns` skill should focus on the primary relational DB, with a note about cache patterns if Redis is detected
-- `optimize-db` command should scope to the relational DB (schema/query optimization), not the cache
 
 ### Library (No Web/API Framework)
 
-- Skip: `api-patterns` skill, `security-audit` command, frontend-specific agents
-- Focus on: code quality (reviewer), testing (qa), and API design of the library's public interface
+- Skip: `api-patterns` skill, frontend-specific agents
+- Focus on: code quality (reviewer), testing, and API design of the library's public interface
 - Developer agent should focus on: backward compatibility, type safety, documentation
+- Workflow skills: likely only `bug-fix-lifecycle` and possibly `pr-workflow` — skip `feature-development` unless multi-layer
 
 ---
 
@@ -1273,7 +1168,7 @@ For each generated file:
 - [ ] **No placeholders remaining** — no `{{ }}`, no `TODO`, no `[FILL IN]`
 - [ ] **Uses real commands** — every shell command was detected in Phase 1, not assumed
 - [ ] **Stack-specific content** — contains knowledge unique to this project's technology combination
-- [ ] **Correct file path** — placed in the right directory (`.claude/commands/`, `.claude/skills/<name>/`, `.claude/agents/`)
+- [ ] **Correct file path** — placed in the right directory (`.claude/skills/<name>/`, `.claude/agents/`)
 - [ ] **Valid frontmatter** — YAML frontmatter has all required fields
 - [ ] **Agent depth check** — each agent file is at least 80 lines with all 7 required sections
 - [ ] **Agent source check** — EVERY agent was fetched from agency-agents via `curl -s` in Bash (not WebFetch/Fetch, not composed from scratch). If ALL agents were written without curl, this is a hard failure — go back to Layer 4 Step 2 and re-do the fetch
@@ -1283,23 +1178,24 @@ For each generated file:
 
 ### Cross-File Checks
 
-- [ ] **No contradictions** — CLAUDE.md commands match what's in `.claude/commands/`
-- [ ] **Consistent tool references** — if CLAUDE.md says `npm test`, agents/commands also say `npm test` (not `npx jest`)
+- [ ] **No contradictions** — CLAUDE.md commands match what skills and agents reference
+- [ ] **Consistent tool references** — if CLAUDE.md says `npm test`, agents/skills also say `npm test` (not `npx jest`)
 - [ ] **No duplicate content** — skills don't repeat what's in CLAUDE.md; agents don't repeat what's in skills
 - [ ] **Hooks use validated commands** — hook commands were confirmed installed (Phase 1 should have run `command -v`)
-- [ ] **Workflow connections present** — commands reference agents, agents reference skills, skills reference agents (per section 9.8, only for entities that were actually generated)
+- [ ] **Workflow connections present** — workflow skills dispatch agents, agents reference methodology skills, methodology skills reference agents (per section 9.8, only for entities that were actually generated)
+- [ ] **Workflow skill dispatch valid** — every agent name in workflow skill dispatch tables refers to an agent that was actually generated
 
 ### Completeness Checks (hard requirements — fail if missing)
 
 - [ ] **CLAUDE.md generated** — always required, no exceptions
 - [ ] **INSTRUCTION.md generated** — always required (unless one already exists)
-- [ ] **Universal commands generated** — commit, implement, fix, review — all four must exist
-- [ ] **Universal skills generated** — implement-feature, fix-bug, improve-architecture — all three must exist
+- [ ] **Universal methodology skills generated** — implement-feature, fix-bug, improve-architecture — all three must exist
+- [ ] **Invocable skills generated** — commit (always), review (if git detected)
 - [ ] **Agents justified** — agents generated match project needs (per Detection → Agent Mapping recommendations in section 9.4). If zero agents were generated, justification is present in Phase 3
 - [ ] **Detection-triggered outputs exist** — for EVERY detection in Phase 1, check the mapping in section 9.7:
   - Frontend framework detected → design-system skill EXISTS
-  - Backend framework detected → api-patterns skill EXISTS, security-audit command EXISTS
-  - Database/ORM detected → schema-patterns skill EXISTS, optimize-db command EXISTS
+  - Backend framework detected → api-patterns skill EXISTS
+  - Database/ORM detected → schema-patterns skill EXISTS
   - Test framework detected → tdd skill EXISTS
   - Linter installed → lint pre-commit hook EXISTS
 - [ ] **No outputs deleted during self-review** — if the self-review found a file too generic, it was REFINED, not deleted
@@ -1315,9 +1211,10 @@ Apply after composing each layer. Read back what was written, check against thes
 | Layer | Key Review Questions |
 |-------|---------------------|
 | CLAUDE.md | Every section traces to Phase 1? Commands are real? Under 200 lines? |
-| Commands | Validation steps match CLAUDE.md? Steps use real commands? Links to agents per 9.8? |
-| Skills | Description ~100 words and "pushy" with 5+ triggers? WHY-based instructions (not rigid MUSTs)? 2+ Input/Output examples? Under 500 lines? `evals/evals.json` with 2-3 discriminating test prompts? No CLAUDE.md duplication? Links to agents per 9.8? |
-| Agents | Stack-intersection knowledge? Consistent with commands + skills? Specificity test? Links to skills + commands per 9.8? |
+| Methodology skills | Description ~100 words and "pushy" with 5+ triggers? WHY-based instructions? 2+ I/O examples? Under 500 lines? Evals present? No CLAUDE.md duplication? Links to agents per 9.8? |
+| Workflow skills | All methodology skill checks PLUS: phases sequential with verification gates? Agent dispatch table with valid agent names? Common Mistakes section? Vertical slices where applicable? |
+| Invocable skills | All methodology skill checks PLUS: every validation step uses real command from CLAUDE.md? |
+| Agents | Stack-intersection knowledge? Consistent with skills? Specificity test? Links to methodology + workflow skills per 9.8? |
 | Hooks/MCP | Commands match CLAUDE.md? Binary confirmed installed? |
 
 ### Areas of Improvement
@@ -1340,16 +1237,17 @@ Ask for each generated file:
 
 - Lines like "follow best practices" or "write clean code" — too generic, remove
 - Agent sections that list framework features from documentation — replace with project-specific patterns
-- Commands with steps the project can't actually run (e.g., "run lint" when no linter detected)
+- Skills with steps the project can't actually run (e.g., "run lint" when no linter detected)
 - Skills that duplicate CLAUDE.md content — skills are for methodology, CLAUDE.md is for facts
+- Workflow skills that dispatch agents not generated in Layer 3 — verify every agent name exists
 
 ### Cross-Layer Consistency (after each layer)
 
 Before moving to the next layer, verify consistency with completed layers:
 
-- Commands reference the same tool names as CLAUDE.md
-- Skills don't contradict command workflows
-- Agents reference commands and patterns documented in earlier layers
+- Skills reference the same tool names as CLAUDE.md
+- Workflow skills don't contradict methodology skill approaches
+- Agents reference skills and patterns documented in earlier layers
 - No duplicate content across layers
 
 ### When to Stop (per layer)
@@ -1380,26 +1278,44 @@ After the self-review loop completes and the quality validation checklist passes
 
 {{ summary_paragraph }}
 
-{{ if commands_generated }}
-
-## Your Commands
-
-| Command | What it does | Try it |
-|---------|-------------|--------|
-{{ for each generated command }}
-| `/{{ command_name }}` | {{ one_line_description }} | `{{ example_usage }}` |
-{{ end }}
-
-{{ end }}
-
 {{ if skills_generated }}
 
 ## Your Skills
 
-Skills activate automatically when Claude detects relevant context. You don't need to invoke them — just ask naturally.
+{{ if invocable_skills }}
 
-{{ for each generated skill }}
+### Invocable Skills (user-triggered)
+
+| Skill | What it does | Try it |
+|-------|-------------|--------|
+{{ for each invocable_skill }}
+| `/{{ skill_name }}` | {{ one_line_description }} | `{{ example_usage }}` |
+{{ end }}
+
+{{ end }}
+
+{{ if methodology_skills }}
+
+### Methodology Skills (auto-activate)
+
+These activate automatically when Claude detects relevant context. Just ask naturally.
+
+{{ for each methodology_skill }}
 - **{{ skill_name }}** — {{ description }}. Try: "{{ natural_language_trigger }}"
+{{ end }}
+
+{{ end }}
+
+{{ if workflow_skills }}
+
+### Workflow Skills (auto-activate on complex tasks)
+
+These orchestrate multi-step work with agent delegation.
+
+{{ for each workflow_skill }}
+- **{{ skill_name }}** — {{ description }}
+{{ end }}
+
 {{ end }}
 
 {{ end }}
@@ -1450,7 +1366,6 @@ External tools are now available to Claude through MCP:
 ## Customizing Your Setup
 
 - Edit `CLAUDE.md` to update project conventions or add new rules
-- Add commands in `.claude/commands/` — any markdown file becomes a slash command
 - Add skills in `.claude/skills/` — create a directory with a `SKILL.md` file
 {{ if hooks_generated }}
 - Review hooks in `.claude/settings.json` — remove any you don't want
@@ -1480,7 +1395,7 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 | Score | Criteria |
 |-------|----------|
 | 0 | More than half of mandatory outputs missing |
-| 5 | All universal outputs present (CLAUDE.md, 4 commands, 3 skills), agents justified, but some detection-triggered outputs missing |
+| 5 | All universal outputs present (CLAUDE.md, 3 methodology skills, commit invocable skill), agents justified, but some detection-triggered outputs missing |
 | 10 | Every mandatory output from section 9.7 is present, including all detection-triggered ones, and agent selection matches project needs |
 
 ---
@@ -1517,12 +1432,12 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 **Definition:** No contradictions between layers. Workflow connections verified per section 9.8.
 
-**Verification action:** Check that the lint command in CLAUDE.md = the hook lint command = the lint steps in commands = the lint references in agents. Repeat for test and build commands. Then verify workflow connections: commands reference agents, agents reference skills, skills reference agents.
+**Verification action:** Check that the lint command in CLAUDE.md = the hook lint command = the lint steps in skills = the lint references in agents. Repeat for test and build commands. Then verify workflow connections: workflow skills dispatch agents, agents reference methodology skills, methodology skills reference agents.
 
 | Score | Criteria |
 |-------|----------|
-| 0 | Multiple contradictions — different commands for the same action in different files |
-| 5 | Commands are consistent but workflow connections (section 9.8) are missing or broken |
+| 0 | Multiple contradictions — different tool references for the same action in different files |
+| 5 | Tool references are consistent but workflow connections (section 9.8) are missing or broken |
 | 10 | Zero contradictions AND all workflow connections from section 9.8 are present and correct |
 
 ---
@@ -1571,15 +1486,15 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 ### Dimension 8: Actionability
 
-**Definition:** A new developer can immediately use the generated config. Commands are runnable. Skills activate on natural queries. INSTRUCTION.md is a useful onboarding guide.
+**Definition:** A new developer can immediately use the generated config. Invocable skills are runnable. Methodology and workflow skills activate on natural queries. INSTRUCTION.md is a useful onboarding guide.
 
-**Verification action:** Read INSTRUCTION.md — does it list all generated outputs with correct invocation examples? Read each command — are steps concrete and executable (not vague)? Read each skill description — does it contain natural-language triggers matching how a developer would phrase a request?
+**Verification action:** Read INSTRUCTION.md — does it list all generated outputs with correct invocation examples? Read each invocable skill — are steps concrete and executable (not vague)? Read each skill description — does it contain natural-language triggers matching how a developer would phrase a request?
 
 | Score | Criteria |
 |-------|----------|
-| 0 | INSTRUCTION.md is a placeholder or missing. Commands have vague steps like "validate the code." |
-| 5 | INSTRUCTION.md is present and accurate but missing some outputs. Commands work but some steps lack specificity. |
-| 10 | INSTRUCTION.md perfectly summarizes all outputs with working examples. Every command has concrete, executable steps. Every skill has natural activation triggers. |
+| 0 | INSTRUCTION.md is a placeholder or missing. Invocable skills have vague steps like "validate the code." |
+| 5 | INSTRUCTION.md is present and accurate but missing some outputs. Skills work but some steps lack specificity. |
+| 10 | INSTRUCTION.md perfectly summarizes all outputs with working examples. Every invocable skill has concrete, executable steps. Every skill has natural activation triggers. |
 
 ---
 
@@ -1624,6 +1539,6 @@ Use this table during each scoring round:
 | 5 | Depth | Count agent lines + check 7 sections + Stack Expertise length | |
 | 6 | Coverage | List tech pairs → find intersection knowledge | |
 | 7 | Non-redundancy | Check for duplicated content across layers | |
-| 8 | Actionability | Read INSTRUCTION.md + command steps + skill triggers | |
+| 8 | Actionability | Read INSTRUCTION.md + invocable skill steps + skill triggers | |
 | 9 | Safety | Verify hook conditions + scan for secrets | |
 | 10 | Freshness | Spot-check 3 references against Phase 1 | |

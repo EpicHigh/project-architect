@@ -5,6 +5,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2026-03-28
+
+### Changed
+
+- **Commands replaced by 3 skill types** — project-architect no longer generates `.claude/commands/`. All output uses skills:
+  - **Methodology skills** (auto-activate) — implement-feature, fix-bug, tdd, etc. Now absorb the step-by-step workflow guidance that commands previously provided
+  - **Workflow skills** (NEW, auto-activate) — multi-step orchestration that dispatches named agents through phases with verification gates, inspired by [mattpocock/skills](https://github.com/mattpocock/skills) and [superpowers](https://github.com/obra/superpowers)
+  - **Invocable skills** (user-triggered) — `/commit`, `/review` replace slash commands
+- **All skills follow [Anthropic's official skill-creator](https://github.com/anthropics/skills/blob/main/skills/skill-creator/SKILL.md)** — description as trigger, progressive disclosure, WHY over rigid rules, evals required, Principle of Lack of Surprise
+- **Review-fix loop replaces two-stage review** — dispatch reviewer → fix issues → re-review → repeat until zero actionable issues remain. Reviewer checks spec compliance first, then code quality. Style nits don't block the loop
+- **Agents selected by judgment** — no mandatory agents; Detection → Agent Mapping is now recommendations, not requirements
+- **Workflow skills selected by judgment** — catalog of 10 workflow skills (feature-development, bug-fix-lifecycle, code-review-fix, systematic-debugging, security-audit-workflow, db-optimization-workflow, refactoring-workflow, onboarding-workflow, migration-workflow, pr-workflow); model selects by detection + judgment
+- Generation guide sections 9.2 (Commands) and 9.3 (Skills) merged into unified 9.2 with subsections per skill type
+- Pipeline updated: skills ↔ agents (no commands in flow)
+- Quality checklist, self-review criteria, scoring rubric updated for skills-only architecture
+
+### Added
+
+- Workflow skill structural patterns: vertical slices, agent dispatch by name, review-fix loop with issue definition, verification gates, user validation checkpoints, Common Mistakes section, durable artifacts
+- Workflow skill catalog with agent dispatch mapping table
+- Project-tailoring requirements for workflow skills (dispatch descriptions, vertical slice layers, examples must be project-specific)
+
+### Removed
+
+- `.claude/commands/` generation — commands no longer generated as output
+- "Always Generate" agents requirement — all agents now conditional by judgment
+- Two-stage review pattern (spec then quality as separate stages) — replaced by single review-fix loop with spec-first priority
+
+## [1.6.0] - 2026-03-27
+
+### Changed
+
+- **No mandatory agents** — removed "Always Generate" requirement for architect, product-manager, code-reviewer
+- All agents now selected via Detection → Agent Mapping (recommendations) + LLM judgment based on project context
+- Detection table changed from "Fetch Agent" to "Recommended Agent" with conditional triggers
+- Added agent sizing guidance: 0-2 for small libs, 3-5 for web apps, 5-8+ for monorepos
+- Require justification in Phase 3 if zero agents generated
+- Updated quality checklist: "Universal agents generated" → "Agents justified"
+
+## [1.5.1] - 2026-03-27
+
+### Fixed
+
+- **Agent fetch enforcement** — added `Edit` to `allowed-tools` so the tailor-in-place step actually works (was likely root cause of agents being written from scratch)
+- Restructured Layer 4 with parallel `curl` to `/tmp/`, concrete `head -1` checkpoint verification, and explicit Read from `/tmp/` in Step 3
+- Synced `/tmp/` pattern to generation guide's "Mandatory Fetch-First Workflow"
+- Unified fallback wording across command file, generation guide, and quality checklist
+
 ## [1.5.0] - 2026-03-25
 
 ### Changed
