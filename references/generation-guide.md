@@ -412,8 +412,7 @@ Steps with verification gate before next phase.
 - Verification: [what must be true before proceeding]
 
 ### Phase 3: [Name] (dispatch [agent-name] agent)
-- Two-stage review: spec compliance first, then code quality
-- If issues found → dispatch agent to fix → re-review
+- Review → fix → re-review loop: dispatch reviewer, fix issues, repeat until zero issues remain
 
 ### Phase N: Finalize
 Run tests, commit, summarize.
@@ -433,7 +432,7 @@ Document rationalization patterns — how agents skip steps and why it matters.
 
 - **Vertical slices** — each increment cuts through ALL layers end-to-end (schema → API → UI → tests), not horizontal layers. Independently demoable.
 - **Agent dispatch by name** — "Dispatch `developer` agent with complete task description." Use exact agent names from `.claude/agents/`.
-- **Two-stage review** — spec compliance first (does it match the plan?), then code quality.
+- **Review-fix loop** — dispatch reviewer → fix issues → re-review → repeat until zero issues remain.
 - **Verification gates** — explicit checkpoints between phases.
 - **User validation checkpoints** — present plan to user before proceeding. Resolve decision dependencies one-by-one.
 - **Common Mistakes section** — anti-rationalization. Document how agents shortcut or skip steps.
@@ -479,7 +478,7 @@ description: >
   Activates on "build this feature", "implement end-to-end", "add this capability",
   "create a new feature across model/service/API/UI", "implement this from scratch".
   Orchestrates planning with vertical slices, agent-delegated implementation,
-  two-stage code review, and finalization. Dispatches developer and code-reviewer
+  review-fix loop, and finalization. Dispatches developer and code-reviewer
   agents by name.
 ---
 
@@ -490,7 +489,7 @@ description: >
 Building features across multiple layers (model → service → API → UI) requires
 coordination that ad-hoc implementation misses. Vertical slices ensure each
 increment is independently demoable. Agent delegation keeps implementation
-focused while two-stage review catches both spec drift and code quality issues.
+focused while the review-fix loop catches issues iteratively until none remain.
 
 ## Workflow
 
@@ -510,12 +509,12 @@ For each vertical slice:
 - Agent runs lint + tests before completing each slice
 - Each slice must leave the codebase in a working state
 
-### Phase 3: Review (dispatch code-reviewer agent)
+### Phase 3: Review-Fix Loop (dispatch code-reviewer agent)
 
 - Dispatch `code-reviewer` agent on all changes
-- **Stage 1:** Spec compliance — does implementation match the plan?
-- **Stage 2:** Code quality — patterns, security, performance
-- If issues found → dispatch `developer` agent to fix → re-review
+- If issues found → dispatch `developer` agent to fix
+- Re-dispatch `code-reviewer` agent to verify fixes
+- Repeat until zero issues remain
 
 ### Phase 4: Finalize
 
@@ -528,14 +527,15 @@ For each vertical slice:
 | Phase | Agent | Purpose |
 |-------|-------|---------|
 | 2 | developer | Implement each vertical slice in worktree |
-| 3 | code-reviewer | Two-stage review (spec + quality) |
+| 3 | code-reviewer | Review all changes |
 | 3 (fix) | developer | Fix review issues |
+| 3 (loop) | code-reviewer | Re-review until zero issues |
 
 ## Common Mistakes
 
 - Implementing horizontal layers (all models, then all services) instead of vertical slices
 - Skipping the plan phase and jumping straight to code
-- Not re-reviewing after fixes — the fix itself may introduce issues
+- Stopping after one review pass — the fix itself may introduce new issues; loop until zero remain
 - Making slices too thick — each should be independently demoable
 `````
 
