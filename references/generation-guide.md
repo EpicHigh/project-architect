@@ -1431,7 +1431,7 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 **Definition:** No contradictions between layers. Workflow connections verified per section 9.8.
 
-**Verification action:** Check that the lint command in CLAUDE.md = the hook lint command = the lint steps in commands = the lint references in agents. Repeat for test and build commands. Then verify workflow connections: commands reference agents, agents reference skills, skills reference agents.
+**Verification action:** Check that the lint command in CLAUDE.md = the hook lint command = the lint steps in skills = the lint references in agents. Repeat for test and build commands. Then verify workflow connections: workflow skills dispatch agents, agents reference methodology skills, methodology skills reference agents.
 
 | Score | Criteria |
 |-------|----------|
@@ -1485,15 +1485,15 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 ### Dimension 8: Actionability
 
-**Definition:** A new developer can immediately use the generated config. Commands are runnable. Skills activate on natural queries. INSTRUCTION.md is a useful onboarding guide.
+**Definition:** A new developer can immediately use the generated config. Invocable skills are runnable. Methodology and workflow skills activate on natural queries. INSTRUCTION.md is a useful onboarding guide.
 
-**Verification action:** Read INSTRUCTION.md — does it list all generated outputs with correct invocation examples? Read each command — are steps concrete and executable (not vague)? Read each skill description — does it contain natural-language triggers matching how a developer would phrase a request?
+**Verification action:** Read INSTRUCTION.md — does it list all generated outputs with correct invocation examples? Read each invocable skill — are steps concrete and executable (not vague)? Read each skill description — does it contain natural-language triggers matching how a developer would phrase a request?
 
 | Score | Criteria |
 |-------|----------|
-| 0 | INSTRUCTION.md is a placeholder or missing. Commands have vague steps like "validate the code." |
-| 5 | INSTRUCTION.md is present and accurate but missing some outputs. Commands work but some steps lack specificity. |
-| 10 | INSTRUCTION.md perfectly summarizes all outputs with working examples. Every command has concrete, executable steps. Every skill has natural activation triggers. |
+| 0 | INSTRUCTION.md is a placeholder or missing. Invocable skills have vague steps like "validate the code." |
+| 5 | INSTRUCTION.md is present and accurate but missing some outputs. Skills work but some steps lack specificity. |
+| 10 | INSTRUCTION.md perfectly summarizes all outputs with working examples. Every invocable skill has concrete, executable steps. Every skill has natural activation triggers. |
 
 ---
 
@@ -1538,6 +1538,6 @@ Use this table during each scoring round:
 | 5 | Depth | Count agent lines + check 7 sections + Stack Expertise length | |
 | 6 | Coverage | List tech pairs → find intersection knowledge | |
 | 7 | Non-redundancy | Check for duplicated content across layers | |
-| 8 | Actionability | Read INSTRUCTION.md + command steps + skill triggers | |
+| 8 | Actionability | Read INSTRUCTION.md + invocable skill steps + skill triggers | |
 | 9 | Safety | Verify hook conditions + scan for secrets | |
 | 10 | Freshness | Spot-check 3 references against Phase 1 | |
