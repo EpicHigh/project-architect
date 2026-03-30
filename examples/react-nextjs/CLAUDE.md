@@ -54,7 +54,7 @@ Don't take shortcuts — read and explore before writing. Don't be lazy — prod
 
 - **Read component boundary before adding data access** — Prisma queries belong in Server Components or server actions (`app/` files without `'use client'`); the bundler fails because Prisma depends on Node.js APIs unavailable in the browser
 - **Check `app/` route structure before creating files** — `page.tsx`, `layout.tsx`, `loading.tsx` have special meanings in App Router; misnamed files silently break routing
-- **Run `npm test` before and after changes** — Jest tests use the project's custom config; you cannot distinguish pre-existing failures from regressions without a baseline
+- **Run `npm run lint` and `npm test` before and after changes** — Jest tests use the project's custom config; you cannot distinguish pre-existing failures from regressions without a baseline; never declare done without passing lint + tests
 - **Read existing Prisma schema before adding models** — `prisma/schema.prisma` has established relation patterns; inconsistent relations cause migration failures
 - **Check `components/ui/` before building custom UI** — This project uses shadcn/ui primitives; duplicating existing components creates visual inconsistency
 - **Implement complete Server Actions with validation and error handling** — A Server Action without Zod validation or try/catch returns raw errors to the client; every action needs input validation and a user-facing error response
@@ -62,7 +62,6 @@ Don't take shortcuts — read and explore before writing. Don't be lazy — prod
 - **Only import modules that exist in this project** — Inventing an import like `from @/lib/auth` when `lib/auth.ts` doesn't exist causes build failures; use Glob to verify before importing
 - **Match the existing component complexity — don't add unnecessary abstractions** — If existing pages fetch data directly in Server Components, don't introduce a custom data-fetching layer that nothing else uses
 - **Only change what was asked — don't refactor adjacent components** — Being asked to "fix the form validation" doesn't authorize restructuring the entire form library; unrelated changes create unreviewed risk
-- **Run `npm run lint` and `npm test` before declaring a task complete** — Saying "this should work" without running lint and tests leaves broken code for the user to debug
 
 ## Database
 
