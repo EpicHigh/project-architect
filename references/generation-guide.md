@@ -229,7 +229,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `migration_command` | Section 8.14 script detection or ORM conventions | `npx prisma migrate dev` |
 | `working_style_rules` | Phase 1 stack intersection analysis → list of behavioral rules (see Working Style Derivation below) | list of `{rule_title, rule_why}` |
 | `rule_title` | Stack intersection analysis → short imperative action | `Read component boundary before adding data access` |
-| `rule_why` | Stack intersection analysis → 1 sentence explaining why for THIS stack | `Prisma queries in 'use client' files cause runtime errors in this App Router project` |
+| `rule_why` | Stack intersection analysis → 1 sentence explaining why for THIS stack | `the bundler fails because Prisma depends on Node.js APIs unavailable in the browser` |
 
 ### Section Inclusion Rules
 
@@ -251,7 +251,7 @@ Working Style rules prevent Claude from taking shortcuts. Each rule targets a sp
 
 **Derivation process:**
 
-1. List all meaningful 2-way technology pairs from Phase 1 (e.g., Next.js+Prisma, Go+Chi, FastAPI+SQLAlchemy)
+1. List all meaningful 2-way technology pairs from Phase 1 (e.g., Next.js+Prisma, Go+Gin, FastAPI+SQLAlchemy)
 2. For each pair, identify the most likely shortcut Claude will take
 3. Write one rule: `[Action to take] — [Why it matters for THIS stack specifically]`
 4. Add 1-2 universal rules grounded in the project's actual structure (e.g., test runner, directory layout)
@@ -482,9 +482,9 @@ Document rationalization patterns — how agents skip steps and why it matters. 
 - **Shortcut:** What the agent will try to skip
 - **Rationalization:** The plausible excuse ("I can infer the schema from the model name")
 - **Consequence:** What goes wrong in THIS project specifically
+```
 
 > **Note:** This format differs from methodology skills' Anti-Patterns (Rationalization / Why it's wrong / Instead) intentionally. Methodology skills target the developer fixing a single task — they need a concrete "Instead" action. Workflow Common Mistakes target multi-phase orchestration — they need to explain the downstream "Consequence" when agents skip a phase.
-```
 
 **Key structural patterns:**
 
