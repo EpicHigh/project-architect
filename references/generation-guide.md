@@ -156,7 +156,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 {{ if working_style_rules }}
 ## Working Style
 
-Don't take shortcuts — read and explore before writing. Don't be lazy — produce thorough, complete output with proper error handling, validation, and tests.
+Don't take shortcuts — read and explore before writing. Don't be lazy — produce thorough, complete output with proper error handling, validation, and tests. Don't hallucinate — only reference files, APIs, and imports that actually exist. Don't over-engineer — match the existing codebase's complexity level. Stay on scope — only change what was asked. Always verify — run lint and tests before declaring done.
 
 {{ for each working_style_rule }}
 - **{{ rule_title }}** — {{ rule_why }}
@@ -243,22 +243,23 @@ Don't take shortcuts — read and explore before writing. Don't be lazy — prod
 | Testing | Test framework or E2E framework detected (section 8.6) |
 | Linting & Formatting | Linter, formatter, or typecheck command detected (section 8.7) |
 | Code Conventions | Any convention description populated from source files (section 1.5) |
-| Working Style | Always (at least 2 technologies detected) — 5-8 behavioral rules (mix of anti-shortcut and anti-lazy) derived from stack intersections. For single-technology projects, use universal rules from derivation steps 4-5. |
+| Working Style | Always (at least 2 technologies detected) — 8-12 behavioral rules covering shortcuts, laziness, hallucination, over-engineering, scope creep, and verification. For single-technology projects, use universal rules from derivation steps 4-6. |
 | Git Conventions | Commit format or branch naming description populated (section 8.12) |
 | Database | Database detected (section 8.9) |
 
 ### Working Style Derivation
 
-Working Style rules prevent Claude from taking shortcuts. Each rule targets a specific stack intersection detected in Phase 1 — never generic advice.
+Working Style rules prevent Claude's six bad habits: shortcuts, laziness, hallucination, over-engineering, scope creep, and not verifying. Each rule targets a specific stack intersection detected in Phase 1 — never generic advice.
 
 **Derivation process:**
 
 1. List all meaningful 2-way technology pairs from Phase 1 (e.g., Next.js+Prisma, Go+Gin, FastAPI+SQLAlchemy)
-2. For each pair, identify the most likely shortcut or lazy pattern Claude will exhibit
+2. For each pair, identify the most likely bad habit Claude will exhibit (shortcut, laziness, hallucination, over-engineering, scope creep, or not verifying)
 3. Write one rule: `[Action to take] — [Why it matters for THIS stack specifically]`
 4. Add 1-2 universal rules grounded in the project's actual structure (e.g., test runner, directory layout)
-5. Add 1-2 anti-lazy rules targeting shallow output patterns specific to the project's complexity (e.g., multi-layer features need complete implementation, tests need behavioral assertions)
-6. Target 5-8 rules total (mix of anti-shortcut and anti-lazy). Every rule must reference a detected technology, file, or directory.
+5. Add 1-2 anti-lazy rules targeting shallow output patterns (e.g., complete all layers, assert behavior in tests)
+6. Add 1-2 rules targeting hallucination, over-engineering, scope creep, or verification — whichever are most relevant for this project's stack
+7. Target 8-12 rules total (covering as many bad habits as relevant). Every rule must reference a detected technology, file, or directory.
 
 **Quality test:** Remove project-specific references from a rule. If it still reads as complete advice, it's too generic — rewrite it.
 
@@ -280,6 +281,11 @@ Working Style rules prevent Claude from taking shortcuts. Each rule targets a sp
 | Any + test framework | Write tests that assert behavior, not just existence | A test that only checks `response.status === 200` without verifying the body misses every logic bug in the endpoint |
 | Any backend framework | Handle error cases, not just the happy path | An endpoint without validation or error responses returns 500 on bad input; users see raw stack traces |
 | Any + TypeScript/Go | Use precise types — no `any`, `interface{}`, or `object` as shortcuts | Vague types bypass the compiler's ability to catch bugs; every `any` is a bug hiding spot (reference the project's `tsconfig.json` strict mode or equivalent) |
+| Any project (anti-hallucination) | Only import modules and call functions that exist in the codebase | Inventing an import like `from app.utils import validate_email` when `app/utils.py` has no such function causes an immediate ImportError/crash |
+| Any project (anti-hallucination) | Verify file paths exist before referencing them in code | Writing `fs.readFile('./config/settings.json')` when `config/` doesn't exist causes runtime failures; use Read/Glob tools to confirm paths |
+| Any project (anti-over-engineering) | Match the existing abstraction level — don't add layers the codebase doesn't use | If the project calls services directly from handlers, don't introduce a repository pattern, event bus, or factory that nothing else uses |
+| Any project (anti-scope-creep) | Only change what was asked — don't refactor adjacent code | Being asked to "fix the login bug" doesn't authorize restructuring the entire auth module; unrelated changes create unreviewed risk |
+| Any project (verification) | Run lint and tests before declaring a task complete | Saying "this should work" without running `{{ lint_command }}` and `{{ test_command }}` leaves broken code for the user to debug |
 
 > **Note:** These are examples to adapt, not copy verbatim. Every generated rule must include a project-specific anchor (file path, config, directory, or detected pattern). If a rule reads as complete advice without any project reference, it's too generic.
 
@@ -1270,7 +1276,7 @@ For each generated file:
 - [ ] **Skill description check** — each skill description is ~100 words with 5+ action-verb trigger phrases
 - [ ] **Skill evals check** — each skill has `evals/evals.json` with 2-3 test prompts and discriminating assertions
 - [ ] **Skill size check** — each SKILL.md is under 500 lines
-- [ ] **CLAUDE.md Working Style check** — Working Style section exists with 5-8 rules (mix of anti-shortcut and anti-lazy), each referencing a detected stack intersection
+- [ ] **CLAUDE.md Working Style check** — Working Style section exists with 8-12 rules covering all relevant bad habits, each referencing a detected stack intersection
 - [ ] **Methodology anti-patterns check** — each methodology skill has at least 2 shortcut rationalizations and 2 lazy rationalizations with project-specific references (file, directory, config)
 - [ ] **No vague filler check** — no generated file contains phrases like "follow best practices", "use appropriate patterns", "ensure quality" without project-specific context
 
@@ -1503,15 +1509,15 @@ Quantitative evaluation of all generated outputs as a holistic system. Used duri
 
 **Definition:** Every line in every generated file traces to a Phase 1 detection. No generic advice.
 
-**Verification action:** For each generated file, read 5 random content lines. For each, identify which Phase 1 detection it traces to. If a line could appear unchanged in any project's config, it fails. Also verify CLAUDE.md contains a Working Style section with 5-8 project-specific behavioral rules (mix of anti-shortcut and anti-lazy), each referencing a detected technology intersection.
+**Verification action:** For each generated file, read 5 random content lines. For each, identify which Phase 1 detection it traces to. If a line could appear unchanged in any project's config, it fails. Also verify CLAUDE.md contains a Working Style section with 8-12 project-specific behavioral rules covering shortcuts, laziness, hallucination, over-engineering, scope creep, and verification, each referencing a detected technology intersection.
 
 | Score | Criteria |
 |-------|----------|
 | 0 | Most content is generic framework documentation or boilerplate |
 | 5 | Mix of specific and generic — some lines trace to detections, some are filler |
 | 6 | Content lines trace to detections, but Working Style section is entirely missing |
-| 8 | Every content line traces to a detection, but Working Style has fewer than 5 rules or is missing anti-lazy rules |
-| 10 | Every content line traces to a specific detection. Working Style has 5-8 stack-specific rules (anti-shortcut + anti-lazy). Removing the project name still identifies the stack. |
+| 8 | Every content line traces to a detection, but Working Style has fewer than 8 rules or is missing some bad-habit categories |
+| 10 | Every content line traces to a specific detection. Working Style has 8-12 stack-specific rules covering all relevant bad habits. Removing the project name still identifies the stack. |
 
 **Score cap:** If CLAUDE.md has no Working Style section or rules are generic (could apply to any project), this dimension cannot score above 6.
 
