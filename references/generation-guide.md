@@ -271,7 +271,7 @@ Working Style rules prevent Claude from taking shortcuts. Each rule targets a sp
 | FastAPI + Pydantic | Read existing schemas in `schemas/` before creating new ones | This project shares Pydantic models across endpoints; duplicating a schema instead of reusing it causes validation drift |
 | Any + test framework | Run existing tests before and after changes | You cannot distinguish pre-existing failures from regressions you introduced without a baseline |
 | Any monorepo | Identify which workspace is affected before making changes | Changes in shared packages affect all consumers; editing the wrong workspace breaks unrelated builds |
-| Any + database | Read the current migration state before modifying schemas | Generating a migration against an outdated state creates conflicts that corrupt the migration chain |
+| Any + database | Read the current migration state before modifying schemas | Generating a migration against an outdated state creates branching conflicts in the migration chain |
 | React + Tailwind | Read existing component patterns before styling | This project has established spacing/color conventions in shared components; ad-hoc Tailwind classes create visual inconsistency |
 
 ---
