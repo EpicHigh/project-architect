@@ -227,9 +227,9 @@ Don't take shortcuts — read and explore before writing. Don't be lazy — prod
 | `database_engine` | Section 8.9 database detection | `PostgreSQL` |
 | `orm_name` | Section 8.2 ORM framework detection | `Prisma`, `SQLAlchemy` |
 | `migration_command` | Section 8.14 script detection or ORM conventions | `npx prisma migrate dev` |
-| `working_style_rules` | Phase 1 stack intersection analysis → list of behavioral rules (see Working Style Derivation below) | list of `{rule_title, rule_why}` |
-| `rule_title` | Stack intersection analysis → short imperative action | `Read component boundary before adding data access` |
-| `rule_why` | Stack intersection analysis → 1 sentence explaining why for THIS stack | `the bundler fails because Prisma depends on Node.js APIs unavailable in the browser` |
+| `working_style_rules` | Working Style Derivation (below) → list of behavioral rules from stack intersections + universal patterns | list of `{rule_title, rule_why}` |
+| `rule_title` | Working Style Derivation → short imperative action | `Read component boundary before adding data access` |
+| `rule_why` | Working Style Derivation → 1 sentence explaining why for THIS project | `the bundler fails because Prisma depends on Node.js APIs unavailable in the browser` |
 
 ### Section Inclusion Rules
 
